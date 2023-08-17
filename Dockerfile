@@ -7,8 +7,8 @@ ENV NODE_ENV=production
 WORKDIR /app
 COPY package.json ./
 COPY package-lock.json ./
-COPY /dist ./dist
+
 
 RUN npm install
-
+RUN npm build
 ENTRYPOINT npm run start:prod
