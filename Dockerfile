@@ -5,8 +5,8 @@ ENV PORT=8080
 ENV NODE_ENV=production
 
 WORKDIR /app
-COPY package.json ./
-COPY package-lock.json ./
+
+ADD . /app/
 
 
 RUN npm install
