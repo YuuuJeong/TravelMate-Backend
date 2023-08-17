@@ -8,7 +8,7 @@ on:
 
 # Env
 env:
-  DOCKER_IMAGE: ghcr.io/travel-mate/travelmate-server
+  DOCKER_IMAGE: ghcr.io/travelmate-ajou-univ/backend
   DOCKER_CONTAINER: nest-server
 
 jobs:
