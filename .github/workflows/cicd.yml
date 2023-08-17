@@ -10,7 +10,6 @@ on:
 env:
   DOCKER_IMAGE: ghcr.io/travelmate-ajou-univ/backend
   DOCKER_CONTAINER: nest-server
-  USER: YuuuJeong
 
 jobs:
   test:
@@ -34,7 +33,7 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        user: ${{ env.USER }}
+        user: ['YuuuJeong']
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v3
@@ -66,7 +65,7 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: ${{ env.USER }}
+          username: YuuuJeong
           password: ${{ secrets.ACCESS_TOKEN }}
       - name: Running Docker
         run: |
