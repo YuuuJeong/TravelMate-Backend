@@ -24,6 +24,11 @@ jobs:
           node-version: 18.15.0
           cache: 'npm'
 
+      - name: Setting .env
+        run: |
+          echo "SERVER_PORT=${{ secrets.SERVER_PORT }}" >> .env
+          cat .env
+
       - run: npm install
       - run: npm run test
 

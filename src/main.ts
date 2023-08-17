@@ -7,7 +7,8 @@ async function bootstrap() {
   app.setGlobalPrefix('api', {
     exclude: ['/'],
   });
-  const port = app.get<ConfigService>(ConfigService).get('PORT');
+  const port = app.get<ConfigService>(ConfigService).get('SERVER_PORT');
+  console.log(port);
   await app.listen(port);
 }
 bootstrap();
