@@ -72,4 +72,4 @@ jobs:
           echo "SERVER_PORT=${{ secrets.SERVER_PORT }}" >> .env
           cat .env
           docker stop ${{ env.DOCKER_CONTAINER }} && docker rm ${{ env.DOCKER_CONTAINER }} && docker rmi ${{ env.DOCKER_IMAGE }}:latest
-          docker run --env-file ./.env -d -p 80:8080 --name ${{ env.DOCKER_CONTAINER }} --restart always ${{ env.DOCKER_IMAGE }}:latest
+          docker run --env-file ./.env -d -p 8080:8080 --name ${{ env.DOCKER_CONTAINER }} --restart always ${{ env.DOCKER_IMAGE }}:latest
