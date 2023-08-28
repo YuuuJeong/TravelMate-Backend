@@ -70,7 +70,7 @@ jobs:
           echo "Docker image pushed: ${{ steps.docker_build.outputs.images }}"
 
   deploy:
-    needs: build
+    needs: job_install_dependencies
     runs-on: self-hosted
     steps:
       - name: Login to ghcr
