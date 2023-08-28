@@ -53,7 +53,7 @@ jobs:
       - name: Login to Docker registry
         uses: docker/login-action@v2
         with:
-          registry: docker.io # Adjust the registry as needed
+          registry: ghcr.io
           username: YuuuJeong
           password: ${{ secrets.ACCESS_TOKEN }}
 
