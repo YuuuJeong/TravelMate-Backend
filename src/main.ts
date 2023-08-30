@@ -3,6 +3,10 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import basicAuth from 'express-basic-auth';
+import { UnhandledExceptionFilter } from './common/filiters/unhandled-exception.filter';
+import { HttpExceptionFilter } from './common/filiters/http-exception.filter';
+import { ValidationPipe } from '@nestjs/common';
+import { ValidationHttpError } from './common/errors/validation-http-error';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -22,6 +26,20 @@ async function bootstrap() {
     }),
   );
 
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      exceptionFactory: (errors) => {
+        return new ValidationHttpError(errors);
+      },
+    }),
+  );
+
+  app.useGlobalFilters(
+    new UnhandledExceptionFilter(),
+    new HttpExceptionFilter(),
+  );
+
   const config = new DocumentBuilder()
     .setTitle('TravelMate Swagger')
     .setDescription('캡스톤 디자인 TravelMate BE 스웨거입니다.')
@@ -32,7 +50,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
   const port = app.get<ConfigService>(ConfigService).get('SERVER_PORT');
-
   await app.listen(port);
 }
 bootstrap();
