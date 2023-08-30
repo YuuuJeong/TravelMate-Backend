@@ -42,7 +42,8 @@ jobs:
           echo "SWAGGER_PASSWORD=${{ secrets.SWAGGER_PASSWORD}}" > .env
           echo "SWAGGER_USER=${{ secrets.SWAGGER_USER }}" >> .env
           echo "SERVER_PORT=${{ secrets.SERVER_PORT }}" >> .env
-
+          echo "MONGODB_URI=${{ secrets.MONGODB_URI}}" >> .env
+          echo "MONGODB_NAME=${{ secrets.MONGODB_URI}}" >> .env
       - name: Verify .env file
         run: cat .env
 
