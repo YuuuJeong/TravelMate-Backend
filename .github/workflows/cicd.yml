@@ -44,6 +44,11 @@ jobs:
           echo "SERVER_PORT=${{ secrets.SERVER_PORT }}" >> .env
           echo "MONGODB_URI=${{ secrets.MONGODB_URI}}" >> .env
           echo "MONGODB_NAME=${{ secrets.MONGODB_NAME}}" >> .env
+          echo "JWT_SECRET =${{ secrets.JWT_SECRET }}" >> .env
+          echo "JWT_EXPIRES_IN =${{ secrets.JWT_EXPIRES_IN }}" >> .env
+          echo "JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET}}" >> .env
+          echo "JWT_REFRESH_EXPIRES_IN=${{ secrets.JWT_REFRESH_EXPIRES_IN}}" >> .env
+
       - name: Verify .env file
         run: cat .env
 
