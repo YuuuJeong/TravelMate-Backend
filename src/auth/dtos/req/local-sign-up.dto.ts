@@ -7,7 +7,7 @@ import {
   Matches,
 } from 'class-validator';
 
-export class UserLocalSignUpDto {
+export class LocalSignUpDto {
   @ApiProperty({
     example: 'dbwjdgh03@ajou.ac.kr',
   })

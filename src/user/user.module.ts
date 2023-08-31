@@ -4,10 +4,20 @@ import { User, UserSchema } from 'src/schemas/user.schema';
 import { UserController } from './user.controller';
 import { UserRepository } from './user.repository';
 import { UserService } from './user.service';
+import mongooseAutoPopulate from 'mongoose-autopopulate';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeatureAsync([
+      {
+        name: User.name,
+        useFactory: async () => {
+          const schema = UserSchema;
+          schema.plugin(mongooseAutoPopulate);
+          return schema;
+        },
+      },
+    ]),
   ],
   controllers: [UserController],
   providers: [UserService, UserRepository],
