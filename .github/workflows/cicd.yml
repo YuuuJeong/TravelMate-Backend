@@ -62,8 +62,8 @@ jobs:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
           aws_secret_key: ${{ secrets.AWS_SECRET_KEY }}
           region: ap-northeast-2
-          application_name: multi-docker
-          environment_name: Multidocker-env
+          application_name: TravelMate
+          environment_name: TravelMate-api-env
           existing_bucket_name: elasticbeanstalk-ap-northeast-2-753362004828
           version_label: ${{ github.sha }}
           deployment_package: deploy.zip
