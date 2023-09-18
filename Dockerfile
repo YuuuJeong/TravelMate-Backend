@@ -4,6 +4,8 @@ WORKDIR /app
 COPY package*.json ./
 COPY tsconfig*.json ./
 COPY src ./src
+
+RUN ls -al
 RUN npm ci && npm run build
 
 FROM node:18-alpine
