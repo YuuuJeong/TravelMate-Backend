@@ -1,8 +1,8 @@
 FROM node:18-alpine as builder
 
 WORKDIR /app
-COPY package*.json .
-COPY tsconfig*.json .
+COPY package*.json ./
+COPY tsconfig*.json ./
 COPY src ./src
 RUN npm ci && npm run build
 
