@@ -3,6 +3,8 @@ FROM node:18-alpine
 EXPOSE 8080
 WORKDIR /app
 
-COPY  /app/dist .
+RUN ls -al
+
+COPY . .
 
 ENTRYPOINT ["npm", "run", "start:prod"]
