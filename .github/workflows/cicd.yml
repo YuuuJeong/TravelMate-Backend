@@ -20,21 +20,6 @@ jobs:
       - name: Checkout current commit (${{ github.sha }})
         uses: actions/checkout@v3
 
-      - name: Create .env file
-        run: |
-          echo "SWAGGER_PASSWORD=${{ secrets.SWAGGER_PASSWORD}}" > .env
-          echo "SWAGGER_USER=${{ secrets.SWAGGER_USER }}" >> .env
-          echo "SERVER_PORT=${{ secrets.SERVER_PORT }}" >> .env
-          echo "MONGODB_URI=${{ secrets.MONGODB_URI}}" >> .env
-          echo "MONGODB_NAME=${{ secrets.MONGODB_NAME}}" >> .env
-          echo "JWT_SECRET =${{ secrets.JWT_SECRET }}" >> .env
-          echo "JWT_EXPIRES_IN =${{ secrets.JWT_EXPIRES_IN }}" >> .env
-          echo "JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET}}" >> .env
-          echo "JWT_REFRESH_EXPIRES_IN=${{ secrets.JWT_REFRESH_EXPIRES_IN}}" >> .env
-
-      - name: Verify .env file
-        run: cat .env
-
       - name: Set up Docker buildx
         id: buildx
         uses: docker/setup-buildx-action@v2
@@ -53,10 +38,6 @@ jobs:
           context: .
           push: true
           tags: ${{ env.DOCKER_IMAGE }}:latest
-
-      - name: Display Docker image details
-        run: |
-          echo "Docker image pushed: ${{ steps.docker_build.outputs.images }}"
 
       - name: Generate deploy.zip
         run: zip -r deploy.zip . -x '*.git*' -x '*.github*'
