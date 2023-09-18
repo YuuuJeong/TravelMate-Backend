@@ -64,6 +64,6 @@ jobs:
           region: ap-northeast-2
           application_name: TravelMate
           environment_name: TravelMate-api-env
-          existing_bucket_name: elasticbeanstalk-ap-northeast-2-753362004828
+          existing_bucket_name: elasticbeanstalk-ap-northeast-2-634209649252
           version_label: ${{ github.sha }}
           deployment_package: deploy.zip
