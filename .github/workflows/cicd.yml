@@ -3,8 +3,6 @@ name: TRAVELMATE-CICD
 on:
   push:
     branches: ['master']
-  pull_request:
-    branches: ['master']
 
 # Env
 env:
@@ -12,13 +10,48 @@ env:
   DOCKER_CONTAINER: nest-server
 
 jobs:
-  job_install_dependencies:
-    name: Install Dependencies
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+      - name: Load & cache dependencies
+        id: cache-deps
+        uses: ./.github/actions/cached-deps
+        with:
+          caching: 'true'
+      - name: Output information
+        run: echo "Cache used? ${{ steps.cache-deps.outputs.used-cache }}"
+      - name: Lint code
+        run: npm run lint
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+      - name: Load & cache dependencies
+        uses: ./.github/actions/cached-deps
+      - name: Test code
+        id: run-tests
+        run: npm run test
+      - name: Upload test report
+        if: failure() && steps.run-tests.outcome == 'failure'
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-report
+          path: test.json
+  build:
+    name: Build Image
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - name: Checkout current commit (${{ github.sha }})
         uses: actions/checkout@v3
+      - name: Load & cache dependencies
+        uses: ./.github/actions/cached-deps
+
+      - name: Build application
+        run: npm run build
 
       - name: Set up Docker buildx
         uses: docker/setup-buildx-action@v2
@@ -49,7 +82,7 @@ jobs:
           path: deploy.zip
 
   deploy:
-    needs: job_install_dependencies
+    needs: build
     runs-on: self-hosted
     steps:
       - name: Get build artifacts
