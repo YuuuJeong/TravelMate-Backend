@@ -27,6 +27,7 @@ jobs:
           name: test-report
           path: test.json
   build:
+    needs: test
     name: Build Image
     runs-on: ubuntu-latest
     timeout-minutes: 15
