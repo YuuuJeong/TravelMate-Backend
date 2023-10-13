@@ -1,9 +1,7 @@
-import { Module, NestModule } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import mongoose from 'mongoose';
-import { MongooseModule } from '@nestjs/mongoose';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 
@@ -19,25 +17,8 @@ import { AuthModule } from './auth/auth.module';
         : '.env',
       load: [],
     }),
-
-    MongooseModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: async (config: ConfigService) => ({
-        uri: config.get('MONGODB_URI'),
-        dbName: config.get('MONGODB_NAME'),
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-      }),
-      inject: [ConfigService],
-    }),
   ],
   controllers: [AppController],
   providers: [AppService, ConfigService],
 })
-export class AppModule implements NestModule {
-  private readonly isDev: boolean =
-    process.env.NODE_ENV === 'dev' ? true : false;
-  configure() {
-    mongoose.set('debug', this.isDev);
-  }
-}
+export class AppModule {}
