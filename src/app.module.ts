@@ -4,7 +4,8 @@ import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
-import { BookmarkModule } from './bookmark/bookmark.module';
+import { BookmarkCollectionModule } from './bookmarkCollection/bookmark-collection.module';
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
   imports: [
@@ -18,7 +19,8 @@ import { BookmarkModule } from './bookmark/bookmark.module';
         : '.env',
       load: [],
     }),
-    BookmarkModule,
+    BookmarkCollectionModule,
+    PrismaModule,
   ],
   controllers: [AppController],
   providers: [AppService, ConfigService],
