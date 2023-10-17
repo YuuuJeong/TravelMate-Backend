@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   ParseIntPipe,
   Post,
@@ -63,5 +64,15 @@ export class UserController {
     @Param('id', ParseIntPipe) id: number,
   ): Promise<BookmarkCollectionDto> {
     return await this.bookmarkCollection.removeBookmarkCollection(id);
+  }
+
+  @ApiResponse({
+    status: 200,
+    type: BookmarkCollectionDto,
+    description: '북마크 컬렉션 조회완료',
+  })
+  @Get('/me/bookmark-collection')
+  async fetchBookmarkCollections(): Promise<BookmarkCollectionDto[]> {
+    return await this.bookmarkCollection.fetchBookmarkCollections();
   }
 }

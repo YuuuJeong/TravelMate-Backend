@@ -8,10 +8,10 @@ datasource db {
 }
 
 model Bookmark {
-  id                    Int                     @id @default(autoincrement())
-  content               String                  @db.VarChar(200)
-  latitude              Decimal
-  longitude             Decimal
+  id        Int     @id @default(autoincrement())
+  content   String  @db.VarChar(200)
+  latitude  Decimal
+  longitude Decimal
 
   BookmarksInCollection BookmarksInCollection[]
 
@@ -28,11 +28,12 @@ model BookmarksInCollection {
 }
 
 model BookmarkCollection {
-  id                    Int                     @id @default(autoincrement())
-  title                 String                  @db.VarChar(200)
-  visibility            Visibility              @default(PRIVATE)
-  createdAt             DateTime                @default(now()) @db.Timestamp(0)
-  updatedAt             DateTime                @default(dbgenerated("CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0)")) @db.Timestamp(0)
+  id         Int        @id @default(autoincrement())
+  title      String     @db.VarChar(200)
+  userId     Int
+  visibility Visibility @default(PRIVATE)
+  createdAt  DateTime   @default(now()) @db.Timestamp(0)
+  updatedAt  DateTime   @default(dbgenerated("CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0)")) @db.Timestamp(0)
 
   BookmarksInCollection BookmarksInCollection[]
 }

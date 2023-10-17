@@ -11,10 +11,13 @@ export class BookmarkCollectionService {
     dto: CreateBookmarkCollectionRequestDTO,
   ): Promise<BookmarkCollectionDto> {
     const { title, visibility } = dto;
+    const userId = 1; //TODO: JWT payload userId로 추후에 대체
+
     return await this.prisma.bookmarkCollection.create({
       data: {
         title,
         visibility,
+        userId,
       },
     });
   }
@@ -29,6 +32,15 @@ export class BookmarkCollectionService {
     return await this.prisma.bookmarkCollection.delete({
       where: {
         id,
+      },
+    });
+  }
+
+  async fetchBookmarkCollections(): Promise<BookmarkCollectionDto[]> {
+    //TODO: JWT payload userId로 추후에 대체
+    return await this.prisma.bookmarkCollection.findMany({
+      where: {
+        userId: 1,
       },
     });
   }
