@@ -8,22 +8,33 @@ datasource db {
 }
 
 model Bookmark {
-  id          Int                  @id @default(autoincrement())
-  content     String               @db.VarChar(200)
-  latitude    Decimal
-  longitude   Decimal
-  collections BookmarkCollection[]
+  id                    Int                     @id @default(autoincrement())
+  content               String                  @db.VarChar(200)
+  latitude              Decimal
+  longitude             Decimal
+
+  BookmarksInCollection BookmarksInCollection[]
 
   @@unique([latitude, longitude])
 }
 
+model BookmarksInCollection {
+  collectionId Int
+  bookmarkId   Int
+  collection   BookmarkCollection @relation(fields: [collectionId], references: [id])
+  bookmark     Bookmark           @relation(fields: [bookmarkId], references: [id])
+
+  @@unique([collectionId, bookmarkId])
+}
+
 model BookmarkCollection {
-  id         Int        @id @default(autoincrement())
-  title      String     @db.VarChar(200)
-  visibility Visibility @default(PRIVATE)
-  createdAt  DateTime   @default(now()) @db.Timestamp(0)
-  updatedAt  DateTime   @default(dbgenerated("CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0)")) @db.Timestamp(0)
-  bookmarks  Bookmark[]
+  id                    Int                     @id @default(autoincrement())
+  title                 String                  @db.VarChar(200)
+  visibility            Visibility              @default(PRIVATE)
+  createdAt             DateTime                @default(now()) @db.Timestamp(0)
+  updatedAt             DateTime                @default(dbgenerated("CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0)")) @db.Timestamp(0)
+
+  BookmarksInCollection BookmarksInCollection[]
 }
 
 enum Visibility {

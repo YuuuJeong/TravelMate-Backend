@@ -10,6 +10,14 @@ CREATE TABLE `Bookmark` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
+CREATE TABLE `BookmarksInCollection` (
+    `collectionId` INTEGER NOT NULL,
+    `bookmarkId` INTEGER NOT NULL,
+
+    UNIQUE INDEX `BookmarksInCollection_collectionId_bookmarkId_key`(`collectionId`, `bookmarkId`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
 CREATE TABLE `BookmarkCollection` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `title` VARCHAR(200) NOT NULL,
@@ -20,17 +28,8 @@ CREATE TABLE `BookmarkCollection` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- CreateTable
-CREATE TABLE `_BookmarkToBookmarkCollection` (
-    `A` INTEGER NOT NULL,
-    `B` INTEGER NOT NULL,
-
-    UNIQUE INDEX `_BookmarkToBookmarkCollection_AB_unique`(`A`, `B`),
-    INDEX `_BookmarkToBookmarkCollection_B_index`(`B`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- AddForeignKey
+ALTER TABLE `BookmarksInCollection` ADD CONSTRAINT `BookmarksInCollection_collectionId_fkey` FOREIGN KEY (`collectionId`) REFERENCES `BookmarkCollection`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `_BookmarkToBookmarkCollection` ADD CONSTRAINT `_BookmarkToBookmarkCollection_A_fkey` FOREIGN KEY (`A`) REFERENCES `Bookmark`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `_BookmarkToBookmarkCollection` ADD CONSTRAINT `_BookmarkToBookmarkCollection_B_fkey` FOREIGN KEY (`B`) REFERENCES `BookmarkCollection`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `BookmarksInCollection` ADD CONSTRAINT `BookmarksInCollection_bookmarkId_fkey` FOREIGN KEY (`bookmarkId`) REFERENCES `Bookmark`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
