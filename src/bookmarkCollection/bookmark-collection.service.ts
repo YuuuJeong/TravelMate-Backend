@@ -13,6 +13,54 @@ import { CreateBookmarkDto } from 'src/bookmark/dtos/req/create-bookmark.dto';
 export class BookmarkCollectionService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * @desc 북마크 컬렉션에 들어있는 북마크
+   * @param collectionId
+   * @returns number[]
+   * @author 유정호
+   */
+  private async getBookmarkIdsInCollection(
+    collectionId: number,
+  ): Promise<number[]> {
+    const bookmarksInCollections =
+      await this.prisma.bookmarksInCollection.findMany({
+        where: {
+          collectionId,
+        },
+      });
+
+    return bookmarksInCollections.map((obj) => obj.bookmarkId);
+  }
+
+  /**
+   * @desc 북마크 컬렉션 id로 북마크 찾는 메서드
+   * @param id
+   * @returns Promise<BookmarkCollectionEntity>
+   * @author 유정호
+   */
+  private async getBookmarkCollectionById(
+    id: number,
+  ): Promise<BookmarkCollectionEntity> {
+    const bookmarkCollection: BookmarkCollectionEntity | null =
+      await this.prisma.bookmarkCollection.findUnique({
+        where: {
+          id,
+        },
+      });
+
+    if (!bookmarkCollection) {
+      throw new BadRequestException('존재하지 않는 북마크 컬렉션입니다.');
+    }
+
+    return bookmarkCollection;
+  }
+
+  /**
+   * @desc 북마크 컬렉션 생성
+   * @param dto
+   * @returns Promise<BookmarkCollectionEntity>
+   * @author 유정호
+   */
   async createBookmarkCollection(
     dto: CreateBookmarkCollectionRequestDTO,
   ): Promise<BookmarkCollectionEntity> {
@@ -28,12 +76,31 @@ export class BookmarkCollectionService {
     });
   }
 
+  /**
+   * @desc 북마크 컬렉션 삭제
+   * @param id
+   * @returns Promise<BookmarkCollectionEntity>
+   * @author 유정호
+   */
   async removeBookmarkCollection(
     id: number,
   ): Promise<BookmarkCollectionEntity> {
+    await this.getBookmarkCollectionById(id);
+
     await this.prisma.bookmarksInCollection.deleteMany({
       where: {
         collectionId: id,
+      },
+    });
+
+    const bookmarkIdsIncollection: number[] =
+      await this.getBookmarkIdsInCollection(id);
+
+    await this.prisma.bookmark.deleteMany({
+      where: {
+        id: {
+          in: bookmarkIdsIncollection,
+        },
       },
     });
 
@@ -53,33 +120,23 @@ export class BookmarkCollectionService {
     });
   }
 
+  /**
+   * @desc 북마크 컬렉션 수정
+   * @param id
+   * @param dto
+   * @returns Promise<BookmarkCollectionEntity>
+   * @author 유정호
+   */
   async updateBookmarkCollection(
     id: number,
     dto: UpdateBookmarkCollectionRequestDTO,
-  ) {
+  ): Promise<BookmarkCollectionEntity> {
     const { title, visibility, locationsWithContent } = dto;
 
-    const bookmarkCollection: BookmarkCollectionEntity | null =
-      await this.prisma.bookmarkCollection.findUnique({
-        where: {
-          id,
-        },
-      });
+    await this.getBookmarkCollectionById(id);
 
-    if (!bookmarkCollection) {
-      throw new BadRequestException('존재하지 않는 북마크 컬렉션입니다.');
-    }
-
-    const bookmarksInCollections =
-      await this.prisma.bookmarksInCollection.findMany({
-        where: {
-          collectionId: id,
-        },
-      });
-
-    const bookmarkIdsIncollection: number[] = bookmarksInCollections.map(
-      (obj) => obj.bookmarkId,
-    );
+    const bookmarkIdsIncollection: number[] =
+      await this.getBookmarkIdsInCollection(id);
 
     //기존에 북마크 컬렉션에 있던 북마크 삭제
     await this.prisma.bookmarksInCollection.deleteMany({
