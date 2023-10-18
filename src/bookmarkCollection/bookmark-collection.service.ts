@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateBookmarkCollectionRequestDTO } from './dtos/req/create-bookmark-collection.dto';
-import { BookmarkCollectionDto } from './dtos/bookmark-collection.dto';
+import { BookmarkCollectionEntity } from './entities/bookmark-collection.entity';
 
 @Injectable()
 export class BookmarkCollectionService {
@@ -9,7 +9,7 @@ export class BookmarkCollectionService {
 
   async createBookmarkCollection(
     dto: CreateBookmarkCollectionRequestDTO,
-  ): Promise<BookmarkCollectionDto> {
+  ): Promise<BookmarkCollectionEntity> {
     const { title, visibility } = dto;
     const userId = 1; //TODO: JWT payload userId로 추후에 대체
 
@@ -22,7 +22,9 @@ export class BookmarkCollectionService {
     });
   }
 
-  async removeBookmarkCollection(id: number): Promise<BookmarkCollectionDto> {
+  async removeBookmarkCollection(
+    id: number,
+  ): Promise<BookmarkCollectionEntity> {
     await this.prisma.bookmarksInCollection.deleteMany({
       where: {
         collectionId: id,
@@ -36,7 +38,7 @@ export class BookmarkCollectionService {
     });
   }
 
-  async fetchBookmarkCollections(): Promise<BookmarkCollectionDto[]> {
+  async fetchBookmarkCollections(): Promise<BookmarkCollectionEntity[]> {
     //TODO: JWT payload userId로 추후에 대체
     return await this.prisma.bookmarkCollection.findMany({
       where: {

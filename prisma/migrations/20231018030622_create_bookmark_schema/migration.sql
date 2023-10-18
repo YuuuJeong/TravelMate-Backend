@@ -1,3 +1,7 @@
+-- AlterTable
+ALTER TABLE `User` MODIFY `createdAt` TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
+    MODIFY `updatedAt` TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0);
+
 -- CreateTable
 CREATE TABLE `Bookmark` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
@@ -24,7 +28,7 @@ CREATE TABLE `BookmarkCollection` (
     `userId` INTEGER NOT NULL,
     `visibility` ENUM('PRIVATE', 'FRIENDS_ONLY', 'PUBLIC') NOT NULL DEFAULT 'PRIVATE',
     `createdAt` TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
-    `updatedAt` TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0),
+    `updatedAt` TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -34,3 +38,6 @@ ALTER TABLE `BookmarksInCollection` ADD CONSTRAINT `BookmarksInCollection_collec
 
 -- AddForeignKey
 ALTER TABLE `BookmarksInCollection` ADD CONSTRAINT `BookmarksInCollection_bookmarkId_fkey` FOREIGN KEY (`bookmarkId`) REFERENCES `Bookmark`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `BookmarkCollection` ADD CONSTRAINT `BookmarkCollection_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

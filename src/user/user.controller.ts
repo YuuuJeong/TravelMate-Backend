@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
 } from '@nestjs/common';
 import {
@@ -16,6 +17,7 @@ import {
 } from '@nestjs/swagger';
 import { BookmarkCollectionService } from 'src/bookmarkCollection/bookmark-collection.service';
 import { BookmarkCollectionDto } from 'src/bookmarkCollection/dtos/bookmark-collection.dto';
+import { Serialize } from 'src/common/interceptors/serialize.interceptor';
 import { CreateBookmarkCollectionRequestDTO } from '../bookmarkCollection/dtos/req/create-bookmark-collection.dto';
 
 @Controller('users')
@@ -59,6 +61,7 @@ export class UserController {
     type: BookmarkCollectionDto,
     description: '북마크 컬렉션 삭제완료',
   })
+  @Serialize(BookmarkCollectionDto)
   @Delete('/me/bookmark-collection/:id')
   async removeBookmarkCollection(
     @Param('id', ParseIntPipe) id: number,
@@ -74,5 +77,28 @@ export class UserController {
   @Get('/me/bookmark-collection')
   async fetchBookmarkCollections(): Promise<BookmarkCollectionDto[]> {
     return await this.bookmarkCollection.fetchBookmarkCollections();
+  }
+
+  @ApiOperation({
+    summary: '북마크 컬렉션 수정 API',
+    description: '유저의 북마크 컬렉션을 수정한다.',
+  })
+  //TODO: 로그인 및 회원가입 구현후 ApiBearerAuth 추가
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    required: true,
+  })
+  @ApiResponse({
+    status: 200,
+    type: BookmarkCollectionDto,
+    description: '북마크 컬렉션 수정완료',
+  })
+  @Serialize(BookmarkCollectionDto)
+  @Patch('/me/bookmark-collection/:id')
+  async updateBookmarkCollection(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<BookmarkCollectionDto> {
+    return await this.bookmarkCollection.updateBookmarkCollection(id);
   }
 }
