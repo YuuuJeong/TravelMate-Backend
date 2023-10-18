@@ -1,7 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Visibility } from '@prisma/client';
-import { Expose } from 'class-transformer';
+import { Decimal } from '@prisma/client/runtime';
 import { IsEnum, IsNotEmpty, IsString, Length } from 'class-validator';
+
+export interface LocationWithContent {
+  latitude: Decimal;
+  longitude: Decimal;
+  content?: string;
+}
 
 export class UpdateBookmarkCollectionRequestDTO {
   @ApiProperty({
@@ -11,7 +17,7 @@ export class UpdateBookmarkCollectionRequestDTO {
   @IsNotEmpty({ message: '제목은 필수입니다' })
   @IsString({ message: '제목은 문자열이어야 합니다' })
   @Length(1, 200, { message: '제목은 1자 이상 200자 이하로 입력해주세요' })
-  title: string;
+  title?: string;
 
   @ApiProperty({
     example: 'FRIENDS_ONLY',
@@ -20,6 +26,17 @@ export class UpdateBookmarkCollectionRequestDTO {
     enum: Visibility,
   })
   @IsEnum(Visibility, { message: '올바른 공개 여부 값을 선택해주세요' })
-  @Expose()
   visibility?: Visibility;
+
+  @ApiProperty({
+    example: [
+      {
+        latitude: 12.52,
+        longitue: 10.1,
+        content: '뭘까용?',
+      },
+    ],
+    description: '위도, 경도, 장소 ',
+  })
+  locationsWithContent: LocationWithContent[];
 }

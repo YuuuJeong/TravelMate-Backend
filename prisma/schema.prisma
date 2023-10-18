@@ -13,16 +13,22 @@ enum Visibility {
   PUBLIC
 }
 
-
-model Bookmark {
+model Location {
   id        Int     @id @default(autoincrement())
-  content   String  @db.VarChar(200)
   latitude  Decimal
   longitude Decimal
 
-  BookmarksInCollection BookmarksInCollection[]
+  bookmarks Bookmark[]
 
   @@unique([latitude, longitude])
+}
+
+model Bookmark {
+  id                    Int                     @id @default(autoincrement())
+  content               String?                 @db.VarChar(200)
+  locationId            Int
+  BookmarksInCollection BookmarksInCollection[]
+  location              Location                @relation(fields: [locationId], references: [id])
 }
 
 model BookmarksInCollection {
@@ -31,7 +37,9 @@ model BookmarksInCollection {
   collection   BookmarkCollection @relation(fields: [collectionId], references: [id])
   bookmark     Bookmark           @relation(fields: [bookmarkId], references: [id])
 
-  @@unique([collectionId, bookmarkId])
+  @@id([collectionId, bookmarkId])
+  @@index([collectionId], map: "BookmarksInCollection.fk_collectionId_idx")
+  @@index([bookmarkId], map: "BookmarksInCollection.fk_bookmarkId_idx")
 }
 
 model BookmarkCollection {
@@ -42,8 +50,10 @@ model BookmarkCollection {
   createdAt  DateTime   @default(now()) @db.Timestamp(0)
   updatedAt  DateTime   @default(now()) @updatedAt @db.Timestamp(0)
 
-  user       User      @relation(fields: [userId], references: [id])
+  user                  User                    @relation(fields: [userId], references: [id])
   BookmarksInCollection BookmarksInCollection[]
+
+  @@index([userId], map: "fk_BookmarkCollection_userId")
 }
 
 model User {
@@ -55,5 +65,5 @@ model User {
   createdAt   DateTime @default(now()) @db.Timestamp(0)
   updatedAt   DateTime @default(now()) @updatedAt @db.Timestamp(0)
 
-  bookmarkCollections   BookmarkCollection[]
+  bookmarkCollections BookmarkCollection[]
 }

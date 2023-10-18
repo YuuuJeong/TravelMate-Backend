@@ -17,6 +17,7 @@ import {
 } from '@nestjs/swagger';
 import { BookmarkCollectionService } from 'src/bookmarkCollection/bookmark-collection.service';
 import { BookmarkCollectionDto } from 'src/bookmarkCollection/dtos/bookmark-collection.dto';
+import { UpdateBookmarkCollectionRequestDTO } from 'src/bookmarkCollection/dtos/req/update-bookmark-collection.dto';
 import { Serialize } from 'src/common/interceptors/serialize.interceptor';
 import { CreateBookmarkCollectionRequestDTO } from '../bookmarkCollection/dtos/req/create-bookmark-collection.dto';
 
@@ -62,7 +63,7 @@ export class UserController {
     description: '북마크 컬렉션 삭제완료',
   })
   @Serialize(BookmarkCollectionDto)
-  @Delete('/me/bookmark-collection/:id')
+  @Delete('me/bookmark-collection/:id')
   async removeBookmarkCollection(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<BookmarkCollectionDto> {
@@ -74,7 +75,7 @@ export class UserController {
     type: BookmarkCollectionDto,
     description: '북마크 컬렉션 조회완료',
   })
-  @Get('/me/bookmark-collection')
+  @Get('me/bookmark-collection')
   async fetchBookmarkCollections(): Promise<BookmarkCollectionDto[]> {
     return await this.bookmarkCollection.fetchBookmarkCollections();
   }
@@ -95,10 +96,11 @@ export class UserController {
     description: '북마크 컬렉션 수정완료',
   })
   @Serialize(BookmarkCollectionDto)
-  @Patch('/me/bookmark-collection/:id')
+  @Patch('me/bookmark-collection/:id')
   async updateBookmarkCollection(
     @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateBookmarkCollectionRequestDTO,
   ): Promise<BookmarkCollectionDto> {
-    return await this.bookmarkCollection.updateBookmarkCollection(id);
+    return await this.bookmarkCollection.updateBookmarkCollection(id, dto);
   }
 }

@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Visibility } from '@prisma/client';
-import { Expose } from 'class-transformer';
 import { IsEnum, IsNotEmpty, IsString, Length } from 'class-validator';
 
 export class CreateBookmarkCollectionRequestDTO {
@@ -20,6 +19,5 @@ export class CreateBookmarkCollectionRequestDTO {
     enum: Visibility,
   })
   @IsEnum(Visibility, { message: '올바른 공개 여부 값을 선택해주세요' })
-  @Expose()
   visibility?: Visibility;
 }

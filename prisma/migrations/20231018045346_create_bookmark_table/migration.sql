@@ -3,13 +3,21 @@ ALTER TABLE `User` MODIFY `createdAt` TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIME
     MODIFY `updatedAt` TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0);
 
 -- CreateTable
-CREATE TABLE `Bookmark` (
+CREATE TABLE `Location` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `content` VARCHAR(200) NOT NULL,
     `latitude` DECIMAL(65, 30) NOT NULL,
     `longitude` DECIMAL(65, 30) NOT NULL,
 
-    UNIQUE INDEX `Bookmark_latitude_longitude_key`(`latitude`, `longitude`),
+    UNIQUE INDEX `Location_latitude_longitude_key`(`latitude`, `longitude`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Bookmark` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `content` VARCHAR(200) NOT NULL,
+    `locationId` INTEGER NOT NULL,
+
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -18,7 +26,9 @@ CREATE TABLE `BookmarksInCollection` (
     `collectionId` INTEGER NOT NULL,
     `bookmarkId` INTEGER NOT NULL,
 
-    UNIQUE INDEX `BookmarksInCollection_collectionId_bookmarkId_key`(`collectionId`, `bookmarkId`)
+    INDEX `BookmarksInCollection.fk_collectionId_idx`(`collectionId`),
+    INDEX `BookmarksInCollection.fk_bookmarkId_idx`(`bookmarkId`),
+    PRIMARY KEY (`collectionId`, `bookmarkId`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
@@ -30,8 +40,12 @@ CREATE TABLE `BookmarkCollection` (
     `createdAt` TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
     `updatedAt` TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
 
+    INDEX `fk_BookmarkCollection_userId`(`userId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- AddForeignKey
+ALTER TABLE `Bookmark` ADD CONSTRAINT `Bookmark_locationId_fkey` FOREIGN KEY (`locationId`) REFERENCES `Location`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `BookmarksInCollection` ADD CONSTRAINT `BookmarksInCollection_collectionId_fkey` FOREIGN KEY (`collectionId`) REFERENCES `BookmarkCollection`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
