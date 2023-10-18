@@ -6,6 +6,7 @@ COPY ./tsconfig*.json ./
 COPY src ./src
 COPY prisma ./prisma/
 
+RUN apt-get install -y openssl
 RUN npm install
 RUN npx prisma generate
 
