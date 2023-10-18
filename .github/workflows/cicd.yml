@@ -45,6 +45,11 @@ jobs:
           username: YuuuJeong
           password: ${{ secrets.ACCESS_TOKEN }}
 
+      - name: Apply all pending migrations to the database
+        run: npx prisma migrate deploy
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
       - name: Build and Push Docker image
         uses: docker/build-push-action@v3
         with:
@@ -53,10 +58,6 @@ jobs:
           tags: ${{ env.DOCKER_IMAGE }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
-      - name: Apply all pending migrations to the database
-        run: npx prisma migrate deploy
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Generate deploy.zip
         run: zip -r deploy.zip . -x '*.git*' -x '*.github*'
