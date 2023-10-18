@@ -5,8 +5,8 @@ ALTER TABLE `User` MODIFY `createdAt` TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIME
 -- CreateTable
 CREATE TABLE `Location` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `latitude` DECIMAL(65, 30) NOT NULL,
-    `longitude` DECIMAL(65, 30) NOT NULL,
+    `latitude` DECIMAL(65, 3) NOT NULL,
+    `longitude` DECIMAL(65, 3) NOT NULL,
 
     UNIQUE INDEX `Location_latitude_longitude_key`(`latitude`, `longitude`),
     PRIMARY KEY (`id`)
@@ -15,8 +15,10 @@ CREATE TABLE `Location` (
 -- CreateTable
 CREATE TABLE `Bookmark` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `content` VARCHAR(200) NOT NULL,
+    `content` VARCHAR(200) NULL,
     `locationId` INTEGER NOT NULL,
+    `createdAt` TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
+    `deletedAt` TIMESTAMP(0) NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

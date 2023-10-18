@@ -15,8 +15,8 @@ enum Visibility {
 
 model Location {
   id        Int     @id @default(autoincrement())
-  latitude  Decimal  @db.Decimal(65,3)
-  longitude Decimal  @db.Decimal(65,3)
+  latitude  Decimal @db.Decimal(65, 3)
+  longitude Decimal @db.Decimal(65, 3)
 
   bookmarks Bookmark[]
 
@@ -28,6 +28,8 @@ model Bookmark {
   content               String?                 @db.VarChar(200)
   locationId            Int
   BookmarksInCollection BookmarksInCollection[]
+  createdAt             DateTime                @default(now()) @db.Timestamp(0)
+  deletedAt             DateTime?               @db.Timestamp(0)
   location              Location                @relation(fields: [locationId], references: [id])
 }
 

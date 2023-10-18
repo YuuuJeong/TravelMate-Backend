@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Visibility } from '@prisma/client';
-import { Decimal } from '@prisma/client/runtime';
+import { Decimal } from '@prisma/client/runtime/library';
 import { IsEnum, IsNotEmpty, IsString, Length } from 'class-validator';
 
 export interface LocationWithContent {
@@ -32,11 +32,17 @@ export class UpdateBookmarkCollectionRequestDTO {
     example: [
       {
         latitude: 12.52,
-        longitue: 10.1,
+        longitude: 10.1,
         content: '뭘까용?',
       },
     ],
-    description: '위도, 경도, 장소 ',
+    description: '북마크로 추가 할 위도, 경도, 장소메모 ',
   })
   locationsWithContent: LocationWithContent[];
+
+  @ApiProperty({
+    example: [1, 2, 3],
+    description: '삭제할 북마크 id 배열 ',
+  })
+  bookmarkIdsToDelete: number[];
 }

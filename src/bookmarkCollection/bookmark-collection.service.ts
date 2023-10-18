@@ -131,75 +131,54 @@ export class BookmarkCollectionService {
     id: number,
     dto: UpdateBookmarkCollectionRequestDTO,
   ): Promise<BookmarkCollectionEntity> {
-    const { title, visibility, locationsWithContent } = dto;
+    const { title, visibility, locationsWithContent, bookmarkIdsToDelete } =
+      dto;
 
     await this.getBookmarkCollectionById(id);
 
-    const bookmarkIdsIncollection: number[] =
-      await this.getBookmarkIdsInCollection(id);
-
-    //기존에 북마크 컬렉션에 있던 북마크 삭제
+    //특정 북마크 컬렉션과 북마크들 연결되어 있는 row 삭제
     await this.prisma.bookmarksInCollection.deleteMany({
       where: {
         collectionId: id,
+        bookmarkId: {
+          in: bookmarkIdsToDelete,
+        },
       },
     });
 
-    await this.prisma.bookmark.deleteMany({
+    //북마크 soft delete
+    await this.prisma.bookmark.updateMany({
       where: {
         id: {
-          in: bookmarkIdsIncollection,
+          in: bookmarkIdsToDelete,
         },
+      },
+      data: {
+        deletedAt: new Date(),
       },
     });
 
-    const newLocationsWithContent: LocationWithContent[] = [];
-    const bookmarkData: CreateBookmarkDto[] = [];
-
-    //location 테이블에 없는 장소인지 확인
-    for (const locationWithContent of locationsWithContent) {
-      const { longitude, latitude } = locationWithContent;
-
-      const location: LocationEntity | null =
-        await this.prisma.location.findUnique({
-          where: {
-            latitude_longitude: {
-              latitude,
-              longitude,
+    //북마크 생성하면서 위치가 없다면 위치도 생성, 있으면 연결
+    const bookmarkIds: number[] = [];
+    for (const data of locationsWithContent) {
+      const bookmark = await this.prisma.bookmark.create({
+        data: {
+          content: data.content,
+          location: {
+            connectOrCreate: {
+              create: {
+                latitude: data.latitude,
+                longitude: data.longitude,
+              },
+              where: {
+                latitude_longitude: {
+                  latitude: data.latitude,
+                  longitude: data.longitude,
+                },
+              },
             },
           },
-        });
-
-      if (location) {
-        bookmarkData.push({
-          locationId: location.id,
-          content: locationWithContent.content,
-        });
-      } else {
-        newLocationsWithContent.push(locationWithContent);
-      }
-    }
-
-    //location 테이블에 새로운 장소 생성
-    for (const newLocationWithContent of newLocationsWithContent) {
-      const createdLocation = await this.prisma.location.create({
-        data: {
-          latitude: newLocationWithContent.latitude,
-          longitude: newLocationWithContent.longitude,
         },
-      });
-
-      bookmarkData.push({
-        locationId: createdLocation.id,
-        content: newLocationWithContent.content,
-      });
-    }
-
-    //북마크 생성
-    const bookmarkIds: number[] = [];
-    for (const data of bookmarkData) {
-      const bookmark = await this.prisma.bookmark.create({
-        data,
       });
 
       bookmarkIds.push(bookmark.id);

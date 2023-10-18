@@ -11,4 +11,6 @@ export class BookmarkDto {
 
   content?: string | null;
   locationId: number;
+  createdAt: Date;
+  deletedAt: Date | null;
 }
