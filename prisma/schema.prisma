@@ -27,7 +27,7 @@ model Bookmark {
   id                    Int                     @id @default(autoincrement())
   content               String?                 @db.VarChar(200)
   locationId            Int
-  BookmarksInCollection BookmarksInCollection[]
+  bookmarksInCollection BookmarksInCollection[]
   createdAt             DateTime                @default(now()) @db.Timestamp(0)
   deletedAt             DateTime?               @db.Timestamp(0)
   location              Location                @relation(fields: [locationId], references: [id])
@@ -53,7 +53,7 @@ model BookmarkCollection {
   updatedAt  DateTime   @default(now()) @updatedAt @db.Timestamp(0)
 
   user                  User                    @relation(fields: [userId], references: [id])
-  BookmarksInCollection BookmarksInCollection[]
+  bookmarksInCollection BookmarksInCollection[]
 
   @@index([userId], map: "fk_BookmarkCollection_userId")
 }

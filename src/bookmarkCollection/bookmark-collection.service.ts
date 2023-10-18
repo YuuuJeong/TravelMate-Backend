@@ -1,13 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateBookmarkCollectionRequestDTO } from './dtos/req/create-bookmark-collection.dto';
-import {
-  UpdateBookmarkCollectionRequestDTO,
-  LocationWithContent,
-} from './dtos/req/update-bookmark-collection.dto';
+import { UpdateBookmarkCollectionRequestDTO } from './dtos/req/update-bookmark-collection.dto';
 import { BookmarkCollectionEntity } from './entities/bookmark-collection.entity';
-import { LocationEntity } from '../location/entities/location.entity';
-import { CreateBookmarkDto } from 'src/bookmark/dtos/req/create-bookmark.dto';
 
 @Injectable()
 export class BookmarkCollectionService {
@@ -136,27 +131,25 @@ export class BookmarkCollectionService {
 
     await this.getBookmarkCollectionById(id);
 
-    //특정 북마크 컬렉션과 북마크들 연결되어 있는 row 삭제
-    await this.prisma.bookmarksInCollection.deleteMany({
-      where: {
-        collectionId: id,
-        bookmarkId: {
-          in: bookmarkIdsToDelete,
-        },
-      },
-    });
-
     //북마크 soft delete
-    await this.prisma.bookmark.updateMany({
-      where: {
-        id: {
-          in: bookmarkIdsToDelete,
-        },
-      },
-      data: {
-        deletedAt: new Date(),
-      },
-    });
+    await Promise.all(
+      bookmarkIdsToDelete.map(async (bookmarkId) => {
+        await this.prisma.bookmark.update({
+          where: {
+            id: bookmarkId,
+          },
+          data: {
+            deletedAt: new Date(),
+            bookmarksInCollection: {
+              deleteMany: {
+                collectionId: id,
+                bookmarkId: bookmarkId,
+              },
+            },
+          },
+        });
+      }),
+    );
 
     //북마크 생성하면서 위치가 없다면 위치도 생성, 있으면 연결
     const bookmarkIds: number[] = [];
