@@ -46,7 +46,9 @@ jobs:
           password: ${{ secrets.ACCESS_TOKEN }}
 
       - name: Apply all pending migrations to the database
-        run: npx prisma migrate deploy && npx prisma format && npx prisma generate
+        run: |
+          npx prisma migrate deploy
+
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
