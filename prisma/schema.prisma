@@ -7,12 +7,65 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Visibility {
+  PRIVATE
+  FRIENDS_ONLY
+  PUBLIC
+}
+
+model Location {
+  id        Int     @id @default(autoincrement())
+  latitude  Decimal @db.Decimal(65, 3)
+  longitude Decimal @db.Decimal(65, 3)
+
+  bookmarks Bookmark[]
+
+  @@unique([latitude, longitude])
+}
+
+model Bookmark {
+  id                    Int                     @id @default(autoincrement())
+  content               String?                 @db.VarChar(200)
+  locationId            Int
+  bookmarksInCollection BookmarksInCollection[]
+  createdAt             DateTime                @default(now()) @db.Timestamp(0)
+  deletedAt             DateTime?               @db.Timestamp(0)
+  location              Location                @relation(fields: [locationId], references: [id])
+}
+
+model BookmarksInCollection {
+  collectionId Int
+  bookmarkId   Int
+  collection   BookmarkCollection @relation(fields: [collectionId], references: [id])
+  bookmark     Bookmark           @relation(fields: [bookmarkId], references: [id])
+
+  @@id([collectionId, bookmarkId])
+  @@index([collectionId], map: "BookmarksInCollection.fk_collectionId_idx")
+  @@index([bookmarkId], map: "BookmarksInCollection.fk_bookmarkId_idx")
+}
+
+model BookmarkCollection {
+  id         Int        @id @default(autoincrement())
+  title      String     @db.VarChar(200)
+  userId     Int
+  visibility Visibility @default(PRIVATE)
+  createdAt  DateTime   @default(now()) @db.Timestamp(0)
+  updatedAt  DateTime   @default(now()) @updatedAt @db.Timestamp(0)
+
+  user                  User                    @relation(fields: [userId], references: [id])
+  bookmarksInCollection BookmarksInCollection[]
+
+  @@index([userId], map: "fk_BookmarkCollection_userId")
+}
+
 model User {
   id          Int      @id @default(autoincrement())
   nickname    String
   phoneNumber String
   provider    String
   providerId  String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now()) @db.Timestamp(0)
+  updatedAt   DateTime @default(now()) @updatedAt @db.Timestamp(0)
+
+  bookmarkCollections BookmarkCollection[]
 }
