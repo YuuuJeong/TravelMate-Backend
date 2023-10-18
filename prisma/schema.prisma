@@ -35,6 +35,7 @@ model BookmarkCollection {
   createdAt  DateTime   @default(now()) @db.Timestamp(0)
   updatedAt  DateTime   @default(dbgenerated("CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0)")) @db.Timestamp(0)
 
+  user       User      @relation(fields: [userId], references: [id])
   BookmarksInCollection BookmarksInCollection[]
 }
 
@@ -42,4 +43,16 @@ enum Visibility {
   PRIVATE
   FRIENDS_ONLY
   PUBLIC
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  nickname    String
+  phoneNumber String
+  provider    String
+  providerId  String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  bookmarkCollections   BookmarkCollection[]
 }
