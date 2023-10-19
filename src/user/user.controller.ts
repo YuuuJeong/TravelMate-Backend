@@ -15,16 +15,21 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { BookmarkService } from 'src/bookmark/bookmark.service';
 import { BookmarkCollectionService } from 'src/bookmarkCollection/bookmark-collection.service';
 import { BookmarkCollectionDto } from 'src/bookmarkCollection/dtos/bookmark-collection.dto';
 import { UpdateBookmarkCollectionRequestDTO } from 'src/bookmarkCollection/dtos/req/update-bookmark-collection.dto';
 import { Serialize } from 'src/common/interceptors/serialize.interceptor';
 import { CreateBookmarkCollectionRequestDTO } from '../bookmarkCollection/dtos/req/create-bookmark-collection.dto';
+import { BookmarkDto } from '../bookmark/dtos/bookmark.dto';
 
 @Controller('users')
 @ApiTags('users')
 export class UserController {
-  constructor(private readonly bookmarkCollection: BookmarkCollectionService) {}
+  constructor(
+    private readonly bookmarkCollection: BookmarkCollectionService,
+    private readonly bookmark: BookmarkService,
+  ) {}
 
   @ApiOperation({
     summary: '북마크 컬렉션 생성 API',
@@ -73,9 +78,10 @@ export class UserController {
   @ApiResponse({
     status: 200,
     type: BookmarkCollectionDto,
+    isArray: true,
     description: '북마크 컬렉션 조회완료',
   })
-  @Get('me/bookmark-collection')
+  @Get('me/bookmark-collections')
   async fetchBookmarkCollections(): Promise<BookmarkCollectionDto[]> {
     return await this.bookmarkCollection.fetchBookmarkCollections();
   }
@@ -102,5 +108,27 @@ export class UserController {
     @Body() dto: UpdateBookmarkCollectionRequestDTO,
   ): Promise<BookmarkCollectionDto> {
     return await this.bookmarkCollection.updateBookmarkCollection(id, dto);
+  }
+
+  @ApiOperation({
+    summary: '북마크 컬렉션안에 있는 북마크들 조회 API',
+    description: '북마크 컬렉션안에 있는 북마크들 조회한다.',
+  })
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    required: true,
+  })
+  @ApiResponse({
+    status: 200,
+    type: BookmarkDto,
+    isArray: true,
+    description: '북마크 컬렉션안에 있는 북마크들 조회완료',
+  })
+  @Get('me/bookmark-collection/:id/bookmarks')
+  async fetchBookmarksInBookmarkCollection(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<BookmarkDto[]> {
+    return await this.bookmark.getBookmarksInCollection(id);
   }
 }
