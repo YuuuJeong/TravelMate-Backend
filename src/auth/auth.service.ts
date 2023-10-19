@@ -5,6 +5,7 @@ import { firstValueFrom } from 'rxjs';
 import { PrismaService } from 'src/prisma.service';
 import { RedisService } from 'src/redis/redis.service';
 import { SignUpDto } from './dtos/sign-up.dto';
+import { NicknameAdj, NicknameNoun } from './constants/rand-nickname.constant';
 
 @Injectable()
 export class AuthService {
@@ -18,22 +19,40 @@ export class AuthService {
   public async kakaoLogin(accessToken: string) {
     const kakaoProfile = await this.getKakaoProfile(accessToken);
 
-    const user = await this.prisma.user.create({
-      data: {
-        provider: 'kakao',
+    const user = await this.prisma.user.upsert({
+      where: {
         providerId: kakaoProfile.id.toString(),
       },
+      create: {
+        provider: 'kakao',
+        providerId: kakaoProfile.id.toString(),
+        nickname: this.generateRandomNickname(),
+      },
+      update: {},
     });
 
-    const payload = user;
+    return this.signJwt(user.id);
+  }
 
+  private generateRandomNickname() {
+    function getRandomInteger(max) {
+      return Math.floor(Math.random() * max);
+    }
+
+    const adjective = NicknameAdj[getRandomInteger(NicknameAdj.length)];
+    const noun = NicknameNoun[getRandomInteger(NicknameNoun.length)];
+
+    return `${adjective} ${noun}`;
+  }
+
+  private async signJwt(payload: any) {
     const accessTokenJwt = this.jwtService.sign(payload);
     const refreshTokenJwt = this.jwtService.sign(payload, {
       expiresIn: '30d',
     });
 
     await this.redisService.set(
-      `refreshToken:${user.id}`,
+      `refreshToken:${payload.id}`,
       refreshTokenJwt,
       60 * 60 * 24 * 30,
     );

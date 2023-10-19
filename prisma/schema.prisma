@@ -59,13 +59,12 @@ model BookmarkCollection {
 }
 
 model User {
-  id          Int      @id @default(autoincrement())
-  nickname    String?
-  phoneNumber String?
-  provider    String
-  providerId  String
-  createdAt   DateTime @default(now()) @db.Timestamp(0)
-  updatedAt   DateTime @default(now()) @updatedAt @db.Timestamp(0)
+  id         Int      @id @default(autoincrement())
+  nickname   String?
+  provider   String
+  providerId String   @unique
+  createdAt  DateTime @default(now()) @db.Timestamp(0)
+  updatedAt  DateTime @default(now()) @updatedAt @db.Timestamp(0)
 
   bookmarkCollections BookmarkCollection[]
 }

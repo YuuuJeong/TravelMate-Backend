@@ -54,10 +54,6 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       throw new NotFoundException('존재하지 않는 계정입니다.');
     }
 
-    if (user.createdAt === user.updatedAt) {
-      throw new NotFoundException('존재하지 않는 계정입니다.');
-    }
-
     return user;
   }
 }
