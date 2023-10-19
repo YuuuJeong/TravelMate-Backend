@@ -1,7 +1,7 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { Injectable } from '@nestjs/common';
 import { BookmarkEntity } from './entities/bookmark.entity';
 import { BookmarkCollectionService } from 'src/bookmarkCollection/bookmark-collection.service';
+import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
 export class BookmarkService {
