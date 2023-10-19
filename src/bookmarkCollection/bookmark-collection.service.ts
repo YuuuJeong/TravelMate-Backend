@@ -1,8 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateBookmarkCollectionRequestDTO } from './dtos/req/create-bookmark-collection.dto';
 import { UpdateBookmarkCollectionRequestDTO } from './dtos/req/update-bookmark-collection.dto';
 import { BookmarkCollectionEntity } from './entities/bookmark-collection.entity';
+import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
 export class BookmarkCollectionService {

@@ -4,8 +4,9 @@ import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
-import { BookmarkCollectionModule } from './bookmarkCollection/bookmark-collection.module';
-import { PrismaModule } from './prisma/prisma.module';
+import { RedisModule } from './redis/redis.module';
+import jwtConfig from './config/jwt.config';
+import redisConfig from './config/redis.config';
 
 @Module({
   imports: [
@@ -17,10 +18,9 @@ import { PrismaModule } from './prisma/prisma.module';
       envFilePath: process.env.NODE_ENV
         ? `.env.${process.env.NODE_ENV}`
         : '.env',
-      load: [],
+      load: [jwtConfig, redisConfig],
     }),
-    BookmarkCollectionModule,
-    PrismaModule,
+    RedisModule,
   ],
   controllers: [AppController],
   providers: [AppService, ConfigService],
