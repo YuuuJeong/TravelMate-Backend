@@ -110,11 +110,20 @@ export class UserController {
     return await this.bookmarkCollection.updateBookmarkCollection(id, dto);
   }
 
+  @ApiOperation({
+    summary: '북마크 컬렉션안에 있는 북마크들 조회 API',
+    description: '북마크 컬렉션안에 있는 북마크들 조회한다.',
+  })
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    required: true,
+  })
   @ApiResponse({
     status: 200,
     type: BookmarkDto,
     isArray: true,
-    description: '북마크 컬렉션 조회완료',
+    description: '북마크 컬렉션안에 있는 북마크들 조회완료',
   })
   @Get('me/bookmark-collection/:id/bookmarks')
   async fetchBookmarksInBookmarkCollection(
