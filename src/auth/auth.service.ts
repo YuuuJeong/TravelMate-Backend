@@ -78,14 +78,13 @@ export class AuthService {
   }
 
   signUp(userId: number, dto: SignUpDto) {
-    const { nickname, phoneNumber } = dto;
+    const { nickname } = dto;
     return this.prisma.user.update({
       where: {
         id: userId,
       },
       data: {
         nickname,
-        phoneNumber,
       },
     });
   }
