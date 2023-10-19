@@ -14,6 +14,7 @@ RUN npm ci && npm run build
 FROM node:20-slim
 RUN apt-get update
 RUN apt-get install -y openssl
+RUN npx prisma generate
 WORKDIR /app
 COPY ./package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
