@@ -33,7 +33,7 @@ export class BookmarkCollectionService {
    * @returns Promise<BookmarkCollectionEntity>
    * @author 유정호
    */
-  private async getBookmarkCollectionById(
+  public async getBookmarkCollectionById(
     id: number,
   ): Promise<BookmarkCollectionEntity> {
     const bookmarkCollection: BookmarkCollectionEntity | null =
@@ -111,6 +111,9 @@ export class BookmarkCollectionService {
     return await this.prisma.bookmarkCollection.findMany({
       where: {
         userId: 1,
+      },
+      orderBy: {
+        createdAt: 'desc',
       },
     });
   }
