@@ -6,10 +6,8 @@ COPY ./tsconfig*.json ./
 COPY src ./src
 COPY prisma ./prisma/
 
-RUN npm install
-RUN npx prisma generate
-
-RUN npm ci && npm run build
+RUN npm install && npx prisma generate \
+  && npm ci && npm run build
 
 FROM node:20-alpine
 WORKDIR /app
