@@ -43,7 +43,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('TravelMate Swagger')
-    .setDescription('캡스톤 디자인 TravelMate BE API 스웨거입니다.')
+    .setDescription('캡스톤 디자인 TravelMate BE API 스웨거입니다')
     .setVersion('1.0.0')
     .addTag('swagger')
     .build();
