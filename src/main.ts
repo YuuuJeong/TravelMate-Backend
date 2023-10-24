@@ -16,10 +16,6 @@ async function bootstrap() {
     credentials: true,
   });
 
-  app.setGlobalPrefix('api', {
-    exclude: ['/'],
-  });
-
   const user = app.get<ConfigService>(ConfigService).get('SWAGGER_USER');
   const pw = app.get<ConfigService>(ConfigService).get('SWAGGER_PASSWORD');
   app.use(
