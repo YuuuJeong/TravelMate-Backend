@@ -1,20 +1,20 @@
-FROM node:20-alpine as builder
+FROM node:20-alpine
 
 WORKDIR /app
 COPY ./package*.json ./
 COPY ./tsconfig*.json ./
-COPY src ./src
 COPY prisma ./prisma/
+RUN npm ci && npx prisma generate
 
-RUN npm install && npx prisma generate \
-  && npm ci && npm run build
+COPY src ./src
+RUN  npm run build
 
 FROM node:20-alpine
 WORKDIR /app
 COPY ./package*.json ./
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/prisma ./prisma
+COPY --from=0 /app/node_modules ./node_modules
+COPY --from=0 /app/dist ./dist
+COPY --from=0 /app/prisma ./prisma
 
 ENV PATH /app/node_modules/.bin:$PATH
 
