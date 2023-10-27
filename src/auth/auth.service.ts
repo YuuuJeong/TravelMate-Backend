@@ -31,7 +31,7 @@ export class AuthService {
       update: {},
     });
 
-    return this.signJwt(user.id);
+    return this.signJwt(user);
   }
 
   private generateRandomNickname() {
