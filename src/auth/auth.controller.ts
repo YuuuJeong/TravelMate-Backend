@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { SignUpDto } from './dtos/sign-up.dto';
@@ -24,8 +24,35 @@ export class AuthController {
     return this.authService.kakaoLogin(accessToken);
   }
 
+  @ApiOperation({})
+  @Post('google')
+  @ApiBody({
+    schema: {
+      example: {
+        accessToken: 'string',
+      },
+    },
+  })
+  googleLogin(@Body('accessToken') accessToken: string) {
+    return this.authService.kakaoLogin(accessToken);
+  }
+
+  @ApiOperation({})
+  @ApiBody({
+    schema: {
+      example: {
+        refreshToken: 'string',
+      },
+    },
+  })
+  @Post('refresh')
+  refreshJWT(@Body('refreshToken') refreshToken: string) {
+    return this.authService.refreshJWT(refreshToken);
+  }
+
   @ApiOperation({
     summary: 'sign up',
+    deprecated: true,
   })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
