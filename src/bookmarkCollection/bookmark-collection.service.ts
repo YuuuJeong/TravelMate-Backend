@@ -3,6 +3,9 @@ import { CreateBookmarkCollectionRequestDTO } from './dtos/req/create-bookmark-c
 import { UpdateBookmarkCollectionRequestDTO } from './dtos/req/update-bookmark-collection.dto';
 import { BookmarkCollectionEntity } from './entities/bookmark-collection.entity';
 import { PrismaService } from 'src/prisma.service';
+import { BookmarkCollectionDto } from './dtos/bookmark-collection.dto';
+import { FetchMyBookmarkCollectionDto } from './dtos/req/FetchMyBookmarkCollections.dto';
+import { Visibility } from '@prisma/client';
 
 @Injectable()
 export class BookmarkCollectionService {
@@ -106,16 +109,29 @@ export class BookmarkCollectionService {
     });
   }
 
-  async fetchBookmarkCollections(): Promise<BookmarkCollectionEntity[]> {
-    //TODO: JWT payload userId로 추후에 대체
-    return await this.prisma.bookmarkCollection.findMany({
+  async fetchBookmarkCollections(dto: FetchMyBookmarkCollectionDto) {
+    const { limit, page, visibility } = dto;
+
+    const count = await this.prisma.bookmarkCollection.count({
       where: {
         userId: 1,
+        visibility,
       },
+    });
+
+    const bookmarkCollections = await this.prisma.bookmarkCollection.findMany({
+      where: {
+        userId: 1,
+        visibility,
+      },
+      skip: (page - 1) * limit,
+      take: limit,
       orderBy: {
         createdAt: 'desc',
       },
     });
+
+    return { bookmarkCollections, count };
   }
 
   /**
