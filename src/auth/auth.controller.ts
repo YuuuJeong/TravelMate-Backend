@@ -34,7 +34,7 @@ export class AuthController {
     },
   })
   googleLogin(@Body('accessToken') accessToken: string) {
-    return this.authService.kakaoLogin(accessToken);
+    return this.authService.googleLogin(accessToken);
   }
 
   @ApiOperation({})
