@@ -13,6 +13,13 @@ enum Visibility {
   PUBLIC
 }
 
+enum Period {
+  SPRING
+  SUMMER
+  FALL
+  WINTER
+}
+
 model Location {
   id        Int   @id @default(autoincrement())
   latitude  Float
@@ -77,10 +84,10 @@ model Article {
   id              Int    @id @default(autoincrement())
   title           String
   userId          Int
-  springVersionID Int
-  summerVersionID Int
-  fallVersionID   Int
-  winterVersionID Int
+  springVersionID Int?
+  summerVersionID Int?
+  fallVersionID   Int?
+  winterVersionID Int?
 
   createdAt DateTime @default(now()) @db.Timestamp(0)
   updatedAt DateTime @default(now()) @updatedAt @db.Timestamp(0)
@@ -88,22 +95,26 @@ model Article {
   user                  User                    @relation(fields: [userId], references: [id])
   pendingArticleRequest PendingArticleRequest[]
   articleTagMap         ArticleTagMap[]
-  articlePeriodMap      ArticlePeriodMap[]
+  ArticleVersionHistory ArticleVersionHistory[]
 }
 
-model ArticleVersion {
+model ArticleVersionHistory {
   id        Int      @id @default(autoincrement())
   articleId Int
   period    Period
   content   String
   createdAt DateTime @default(now()) @db.Timestamp(0)
   updatedAt DateTime @default(now()) @updatedAt @db.Timestamp(0)
+
+  article Article @relation(fields: [articleId], references: [id])
+
+  @@index([period], map: "fk_ArticleVersionHistory_period")
 }
 
 model PendingArticleRequest {
   id        Int      @id @default(autoincrement())
   articleId Int
-  periodId  Int
+  period    Period
   content   String
   userId    Int
   createdAt DateTime @default(now()) @db.Timestamp(0)
@@ -111,6 +122,8 @@ model PendingArticleRequest {
 
   user    User    @relation(fields: [userId], references: [id])
   article Article @relation(fields: [articleId], references: [id])
+
+  @@index([period], map: "fk_PendingArticleRequest_period")
 }
 
 model tag {
@@ -120,20 +133,6 @@ model tag {
   updatedAt DateTime @default(now()) @updatedAt @db.Timestamp(0)
 
   articleTagMap ArticleTagMap[]
-}
-
-enum Period {
-  SPRING
-  SUMMER
-  FALL
-  WINTER
-}
-
-model ArticlePeriodMap {
-  id        Int @id @default(autoincrement())
-  articleId Int
-
-  article Article @relation(fields: [articleId], references: [id])
 }
 
 model ArticleTagMap {
@@ -146,11 +145,14 @@ model ArticleTagMap {
 }
 
 model ArticleBookmarkMap {
-  id         Int @id @default(autoincrement())
+  id         Int    @id @default(autoincrement())
+  period     Period
   articleId  Int
   bookmarkId Int
 
   bookmark  Bookmark @relation(fields: [bookmarkId], references: [id])
   createdAt DateTime @default(now()) @db.Timestamp(0)
   updatedAt DateTime @default(now()) @updatedAt @db.Timestamp(0)
+
+  @@index([period], map: "fk_ArticleBookmarkMap_period")
 }
