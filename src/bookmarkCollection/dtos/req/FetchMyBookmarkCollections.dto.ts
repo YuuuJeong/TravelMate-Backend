@@ -23,10 +23,8 @@ export class FetchMyBookmarkCollectionDto {
   @ApiProperty({
     example: 'FRIENDS_ONLY',
     description:
-      '공개 여부 -> PRIVATE(비공개) / FRIENDS_ONLY(친구에게만) / PUBLIC(모두 공개) ',
-    enum: Visibility,
+      '공개 여부 -> PRIVATE(비공개) / FRIENDS_ONLY(친구에게만) / PUBLIC(모두 공개) /빈문자열은 전체 다 가져오도록 ',
+    required: false,
   })
-  @IsOptional()
-  @IsEnum(Visibility, { message: '올바른 공개 여부 값을 선택해주세요' })
-  visibility: Visibility = Visibility.PUBLIC;
+  visibility?: Visibility;
 }
