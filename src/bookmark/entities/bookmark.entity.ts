@@ -4,6 +4,7 @@ export class BookmarkEntity implements Bookmark {
   createdAt: Date;
   deletedAt: Date | null;
   id: number;
+  userId: number;
   content: string | null;
   locationId: number;
   location?: Partial<LocationEntity>;

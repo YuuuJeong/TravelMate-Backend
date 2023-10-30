@@ -12,6 +12,9 @@ export class BookmarkDto {
   id: number;
 
   @Expose()
+  userId: number;
+
+  @Expose()
   content?: string | null;
 
   @Exclude()

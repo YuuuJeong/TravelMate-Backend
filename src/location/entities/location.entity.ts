@@ -1,7 +1,8 @@
-import { Location, Prisma } from '@prisma/client';
+import { Location } from '@prisma/client';
+import { Decimal } from '@prisma/client/runtime/library';
 
 export class LocationEntity implements Location {
   id: number;
-  latitude: Prisma.Decimal;
-  longitude: Prisma.Decimal;
+  latitude: Decimal;
+  longitude: Decimal;
 }

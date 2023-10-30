@@ -20,7 +20,7 @@ export class BookmarkService {
     await this.bookmarkCollection.getBookmarkCollectionById(id);
 
     const bookmarkIds = (
-      await this.prisma.bookmarksInCollection.findMany({
+      await this.prisma.bookmarkBookmarkCollectionMap.findMany({
         where: {
           collectionId: id,
         },
