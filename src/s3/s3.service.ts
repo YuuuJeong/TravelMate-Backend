@@ -18,6 +18,17 @@ export class S3Service {
     });
   }
 
+  async getPresignedUrl(key: string): Promise<string> {
+    const command = new PutObjectCommand({
+      Bucket: this.configService.getOrThrow('aws.bucketName'),
+      Key: key,
+      ContentLength: 1024 * 1024 * 10,
+      ACL: 'public-read',
+    });
+    const url = await getSignedUrl(this.client, command, { expiresIn: 3600 });
+    return url;
+  }
+
   async getPresignedPost(type: string): Promise<any> {
     const uuid = uuidV4();
 

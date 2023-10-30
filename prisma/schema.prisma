@@ -75,9 +75,23 @@ model User {
   createdAt  DateTime @default(now()) @db.Timestamp(0)
   updatedAt  DateTime @default(now()) @updatedAt @db.Timestamp(0)
 
-  bookmarkCollections   BookmarkCollection[]
-  article               Article[]
-  pendingArticleRequest PendingArticleRequest[]
+  bookmarkCollections    BookmarkCollection[]
+  articles               Article[]
+  pendingArticleRequests PendingArticleRequest[]
+  attachments            Attachment[]
+}
+
+model Attachment {
+  id        Int      @id @default(autoincrement())
+  state     String   @db.VarChar(10)
+  bucket    String   @db.VarChar(64)
+  articleID Int?
+  userId    Int?
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamp(3)
+
+  article Article? @relation(fields: [articleID], references: [id])
+  user    User?    @relation(fields: [userId], references: [id])
 }
 
 model Article {
@@ -92,10 +106,11 @@ model Article {
   createdAt DateTime @default(now()) @db.Timestamp(0)
   updatedAt DateTime @default(now()) @updatedAt @db.Timestamp(0)
 
-  user                  User                    @relation(fields: [userId], references: [id])
-  pendingArticleRequest PendingArticleRequest[]
-  articleTagMap         ArticleTagMap[]
-  ArticleVersionHistory ArticleVersionHistory[]
+  user                    User                    @relation(fields: [userId], references: [id])
+  pendingArticleRequests  PendingArticleRequest[]
+  articleTagMap           ArticleTagMap[]
+  articleVersionHistories ArticleVersionHistory[]
+  attachments             Attachment[]
 }
 
 model ArticleVersionHistory {
