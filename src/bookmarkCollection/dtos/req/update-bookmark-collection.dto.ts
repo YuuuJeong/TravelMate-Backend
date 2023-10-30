@@ -4,8 +4,8 @@ import { Decimal } from '@prisma/client/runtime/library';
 import { IsEnum, IsNotEmpty, IsString, Length } from 'class-validator';
 
 export interface LocationWithContent {
-  latitude: Decimal;
-  longitude: Decimal;
+  latitude: number;
+  longitude: number;
   content?: string;
 }
 

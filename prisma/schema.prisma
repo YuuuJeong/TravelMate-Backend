@@ -14,9 +14,9 @@ enum Visibility {
 }
 
 model Location {
-  id        Int     @id @default(autoincrement())
-  latitude  Decimal @db.Decimal(65, 3)
-  longitude Decimal @db.Decimal(65, 3)
+  id        Int   @id @default(autoincrement())
+  latitude  Float
+  longitude Float
 
   bookmarks Bookmark[]
 

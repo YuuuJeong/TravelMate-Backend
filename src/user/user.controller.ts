@@ -7,6 +7,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -21,6 +22,8 @@ import { BookmarkCollectionDto } from 'src/bookmarkCollection/dtos/bookmark-coll
 import { UpdateBookmarkCollectionRequestDTO } from 'src/bookmarkCollection/dtos/req/update-bookmark-collection.dto';
 import { CreateBookmarkCollectionRequestDTO } from '../bookmarkCollection/dtos/req/create-bookmark-collection.dto';
 import { BookmarkDto } from '../bookmark/dtos/bookmark.dto';
+import { ApiOkResponsePaginated } from 'src/common/decorators/api-ok-response-paginated.decorator';
+import { FetchMyBookmarkCollectionDto } from 'src/bookmarkCollection/dtos/req/FetchMyBookmarkCollections.dto';
 
 @Controller('users')
 @ApiTags('users')
@@ -79,9 +82,10 @@ export class UserController {
     isArray: true,
     description: '북마크 컬렉션 조회완료',
   })
+  @ApiOkResponsePaginated(BookmarkCollectionDto)
   @Get('me/bookmark-collections')
-  async fetchBookmarkCollections(): Promise<BookmarkCollectionDto[]> {
-    return await this.bookmarkCollection.fetchBookmarkCollections();
+  async fetchBookmarkCollections(@Query() dto: FetchMyBookmarkCollectionDto) {
+    return await this.bookmarkCollection.fetchBookmarkCollections(dto);
   }
 
   @ApiOperation({
