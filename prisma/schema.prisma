@@ -31,6 +31,7 @@ model Bookmark {
   createdAt             DateTime                @default(now()) @db.Timestamp(0)
   deletedAt             DateTime?               @db.Timestamp(0)
   location              Location                @relation(fields: [locationId], references: [id])
+  articleBookmarkMap    ArticleBookmarkMap[]
 }
 
 model BookmarksInCollection {
@@ -61,10 +62,95 @@ model BookmarkCollection {
 model User {
   id         Int      @id @default(autoincrement())
   nickname   String?
+  profileImg String?
   provider   String
   providerId String   @unique
   createdAt  DateTime @default(now()) @db.Timestamp(0)
   updatedAt  DateTime @default(now()) @updatedAt @db.Timestamp(0)
 
-  bookmarkCollections BookmarkCollection[]
+  bookmarkCollections   BookmarkCollection[]
+  article               Article[]
+  pendingArticleRequest PendingArticleRequest[]
+}
+
+model Article {
+  id              Int    @id @default(autoincrement())
+  title           String
+  userId          Int
+  springVersionID Int
+  summerVersionID Int
+  fallVersionID   Int
+  winterVersionID Int
+
+  createdAt DateTime @default(now()) @db.Timestamp(0)
+  updatedAt DateTime @default(now()) @updatedAt @db.Timestamp(0)
+
+  user                  User                    @relation(fields: [userId], references: [id])
+  pendingArticleRequest PendingArticleRequest[]
+  articleTagMap         ArticleTagMap[]
+  articlePeriodMap      ArticlePeriodMap[]
+}
+
+model ArticleVersion {
+  id        Int      @id @default(autoincrement())
+  articleId Int
+  period    Period
+  content   String
+  createdAt DateTime @default(now()) @db.Timestamp(0)
+  updatedAt DateTime @default(now()) @updatedAt @db.Timestamp(0)
+}
+
+model PendingArticleRequest {
+  id        Int      @id @default(autoincrement())
+  articleId Int
+  periodId  Int
+  content   String
+  userId    Int
+  createdAt DateTime @default(now()) @db.Timestamp(0)
+  updatedAt DateTime @default(now()) @updatedAt @db.Timestamp(0)
+
+  user    User    @relation(fields: [userId], references: [id])
+  article Article @relation(fields: [articleId], references: [id])
+}
+
+model tag {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now()) @db.Timestamp(0)
+  updatedAt DateTime @default(now()) @updatedAt @db.Timestamp(0)
+
+  articleTagMap ArticleTagMap[]
+}
+
+enum Period {
+  SPRING
+  SUMMER
+  FALL
+  WINTER
+}
+
+model ArticlePeriodMap {
+  id        Int @id @default(autoincrement())
+  articleId Int
+
+  article Article @relation(fields: [articleId], references: [id])
+}
+
+model ArticleTagMap {
+  id        Int @id @default(autoincrement())
+  articleId Int
+  tagId     Int
+
+  article Article @relation(fields: [articleId], references: [id])
+  tag     tag     @relation(fields: [tagId], references: [id])
+}
+
+model ArticleBookmarkMap {
+  id         Int @id @default(autoincrement())
+  articleId  Int
+  bookmarkId Int
+
+  bookmark  Bookmark @relation(fields: [bookmarkId], references: [id])
+  createdAt DateTime @default(now()) @db.Timestamp(0)
+  updatedAt DateTime @default(now()) @updatedAt @db.Timestamp(0)
 }
