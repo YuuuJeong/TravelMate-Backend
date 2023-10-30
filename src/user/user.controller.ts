@@ -43,6 +43,7 @@ export class UserController {
   })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
+  @Get('/me')
   profile(@CurrentUser() user: User) {
     return user;
   }
