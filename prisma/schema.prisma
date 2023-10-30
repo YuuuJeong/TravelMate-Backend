@@ -24,12 +24,13 @@ model Location {
 }
 
 model Bookmark {
-  id                            Int                             @id @default(autoincrement())
-  content                       String?                         @db.VarChar(200)
-  locationId                    Int
-  userId                        Int
-  createdAt                     DateTime                        @default(now()) @db.Timestamp(0)
-  deletedAt                     DateTime?                       @db.Timestamp(0)
+  id         Int       @id @default(autoincrement())
+  content    String?   @db.VarChar(200)
+  locationId Int
+  userId     Int
+  createdAt  DateTime  @default(now()) @db.Timestamp(0)
+  deletedAt  DateTime? @db.Timestamp(0)
+
   location                      Location                        @relation(fields: [locationId], references: [id])
   user                          User                            @relation(fields: [userId], references: [id])
   BookmarkBookmarkCollectionMap BookmarkBookmarkCollectionMap[]
@@ -70,5 +71,5 @@ model User {
   updatedAt  DateTime @default(now()) @updatedAt @db.Timestamp(0)
 
   bookmarkCollections BookmarkCollection[]
-  Bookmark            Bookmark[]
+  bookmark            Bookmark[]
 }
