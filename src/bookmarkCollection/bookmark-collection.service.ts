@@ -115,7 +115,9 @@ export class BookmarkCollectionService {
     const count = await this.prisma.bookmarkCollection.count({
       where: {
         userId: 1,
-        visibility,
+        ...(visibility && {
+          visibility,
+        }),
       },
     });
 
