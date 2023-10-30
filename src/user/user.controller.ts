@@ -8,8 +8,10 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiOperation,
   ApiParam,
@@ -24,6 +26,9 @@ import { CreateBookmarkCollectionRequestDTO } from '../bookmarkCollection/dtos/r
 import { BookmarkDto } from '../bookmark/dtos/bookmark.dto';
 import { ApiOkResponsePaginated } from 'src/common/decorators/api-ok-response-paginated.decorator';
 import { FetchMyBookmarkCollectionDto } from 'src/bookmarkCollection/dtos/req/FetchMyBookmarkCollections.dto';
+import { JwtAuthGuard } from 'src/auth/strategies/jwt.strategy';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import { User } from '@prisma/client';
 
 @Controller('users')
 @ApiTags('users')
@@ -32,6 +37,15 @@ export class UserController {
     private readonly bookmarkCollection: BookmarkCollectionService,
     private readonly bookmark: BookmarkService,
   ) {}
+
+  @ApiOperation({
+    summary: '내 정보 조회',
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  profile(@CurrentUser() user: User) {
+    return user;
+  }
 
   @ApiOperation({
     summary: '북마크 컬렉션 생성 API',
