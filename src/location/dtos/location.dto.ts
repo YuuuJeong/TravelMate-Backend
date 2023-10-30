@@ -1,4 +1,3 @@
-import { Decimal } from '@prisma/client/runtime/library';
 import { Exclude, Expose } from 'class-transformer';
 
 export class LocationDto {
@@ -6,8 +5,8 @@ export class LocationDto {
   id: number;
 
   @Expose()
-  latitude: Decimal;
+  latitude: number;
 
   @Expose()
-  longitude: Decimal;
+  longitude: number;
 }
