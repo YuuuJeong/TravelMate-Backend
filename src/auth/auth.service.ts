@@ -1,11 +1,12 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { firstValueFrom } from 'rxjs';
 import { PrismaService } from 'src/prisma.service';
 import { RedisService } from 'src/redis/redis.service';
 import { SignUpDto } from './dtos/sign-up.dto';
 import { NicknameAdj, NicknameNoun } from './constants/rand-nickname.constant';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
@@ -14,6 +15,7 @@ export class AuthService {
     private readonly httpService: HttpService,
     private readonly redisService: RedisService,
     private readonly prisma: PrismaService,
+    private readonly configService: ConfigService,
   ) {}
 
   public async kakaoLogin(accessToken: string) {
@@ -31,7 +33,44 @@ export class AuthService {
       update: {},
     });
 
-    return this.signJwt(user.id);
+    return this.signJwt(user);
+  }
+
+  public async googleLogin(accessToken: string) {
+    const googleProfile = await this.getGoogleProfile(accessToken);
+
+    const user = await this.prisma.user.upsert({
+      where: {
+        providerId: googleProfile.id.toString(),
+      },
+      create: {
+        provider: 'google',
+        providerId: googleProfile.id.toString(),
+        nickname: this.generateRandomNickname(),
+      },
+      update: {},
+    });
+
+    return this.signJwt(user);
+  }
+
+  public async refreshJWT(refreshToken: string) {
+    const payload = this.jwtService.verify(refreshToken);
+    const redisRefreshToken = await this.redisService.get(
+      `refreshToken:${payload.id}`,
+    );
+
+    if (redisRefreshToken !== refreshToken) {
+      throw new UnauthorizedException('invalid refresh token');
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: payload.id,
+      },
+    });
+
+    return this.signJwt(user);
   }
 
   private generateRandomNickname() {
@@ -71,9 +110,24 @@ export class AuthService {
     };
     const { data } = await firstValueFrom(
       this.httpService.get(kakaoApiUrl, {
-        headers: headers,
+        headers,
       }),
     );
+    return data;
+  }
+
+  private async getGoogleProfile(accessToken: string) {
+    const googleApiURL = 'https://www.googleapis.com/oauth2/v2/userinfo';
+    const headers = {
+      Authorization: `Bearer ${accessToken}`,
+    };
+
+    const { data } = await firstValueFrom(
+      this.httpService.get(googleApiURL, {
+        headers,
+      }),
+    );
+
     return data;
   }
 

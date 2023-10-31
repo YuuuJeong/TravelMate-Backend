@@ -3,6 +3,7 @@ import { CreateBookmarkCollectionRequestDTO } from './dtos/req/create-bookmark-c
 import { UpdateBookmarkCollectionRequestDTO } from './dtos/req/update-bookmark-collection.dto';
 import { BookmarkCollectionEntity } from './entities/bookmark-collection.entity';
 import { PrismaService } from 'src/prisma.service';
+import { FetchMyBookmarkCollectionDto } from './dtos/req/FetchMyBookmarkCollections.dto';
 
 @Injectable()
 export class BookmarkCollectionService {
@@ -18,7 +19,7 @@ export class BookmarkCollectionService {
     collectionId: number,
   ): Promise<number[]> {
     const bookmarksInCollections =
-      await this.prisma.bookmarksInCollection.findMany({
+      await this.prisma.bookmarkBookmarkCollectionMap.findMany({
         where: {
           collectionId,
         },
@@ -82,7 +83,7 @@ export class BookmarkCollectionService {
   ): Promise<BookmarkCollectionEntity> {
     await this.getBookmarkCollectionById(id);
 
-    await this.prisma.bookmarksInCollection.deleteMany({
+    await this.prisma.bookmarkBookmarkCollectionMap.deleteMany({
       where: {
         collectionId: id,
       },
@@ -106,16 +107,31 @@ export class BookmarkCollectionService {
     });
   }
 
-  async fetchBookmarkCollections(): Promise<BookmarkCollectionEntity[]> {
-    //TODO: JWT payload userId로 추후에 대체
-    return await this.prisma.bookmarkCollection.findMany({
+  async fetchBookmarkCollections(dto: FetchMyBookmarkCollectionDto) {
+    const { limit, page, visibility } = dto;
+
+    const count = await this.prisma.bookmarkCollection.count({
       where: {
         userId: 1,
+        ...(visibility && {
+          visibility,
+        }),
       },
+    });
+
+    const bookmarkCollections = await this.prisma.bookmarkCollection.findMany({
+      where: {
+        userId: 1,
+        visibility,
+      },
+      skip: (page - 1) * limit,
+      take: limit,
       orderBy: {
         createdAt: 'desc',
       },
     });
+
+    return { bookmarkCollections, count };
   }
 
   /**
@@ -131,8 +147,9 @@ export class BookmarkCollectionService {
   ): Promise<BookmarkCollectionEntity> {
     const { title, visibility, locationsWithContent, bookmarkIdsToDelete } =
       dto;
-
     await this.getBookmarkCollectionById(id);
+
+    const userId = 1;
 
     //북마크 soft delete
     await Promise.all(
@@ -143,7 +160,7 @@ export class BookmarkCollectionService {
           },
           data: {
             deletedAt: new Date(),
-            bookmarksInCollection: {
+            BookmarkBookmarkCollectionMap: {
               deleteMany: {
                 collectionId: id,
                 bookmarkId: bookmarkId,
@@ -156,20 +173,27 @@ export class BookmarkCollectionService {
 
     //북마크 생성하면서 위치가 없다면 위치도 생성, 있으면 연결
     const bookmarkIds: number[] = [];
-    for (const data of locationsWithContent) {
+    for (const location of locationsWithContent) {
       const bookmark = await this.prisma.bookmark.create({
         data: {
-          content: data.content,
+          user: {
+            connect: {
+              id: userId,
+            },
+          },
+          ...(location.content && {
+            content: location.content,
+          }),
           location: {
             connectOrCreate: {
               create: {
-                latitude: data.latitude,
-                longitude: data.longitude,
+                latitude: location.latitude,
+                longitude: location.longitude,
               },
               where: {
                 latitude_longitude: {
-                  latitude: data.latitude,
-                  longitude: data.longitude,
+                  latitude: location.latitude,
+                  longitude: location.longitude,
                 },
               },
             },
@@ -181,7 +205,7 @@ export class BookmarkCollectionService {
     }
 
     //북마크 컬렉션과 매핑
-    await this.prisma.bookmarksInCollection.createMany({
+    await this.prisma.bookmarkBookmarkCollectionMap.createMany({
       data: bookmarkIds.map((bookmarkId) => ({
         collectionId: id,
         bookmarkId: bookmarkId,

@@ -7,8 +7,11 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
+  UseGuards,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiOperation,
   ApiParam,
@@ -23,6 +26,11 @@ import { CreateBookmarkCollectionRequestDTO } from '../bookmarkCollection/dtos/r
 import { BookmarkDto } from '../bookmark/dtos/bookmark.dto';
 import { UserService } from 'src/user/user.service';
 import { UserNicknameDto } from './dtos/req/user-nickname.dto';
+import { ApiOkResponsePaginated } from 'src/common/decorators/api-ok-response-paginated.decorator';
+import { FetchMyBookmarkCollectionDto } from 'src/bookmarkCollection/dtos/req/FetchMyBookmarkCollections.dto';
+import { JwtAuthGuard } from 'src/auth/strategies/jwt.strategy';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import { User } from '@prisma/client';
 
 @Controller('users')
 @ApiTags('users')
@@ -32,6 +40,16 @@ export class UserController {
     private readonly bookmark: BookmarkService,
     private readonly userService: UserService,
   ) {}
+
+  @ApiOperation({
+    summary: '내 정보 조회',
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('/me')
+  profile(@CurrentUser() user: User) {
+    return user;
+  }
 
   @ApiOperation({
     summary: '북마크 컬렉션 생성 API',
@@ -82,9 +100,10 @@ export class UserController {
     isArray: true,
     description: '북마크 컬렉션 조회완료',
   })
+  @ApiOkResponsePaginated(BookmarkCollectionDto)
   @Get('me/bookmark-collections')
-  async fetchBookmarkCollections(): Promise<BookmarkCollectionDto[]> {
-    return await this.bookmarkCollection.fetchBookmarkCollections();
+  async fetchBookmarkCollections(@Query() dto: FetchMyBookmarkCollectionDto) {
+    return await this.bookmarkCollection.fetchBookmarkCollections(dto);
   }
 
   @ApiOperation({
