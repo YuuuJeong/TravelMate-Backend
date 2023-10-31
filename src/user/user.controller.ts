@@ -157,7 +157,7 @@ export class UserController {
   })
   @ApiBody({
     required: true,
-    type: VerifyIsValidNicknameDto,
+    type: UserNicknameDto,
   })
   @ApiResponse({
     status: 201,
