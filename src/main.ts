@@ -11,6 +11,7 @@ import { ValidationHttpError } from './common/errors/validation-http-error';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  //TODO: cors 수정
   app.enableCors({
     origin: '*',
     credentials: true,

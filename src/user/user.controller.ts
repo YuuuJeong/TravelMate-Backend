@@ -24,6 +24,8 @@ import { BookmarkCollectionDto } from 'src/bookmarkCollection/dtos/bookmark-coll
 import { UpdateBookmarkCollectionRequestDTO } from 'src/bookmarkCollection/dtos/req/update-bookmark-collection.dto';
 import { CreateBookmarkCollectionRequestDTO } from '../bookmarkCollection/dtos/req/create-bookmark-collection.dto';
 import { BookmarkDto } from '../bookmark/dtos/bookmark.dto';
+import { UserService } from 'src/user/user.service';
+import { UserNicknameDto } from './dtos/req/user-nickname.dto';
 import { ApiOkResponsePaginated } from 'src/common/decorators/api-ok-response-paginated.decorator';
 import { FetchMyBookmarkCollectionDto } from 'src/bookmarkCollection/dtos/req/FetchMyBookmarkCollections.dto';
 import { JwtAuthGuard } from 'src/auth/strategies/jwt.strategy';
@@ -36,6 +38,7 @@ export class UserController {
   constructor(
     private readonly bookmarkCollection: BookmarkCollectionService,
     private readonly bookmark: BookmarkService,
+    private readonly userService: UserService,
   ) {}
 
   @ApiOperation({
@@ -146,5 +149,41 @@ export class UserController {
     @Param('id', ParseIntPipe) id: number,
   ): Promise<BookmarkDto[]> {
     return await this.bookmark.getBookmarksInCollection(id);
+  }
+
+  @ApiOperation({
+    summary: '닉네임 중복확인 API',
+    description: '닉네임 변경하기 전에 닉네임 중복여부를 확인한다.',
+  })
+  @ApiBody({
+    required: true,
+    type: VerifyIsValidNicknameDto,
+  })
+  @ApiResponse({
+    status: 201,
+    type: String,
+    description: '닉네임 중복확인 성공',
+  })
+  @Post('verify-nickname')
+  async verifyIsValidNickname(@Body() dto: UserNicknameDto): Promise<string> {
+    return this.userService.verifyIsValidNickname(dto.nickname);
+  }
+
+  @ApiOperation({
+    summary: '닉네임 변경 API',
+    description: '유저 닉네임을 변경한다.',
+  })
+  @ApiBody({
+    required: true,
+    type: UserNicknameDto,
+  })
+  @ApiResponse({
+    status: 201,
+    description: '닉네임 변경 완료',
+  })
+  @Patch('change-nickname')
+  async changeUserNickname(@Body() dto: UserNicknameDto): Promise<string> {
+    const userId = 1; //TODO: 추후 수정
+    return this.userService.changeUserNickname(dto.nickname, userId);
   }
 }
