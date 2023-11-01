@@ -86,6 +86,6 @@ jobs:
           application_name: TravelMate-server
           environment_name: TravelMate-server-env
           version_label: ver-${{ github.sha }}
-          use_existing_version_if_available: true
+          use_existing_version_if_available: false
           deployment_package: deploy.zip
           wait_for_environment_recovery: 300
