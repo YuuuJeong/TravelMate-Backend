@@ -16,13 +16,15 @@ export class BookmarkService {
    * @returns Promise<BookmarkEntity>
    * @author 유정호
    */
-  async getBookmarksInCollection(id: number): Promise<BookmarkEntity[]> {
-    await this.bookmarkCollection.getBookmarkCollectionById(id);
+  async getBookmarksInCollection(
+    collectionId: number,
+  ): Promise<BookmarkEntity[]> {
+    await this.bookmarkCollection.getBookmarkCollectionById(collectionId);
 
     const bookmarkIds = (
       await this.prisma.bookmarkBookmarkCollectionMap.findMany({
         where: {
-          collectionId: id,
+          collectionId,
         },
       })
     ).map((object) => object.bookmarkId);
