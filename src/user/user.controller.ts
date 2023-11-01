@@ -25,7 +25,7 @@ import { UpdateBookmarkCollectionRequestDTO } from 'src/bookmarkCollection/dtos/
 import { CreateBookmarkCollectionRequestDTO } from '../bookmarkCollection/dtos/req/create-bookmark-collection.dto';
 import { BookmarkDto } from '../bookmark/dtos/bookmark.dto';
 import { UserService } from 'src/user/user.service';
-import { UserNicknameDto } from './dtos/req/user-nickname.dto';
+import { UserNicknameDto } from './dtos/req/user-nickname.dto';
 import { ApiOkResponsePaginated } from 'src/common/decorators/api-ok-response-paginated.decorator';
 import { FetchMyBookmarkCollectionDto } from 'src/bookmarkCollection/dtos/req/FetchMyBookmarkCollections.dto';
 import { JwtAuthGuard } from 'src/auth/strategies/jwt.strategy';
