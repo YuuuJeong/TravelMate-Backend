@@ -3,7 +3,7 @@ import { CreateBookmarkCollectionRequestDTO } from './dtos/req/create-bookmark-c
 import { UpdateBookmarkCollectionRequestDTO } from './dtos/req/update-bookmark-collection.dto';
 import { BookmarkCollectionEntity } from './entities/bookmark-collection.entity';
 import { PrismaService } from 'src/prisma.service';
-import { FetchMyBookmarkCollectionDto } from './dtos/req/FetchMyBookmarkCollections.dto';
+import { FetchMyBookmarkCollectionDto } from './dtos/req/fetch-my-bookmark-collections.dto';
 
 @Injectable()
 export class BookmarkCollectionService {
@@ -58,10 +58,10 @@ export class BookmarkCollectionService {
    * @author 유정호
    */
   async createBookmarkCollection(
+    userId: number,
     dto: CreateBookmarkCollectionRequestDTO,
   ): Promise<BookmarkCollectionEntity> {
     const { title, visibility } = dto;
-    const userId = 1; //TODO: JWT payload userId로 추후에 대체
 
     return await this.prisma.bookmarkCollection.create({
       data: {
@@ -107,12 +107,15 @@ export class BookmarkCollectionService {
     });
   }
 
-  async fetchBookmarkCollections(dto: FetchMyBookmarkCollectionDto) {
+  async fetchBookmarkCollections(
+    userId: number,
+    dto: FetchMyBookmarkCollectionDto,
+  ) {
     const { limit, page, visibility } = dto;
 
     const count = await this.prisma.bookmarkCollection.count({
       where: {
-        userId: 1,
+        userId,
         ...(visibility && {
           visibility,
         }),
@@ -121,7 +124,7 @@ export class BookmarkCollectionService {
 
     const bookmarkCollections = await this.prisma.bookmarkCollection.findMany({
       where: {
-        userId: 1,
+        userId,
         visibility,
       },
       skip: (page - 1) * limit,
@@ -142,14 +145,13 @@ export class BookmarkCollectionService {
    * @author 유정호
    */
   async updateBookmarkCollection(
-    id: number,
+    userId: number,
+    collectionId: number,
     dto: UpdateBookmarkCollectionRequestDTO,
   ): Promise<BookmarkCollectionEntity> {
     const { title, visibility, locationsWithContent, bookmarkIdsToDelete } =
       dto;
-    await this.getBookmarkCollectionById(id);
-
-    const userId = 1;
+    await this.getBookmarkCollectionById(collectionId);
 
     //북마크 soft delete
     await Promise.all(
@@ -162,7 +164,7 @@ export class BookmarkCollectionService {
             deletedAt: new Date(),
             BookmarkBookmarkCollectionMap: {
               deleteMany: {
-                collectionId: id,
+                collectionId,
                 bookmarkId: bookmarkId,
               },
             },
@@ -207,7 +209,7 @@ export class BookmarkCollectionService {
     //북마크 컬렉션과 매핑
     await this.prisma.bookmarkBookmarkCollectionMap.createMany({
       data: bookmarkIds.map((bookmarkId) => ({
-        collectionId: id,
+        collectionId,
         bookmarkId: bookmarkId,
       })),
     });
@@ -215,7 +217,7 @@ export class BookmarkCollectionService {
     //북마크 컬렉션 정보 수정
     return await this.prisma.bookmarkCollection.update({
       where: {
-        id,
+        id: collectionId,
       },
       data: {
         title,

@@ -27,10 +27,11 @@ import { BookmarkDto } from '../bookmark/dtos/bookmark.dto';
 import { UserService } from 'src/user/user.service';
 import { UserNicknameDto } from './dtos/req/user-nickname.dto';
 import { ApiOkResponsePaginated } from 'src/common/decorators/api-ok-response-paginated.decorator';
-import { FetchMyBookmarkCollectionDto } from 'src/bookmarkCollection/dtos/req/FetchMyBookmarkCollections.dto';
+
 import { JwtAuthGuard } from 'src/auth/strategies/jwt.strategy';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { User } from '@prisma/client';
+import { FetchMyBookmarkCollectionDto } from 'src/bookmarkCollection/dtos/req/fetch-my-bookmark-collections.dto';
 
 @Controller('users')
 @ApiTags('users')
@@ -65,18 +66,20 @@ export class UserController {
     type: BookmarkCollectionDto,
     description: '북마크 컬렉션 생성완료',
   })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Post('/me/bookmark-collection')
   async createBookmarkCollection(
+    @CurrentUser() user: User,
     @Body() dto: CreateBookmarkCollectionRequestDTO,
   ): Promise<BookmarkCollectionDto> {
-    return await this.bookmarkCollection.createBookmarkCollection(dto);
+    return await this.bookmarkCollection.createBookmarkCollection(user.id, dto);
   }
 
   @ApiOperation({
     summary: '북마크 컬렉션 삭제 API',
     description: '유저의 북마크 컬렉션을 삭제한다.',
   })
-  //TODO: 로그인 및 회원가입 구현후 ApiBearerAuth 추가
   @ApiParam({
     name: 'id',
     type: Number,
@@ -87,6 +90,8 @@ export class UserController {
     type: BookmarkCollectionDto,
     description: '북마크 컬렉션 삭제완료',
   })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Delete('me/bookmark-collection/:id')
   async removeBookmarkCollection(
     @Param('id', ParseIntPipe) id: number,
@@ -101,16 +106,20 @@ export class UserController {
     description: '북마크 컬렉션 조회완료',
   })
   @ApiOkResponsePaginated(BookmarkCollectionDto)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Get('me/bookmark-collections')
-  async fetchBookmarkCollections(@Query() dto: FetchMyBookmarkCollectionDto) {
-    return await this.bookmarkCollection.fetchBookmarkCollections(dto);
+  async fetchBookmarkCollections(
+    @CurrentUser() user: User,
+    @Query() dto: FetchMyBookmarkCollectionDto,
+  ) {
+    return await this.bookmarkCollection.fetchBookmarkCollections(user.id, dto);
   }
 
   @ApiOperation({
     summary: '북마크 컬렉션 수정 API',
     description: '유저의 북마크 컬렉션을 수정한다.',
   })
-  //TODO: 로그인 및 회원가입 구현후 ApiBearerAuth 추가
   @ApiParam({
     name: 'id',
     type: Number,
@@ -121,12 +130,19 @@ export class UserController {
     type: BookmarkCollectionDto,
     description: '북마크 컬렉션 수정완료',
   })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Patch('me/bookmark-collection/:id')
   async updateBookmarkCollection(
+    @CurrentUser() user: User,
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateBookmarkCollectionRequestDTO,
   ): Promise<BookmarkCollectionDto> {
-    return await this.bookmarkCollection.updateBookmarkCollection(id, dto);
+    return await this.bookmarkCollection.updateBookmarkCollection(
+      user.id,
+      id,
+      dto,
+    );
   }
 
   @ApiOperation({
@@ -144,6 +160,8 @@ export class UserController {
     isArray: true,
     description: '북마크 컬렉션안에 있는 북마크들 조회완료',
   })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Get('me/bookmark-collection/:id/bookmarks')
   async fetchBookmarksInBookmarkCollection(
     @Param('id', ParseIntPipe) id: number,
@@ -181,9 +199,13 @@ export class UserController {
     status: 201,
     description: '닉네임 변경 완료',
   })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Patch('change-nickname')
-  async changeUserNickname(@Body() dto: UserNicknameDto): Promise<string> {
-    const userId = 1; //TODO: 추후 수정
-    return this.userService.changeUserNickname(dto.nickname, userId);
+  async changeUserNickname(
+    @CurrentUser() user: User,
+    @Body() dto: UserNicknameDto,
+  ): Promise<string> {
+    return this.userService.changeUserNickname(user.id, dto.nickname);
   }
 }

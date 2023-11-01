@@ -19,5 +19,5 @@ export class CreateBookmarkCollectionRequestDTO {
     enum: Visibility,
   })
   @IsEnum(Visibility, { message: '올바른 공개 여부 값을 선택해주세요' })
-  visibility?: Visibility;
+  visibility?: Visibility = Visibility.PUBLIC;
 }

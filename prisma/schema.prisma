@@ -11,6 +11,7 @@ enum Visibility {
   PRIVATE
   FRIENDS_ONLY
   PUBLIC
+  ALL 
 }
 
 model Location {
