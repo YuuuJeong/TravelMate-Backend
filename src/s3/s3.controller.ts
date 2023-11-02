@@ -14,11 +14,11 @@ export class S3Controller {
   @ApiOperation({
     summary: 'S3 presigned post',
   })
-  // @UseGuards(JwtAuthGuard)
-  // @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Get('presigned-post')
   async getPresignedPost(
-    // @CurrentUser() user: User,
+    @CurrentUser() user: User,
     @Query() dto: GetPresignedPostDto,
   ) {
     return await this.s3Service.getPresignedPost(1, dto.type);

@@ -11,7 +11,7 @@ enum Visibility {
   PRIVATE
   FRIENDS_ONLY
   PUBLIC
-  ALL 
+  ALL
 }
 
 enum Period {
@@ -42,14 +42,7 @@ model Bookmark {
   location                      Location                        @relation(fields: [locationId], references: [id])
   user                          User                            @relation(fields: [userId], references: [id])
   BookmarkBookmarkCollectionMap BookmarkBookmarkCollectionMap[]
-  id                    Int                     @id @default(autoincrement())
-  content               String?                 @db.VarChar(200)
-  locationId            Int
-  bookmarksInCollection BookmarksInCollection[]
-  createdAt             DateTime                @default(now()) @db.Timestamp(0)
-  deletedAt             DateTime?               @db.Timestamp(0)
-  location              Location                @relation(fields: [locationId], references: [id])
-  articleBookmarkMap    ArticleBookmarkMap[]
+  articleBookmarkMap            ArticleBookmarkMap[]
 }
 
 model BookmarkBookmarkCollectionMap {
@@ -89,9 +82,8 @@ model User {
 
   bookmarkCollections BookmarkCollection[]
   bookmark            Bookmark[]
-  profileImage ProfileImage? @relation(fields: [profileImageId], references: [id])
+  profileImage        ProfileImage?        @relation(fields: [profileImageId], references: [id])
 
-  bookmarkCollections    BookmarkCollection[]
   articles               Article[]
   pendingArticleRequests PendingArticleRequest[]
   attachments            Attachment[]
