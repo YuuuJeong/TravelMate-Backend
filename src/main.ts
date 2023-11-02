@@ -48,6 +48,7 @@ async function bootstrap() {
     .setDescription('캡스톤 디자인 TravelMate BE API 스웨거입니다')
     .setVersion('1.0.0')
     .addTag('swagger')
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
