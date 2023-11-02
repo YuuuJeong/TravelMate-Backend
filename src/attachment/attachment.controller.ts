@@ -4,22 +4,28 @@ import {
   NotFoundException,
   Param,
   ParseIntPipe,
+  Query,
   Redirect,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AttachmentService } from './attachment.service';
 
-@Controller('s3')
-@ApiTags('s3')
+@Controller('attachments')
+@ApiTags('attachments')
 export class AttachmentController {
   constructor(private readonly attachmentService: AttachmentService) {}
 
   @Get('/:attachmentID')
+  @ApiOperation({ summary: 'Get attachment signed url' })
   @Redirect()
   public async getAttachment(
+    @Query('type') type: string,
     @Param('attachmentID', ParseIntPipe) attachmentID: number,
   ) {
-    const url = await this.attachmentService.getAttachmentUrl(attachmentID);
+    const url = await this.attachmentService.getAttachmentUrl(
+      type,
+      attachmentID,
+    );
 
     if (!url) {
       throw new NotFoundException();

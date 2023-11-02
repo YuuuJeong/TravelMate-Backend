@@ -67,13 +67,15 @@ model BookmarkCollection {
 }
 
 model User {
-  id         Int      @id @default(autoincrement())
-  nickname   String?
-  profileImg String?
-  provider   String
-  providerId String   @unique
-  createdAt  DateTime @default(now()) @db.Timestamp(0)
-  updatedAt  DateTime @default(now()) @updatedAt @db.Timestamp(0)
+  id             Int      @id @default(autoincrement())
+  nickname       String?
+  provider       String
+  providerId     String   @unique
+  profileImageId Int?     @unique
+  createdAt      DateTime @default(now()) @db.Timestamp(0)
+  updatedAt      DateTime @default(now()) @updatedAt @db.Timestamp(0)
+
+  profileImage ProfileImage? @relation(fields: [profileImageId], references: [id])
 
   bookmarkCollections    BookmarkCollection[]
   articles               Article[]
@@ -81,17 +83,31 @@ model User {
   attachments            Attachment[]
 }
 
-model Attachment {
+enum AttachmentType {
+  ARTICLE
+}
+
+model ProfileImage {
   id        Int      @id @default(autoincrement())
   state     String   @db.VarChar(10)
   bucket    String   @db.VarChar(64)
-  articleID Int?
-  userId    Int?
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(3)
   updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamp(3)
+  User      User?
+}
+
+model Attachment {
+  id        Int            @id @default(autoincrement())
+  state     String         @db.VarChar(10)
+  bucket    String         @db.VarChar(64)
+  type      AttachmentType
+  articleID Int?
+  userId    Int?
+  createdAt DateTime       @default(now()) @map("created_at") @db.Timestamp(3)
+  updatedAt DateTime       @default(now()) @map("updated_at") @db.Timestamp(3)
 
   article Article? @relation(fields: [articleID], references: [id])
-  user    User?    @relation(fields: [userId], references: [id])
+  User    User?    @relation(fields: [userId], references: [id])
 }
 
 model Article {

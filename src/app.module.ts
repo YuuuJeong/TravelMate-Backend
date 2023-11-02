@@ -9,6 +9,7 @@ import jwtConfig from './config/jwt.config';
 import redisConfig from './config/redis.config';
 import { S3Module } from './s3/s3.module';
 import awsConfig from './config/aws.config';
+import { AttachmentModule } from './attachment/attachment.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import awsConfig from './config/aws.config';
     }),
     RedisModule,
     S3Module,
+    AttachmentModule,
   ],
   controllers: [AppController],
   providers: [AppService, ConfigService],
