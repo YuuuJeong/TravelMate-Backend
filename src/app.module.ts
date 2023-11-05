@@ -10,6 +10,7 @@ import redisConfig from './config/redis.config';
 import { S3Module } from './s3/s3.module';
 import awsConfig from './config/aws.config';
 import { AttachmentModule } from './attachment/attachment.module';
+import { TagModule } from './tag/tag.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { AttachmentModule } from './attachment/attachment.module';
     RedisModule,
     S3Module,
     AttachmentModule,
+    TagModule,
   ],
   controllers: [AppController],
   providers: [AppService, ConfigService],
