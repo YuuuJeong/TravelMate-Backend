@@ -15,12 +15,6 @@ export class TagController {
     return await this.tagService.findAllTags();
   }
 
-  @Get(':name')
-  @ApiOperation({ summary: 'Get tag by name' })
-  getTagByName(name: string) {
-    return this.tagService.getTagByName(name);
-  }
-
   @Get('search/:name')
   @ApiOperation({ summary: 'Search tags by name' })
   searchTagsByName(@Param('name') name: string) {

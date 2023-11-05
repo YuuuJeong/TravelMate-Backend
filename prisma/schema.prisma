@@ -170,6 +170,8 @@ model tag {
   updatedAt DateTime @default(now()) @updatedAt @db.Timestamp(0)
 
   articleTagMap ArticleTagMap[]
+
+  @@index([name], map: "index_tag_name")
 }
 
 model ArticleTagMap {

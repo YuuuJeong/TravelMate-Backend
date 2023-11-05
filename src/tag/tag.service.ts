@@ -10,12 +10,6 @@ export class TagService {
     return this.prisma.tag.findMany();
   }
 
-  getTagByName(name: string) {
-    return this.prisma.tag.findUnique({
-      where: { name },
-    });
-  }
-
   searchTagsByName(name: string) {
     return this.prisma.tag.findMany({
       where: {
