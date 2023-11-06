@@ -11,6 +11,7 @@ import { S3Module } from './s3/s3.module';
 import awsConfig from './config/aws.config';
 import { AttachmentModule } from './attachment/attachment.module';
 import { TagModule } from './tag/tag.module';
+import { ArticleModule } from './article/article.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { TagModule } from './tag/tag.module';
     S3Module,
     AttachmentModule,
     TagModule,
+    ArticleModule,
   ],
   controllers: [AppController],
   providers: [AppService, ConfigService],

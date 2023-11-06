@@ -1,4 +1,4 @@
-import { Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ArticleService } from './article.service';
 import { JwtAuthGuard } from 'src/auth/strategies/jwt.strategy';
@@ -17,7 +17,7 @@ export class ArticleController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Post()
-  createArticle(@CurrentUser() user: User, dto: CreateArticleDto) {
+  createArticle(@CurrentUser() user: User, @Body() dto: CreateArticleDto) {
     return this.articleService.createArticle(user, dto);
   }
 }
