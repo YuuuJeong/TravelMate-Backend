@@ -118,8 +118,10 @@ model Attachment {
 }
 
 model Article {
-  id              Int    @id @default(autoincrement())
+  id              Int     @id @default(autoincrement())
   title           String
+  thumbnail       String?
+  location        String?
   userId          Int
   springVersionID Int?
   summerVersionID Int?

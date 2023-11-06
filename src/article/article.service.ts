@@ -12,6 +12,8 @@ export class ArticleService {
       data: {
         title: dto.title,
         userId: user.id,
+        location: dto.location,
+        thumbnail: dto.thumbnail,
         articleTagMap: {
           create: dto.tagIds.map((tagId) => ({
             tagId,
