@@ -87,6 +87,7 @@ model User {
   articles               Article[]
   pendingArticleRequests PendingArticleRequest[]
   attachments            Attachment[]
+  ArticleVersionHistory  ArticleVersionHistory[]
 }
 
 enum AttachmentType {
@@ -138,11 +139,13 @@ model Article {
 model ArticleVersionHistory {
   id        Int      @id @default(autoincrement())
   articleId Int
+  userId    Int
   period    Period
   content   String
   createdAt DateTime @default(now()) @db.Timestamp(0)
   updatedAt DateTime @default(now()) @updatedAt @db.Timestamp(0)
 
+  user    User    @relation(fields: [userId], references: [id])
   article Article @relation(fields: [articleId], references: [id])
 
   @@index([period], map: "fk_ArticleVersionHistory_period")
