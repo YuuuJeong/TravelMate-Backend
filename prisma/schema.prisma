@@ -122,7 +122,7 @@ model Article {
   title           String
   thumbnail       String?
   location        String?
-  userId          Int
+  authorId        Int     @map("userId")
   springVersionID Int?
   summerVersionID Int?
   fallVersionID   Int?
@@ -131,7 +131,7 @@ model Article {
   createdAt DateTime @default(now()) @db.Timestamp(0)
   updatedAt DateTime @default(now()) @updatedAt @db.Timestamp(0)
 
-  user                    User                    @relation(fields: [userId], references: [id])
+  author                  User                    @relation(fields: [authorId], references: [id])
   pendingArticleRequests  PendingArticleRequest[]
   articleTagMap           ArticleTagMap[]
   articleVersionHistories ArticleVersionHistory[]

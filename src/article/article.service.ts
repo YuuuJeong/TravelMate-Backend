@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { CreateArticleDto } from './dtos/create-article.dto';
-import { Period, User } from '@prisma/client';
+import { Period, Prisma, User } from '@prisma/client';
+import { ArticleOrderField, GetArticlesDto } from './dtos/get-articles.dto';
 
 @Injectable()
 export class ArticleService {
@@ -11,7 +12,7 @@ export class ArticleService {
     const article = await this.prisma.article.create({
       data: {
         title: dto.title,
-        userId: user.id,
+        authorId: user.id,
         location: dto.location,
         thumbnail: dto.thumbnail,
         articleTagMap: {
@@ -73,5 +74,90 @@ export class ArticleService {
         userId: user.id,
       },
     });
+  }
+
+  public async getArticles(dto: GetArticlesDto) {
+    const { page, limit, period, location, authorId, keyword, order } = dto;
+
+    const whereClause = {
+      ...(period === Period.SPRING && {
+        springVersionID: {
+          not: null,
+        },
+      }),
+      ...(period === Period.SUMMER && {
+        summerVersionID: {
+          not: null,
+        },
+      }),
+      ...(period === Period.FALL && {
+        fallVersionID: {
+          not: null,
+        },
+      }),
+      ...(period === Period.WINTER && {
+        winterVersionID: {
+          not: null,
+        },
+      }),
+      ...(authorId && {
+        authorId,
+      }),
+      ...(location && {
+        location,
+      }),
+      ...(keyword && {
+        OR: [
+          {
+            title: {
+              contains: keyword,
+            },
+          },
+          {
+            articleTagMap: {
+              some: {
+                tag: {
+                  name: {
+                    contains: keyword,
+                  },
+                },
+              },
+            },
+          },
+        ],
+      }),
+    };
+
+    const orderClause = {
+      ...(order === ArticleOrderField.RECENT && {
+        createdAt: Prisma.SortOrder.desc,
+      }),
+      ...(order === ArticleOrderField.TITLE_ASCENDING && {
+        title: Prisma.SortOrder.asc,
+      }),
+      ...(order === ArticleOrderField.TITLE_DESCENDING && {
+        title: Prisma.SortOrder.desc,
+      }),
+      ...(!order && { createdAt: Prisma.SortOrder.desc }),
+    };
+
+    const count = await this.prisma.article.count({
+      where: {
+        ...whereClause,
+      },
+    });
+    const articles = await this.prisma.article.findMany({
+      where: {
+        ...whereClause,
+      },
+      orderBy: [orderClause],
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return {
+      count,
+      articles,
+    };
   }
 }

@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Period } from '@prisma/client';
-import { IsEnum, Validate } from 'class-validator';
+import { IsEnum } from 'class-validator';
 
 export const locations = [
   '서울',
