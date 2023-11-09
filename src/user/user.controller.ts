@@ -208,4 +208,24 @@ export class UserController {
   ): Promise<string> {
     return this.userService.changeUserNickname(user.id, dto.nickname);
   }
+
+  @ApiOperation({
+    summary: '채팅서버에 유저정보를 제공하기 위한 API(Client 사용x)',
+    description: '채팅서버에 유저정보를 제공하기 위한 API(Client 사용x)',
+  })
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    required: true,
+  })
+  @ApiResponse({
+    status: 200,
+    type: BookmarkDto,
+    isArray: true,
+    description: '북마크 컬렉션안에 있는 북마크들 조회완료',
+  })
+  @Get(':id')
+  async getUserInfoById(@Param('id', ParseIntPipe) id: number) {
+    return await this.userService.findUserById(id);
+  }
 }
