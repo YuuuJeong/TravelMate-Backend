@@ -18,7 +18,7 @@ export enum ArticleOrderField {
 export class GetArticlesDto {
   @ApiProperty({
     required: false,
-    description: 'default:0',
+    description: 'default:1',
   })
   @Type(() => Number)
   @IsNumber()
