@@ -1,13 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Period } from '@prisma/client';
 import { Location } from './create-article.dto';
+import { IsEnum } from 'class-validator';
 
 export class UpdateArticleDto {
-  @ApiProperty({
-    required: true,
-  })
-  articleId: number;
-
   @ApiProperty({
     required: false,
   })
@@ -17,6 +13,7 @@ export class UpdateArticleDto {
     required: false,
     enum: Location,
   })
+  @IsEnum(Location)
   location: Location;
 
   @ApiProperty({
@@ -34,5 +31,11 @@ export class UpdateArticleDto {
     required: false,
     enum: Period,
   })
+  @IsEnum(Period)
   period: Period;
+
+  @ApiProperty({
+    required: false,
+  })
+  content: string;
 }

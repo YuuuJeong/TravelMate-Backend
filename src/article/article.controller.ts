@@ -15,6 +15,7 @@ import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { User } from '@prisma/client';
 import { CreateArticleDto } from './dtos/create-article.dto';
 import { GetArticlesDto } from './dtos/get-articles.dto';
+import { UpdateArticleDto } from './dtos/update-article.dto';
 
 @Controller('articles')
 @ApiTags('articles')
@@ -47,11 +48,17 @@ export class ArticleController {
     return this.articleService.getArticle(articleId);
   }
 
-  // @ApiOperation({
-  //   summary: 'Update article',
-  // })
-  // @Patch()
-  // updateArticle(@Query() dto: UpdateArticleDto) {
-  //   return this.articleService.getArticles(dto);
-  // }
+  @ApiOperation({
+    summary: 'Update article',
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Patch('/:articleId')
+  updateArticle(
+    @CurrentUser() user: User,
+    @Param('articleId') articleId: number,
+    @Body() dto: UpdateArticleDto,
+  ) {
+    return this.articleService.updateArticle(user.id, articleId, dto);
+  }
 }

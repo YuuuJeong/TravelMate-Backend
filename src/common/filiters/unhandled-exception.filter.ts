@@ -8,7 +8,7 @@ export class UnhandledExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest();
     const message = exception.message;
 
-    // TODO : logger
+    console.log(exception);
 
     response.status(500).json({
       message: message,

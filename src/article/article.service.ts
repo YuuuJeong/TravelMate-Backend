@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { CreateArticleDto } from './dtos/create-article.dto';
 import { Period, Prisma, User } from '@prisma/client';
 import { ArticleOrderField, GetArticlesDto } from './dtos/get-articles.dto';
+import { UpdateArticleDto } from './dtos/update-article.dto';
 
 @Injectable()
 export class ArticleService {
@@ -24,7 +25,7 @@ export class ArticleService {
     });
 
     const versionHistory = await this.createArticleVerionHistory(
-      user,
+      user.id,
       article.id,
       dto,
     );
@@ -62,7 +63,7 @@ export class ArticleService {
   }
 
   public createArticleVerionHistory(
-    user: User,
+    userId: number,
     articleId: number,
     dto: CreateArticleDto,
   ) {
@@ -71,7 +72,7 @@ export class ArticleService {
         articleId,
         content: dto.content,
         period: dto.period,
-        userId: user.id,
+        userId,
       },
     });
   }
@@ -221,5 +222,85 @@ export class ArticleService {
       fall,
       winter,
     };
+  }
+
+  async updateArticle(
+    userId: number,
+    articleId: number,
+    dto: UpdateArticleDto,
+  ) {
+    const { title, period, tagIds, location, thumbnail } = dto;
+
+    const article = await this.prisma.article.findUniqueOrThrow({
+      where: {
+        id: articleId,
+      },
+    });
+
+    if (article.authorId !== userId) {
+      throw new BadRequestException('권한이 없습니다.');
+    }
+
+    let historyUpdateInput;
+
+    if (period) {
+      const newVersionHistory = await this.createArticleVerionHistory(
+        userId,
+        article.id,
+        dto as CreateArticleDto,
+      );
+
+      historyUpdateInput = {
+        ...(period === Period.SPRING && {
+          springVersionID: newVersionHistory.id,
+        }),
+        ...(period === Period.SUMMER && {
+          summerVersionID: newVersionHistory.id,
+        }),
+        ...(period === Period.FALL && {
+          fallVersionID: newVersionHistory.id,
+        }),
+        ...(period === Period.WINTER && {
+          winterVersionID: newVersionHistory.id,
+        }),
+      };
+    }
+
+    const tagUpdateInput = {
+      ...(tagIds && {
+        articleTagMap: {
+          deleteMany: {
+            tagId: {
+              notIn: tagIds,
+            },
+          },
+          createMany: {
+            data: tagIds.map((tagId) => ({
+              tagId,
+            })),
+          },
+        },
+      }),
+    };
+
+    return await this.prisma.article.update({
+      where: {
+        id: articleId,
+      },
+      data: {
+        title,
+        location,
+        thumbnail,
+        ...historyUpdateInput,
+        ...tagUpdateInput,
+      },
+      include: {
+        articleTagMap: {
+          include: {
+            tag: true,
+          },
+        },
+      },
+    });
   }
 }
