@@ -8,6 +8,7 @@ import {
   IsString,
 } from 'class-validator';
 import { Location } from './create-article.dto';
+import { Period } from '@prisma/client';
 
 export enum ArticleOrderField {
   TITLE_DESCENDING = 'titleDescending',
@@ -41,10 +42,11 @@ export class GetArticlesDto {
 
   @ApiProperty({
     required: false,
+    enum: Period,
   })
   @IsOptional()
   @IsString()
-  period?: string;
+  period?: Period;
 
   @ApiProperty({
     required: false,
