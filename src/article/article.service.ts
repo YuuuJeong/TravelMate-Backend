@@ -153,6 +153,13 @@ export class ArticleService {
       orderBy: [orderClause],
       skip: (page - 1) * limit,
       take: limit,
+      include: {
+        articleTagMap: {
+          include: {
+            tag: true,
+          },
+        },
+      },
     });
 
     return {

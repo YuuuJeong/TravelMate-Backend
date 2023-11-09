@@ -98,8 +98,8 @@ model ProfileImage {
   id        Int      @id @default(autoincrement())
   state     String   @db.VarChar(10)
   bucket    String   @db.VarChar(64)
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(3)
-  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamp(3)
+  createdAt DateTime @default(now()) @db.Timestamp(3)
+  updatedAt DateTime @default(now()) @db.Timestamp(3)
   User      User?
 }
 
@@ -110,8 +110,8 @@ model Attachment {
   type      AttachmentType
   articleID Int?
   userId    Int?
-  createdAt DateTime       @default(now()) @map("created_at") @db.Timestamp(3)
-  updatedAt DateTime       @default(now()) @map("updated_at") @db.Timestamp(3)
+  createdAt DateTime       @default(now()) @db.Timestamp(3)
+  updatedAt DateTime       @default(now()) @db.Timestamp(3)
 
   article Article? @relation(fields: [articleID], references: [id])
   User    User?    @relation(fields: [userId], references: [id])
