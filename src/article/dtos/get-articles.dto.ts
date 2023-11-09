@@ -18,6 +18,7 @@ export enum ArticleOrderField {
 export class GetArticlesDto {
   @ApiProperty({
     required: false,
+    description: 'default:0',
   })
   @Type(() => Number)
   @IsNumber()
@@ -47,6 +48,7 @@ export class GetArticlesDto {
 
   @ApiProperty({
     required: false,
+    enum: Location,
   })
   @IsEnum(Location)
   @IsOptional()
@@ -60,6 +62,7 @@ export class GetArticlesDto {
 
   @ApiProperty({
     required: false,
+    enum: ArticleOrderField,
   })
   @IsString()
   @IsOptional()
