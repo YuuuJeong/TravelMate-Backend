@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ArticleService } from './article.service';
 import { JwtAuthGuard } from 'src/auth/strategies/jwt.strategy';
@@ -29,4 +38,20 @@ export class ArticleController {
   getArticles(@Query() dto: GetArticlesDto) {
     return this.articleService.getArticles(dto);
   }
+
+  @ApiOperation({
+    summary: 'Get Article',
+  })
+  @Get('/:articleId')
+  getArticle(@Param('articleId') articleId: number) {
+    return this.articleService.getArticle(articleId);
+  }
+
+  // @ApiOperation({
+  //   summary: 'Update article',
+  // })
+  // @Patch()
+  // updateArticle(@Query() dto: UpdateArticleDto) {
+  //   return this.articleService.getArticles(dto);
+  // }
 }

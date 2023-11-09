@@ -167,4 +167,59 @@ export class ArticleService {
       articles,
     };
   }
+
+  async getArticle(articleId: number) {
+    const article = await this.prisma.article.findUniqueOrThrow({
+      where: {
+        id: articleId,
+      },
+      include: {
+        articleTagMap: {
+          include: {
+            tag: true,
+          },
+        },
+      },
+    });
+
+    const spring = article.springVersionID
+      ? await this.prisma.articleVersionHistory.findUnique({
+          where: {
+            id: article.springVersionID,
+          },
+        })
+      : null;
+
+    const summer = article.summerVersionID
+      ? await this.prisma.articleVersionHistory.findUnique({
+          where: {
+            id: article.summerVersionID,
+          },
+        })
+      : null;
+
+    const fall = article.fallVersionID
+      ? await this.prisma.articleVersionHistory.findUnique({
+          where: {
+            id: article.fallVersionID,
+          },
+        })
+      : null;
+
+    const winter = article.winterVersionID
+      ? await this.prisma.articleVersionHistory.findUnique({
+          where: {
+            id: article.winterVersionID,
+          },
+        })
+      : null;
+
+    return {
+      ...article,
+      spring,
+      summer,
+      fall,
+      winter,
+    };
+  }
 }
