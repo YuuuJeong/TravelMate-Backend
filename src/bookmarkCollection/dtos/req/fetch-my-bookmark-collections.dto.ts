@@ -1,25 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Visibility } from '@prisma/client';
-import { Transform, Type } from 'class-transformer';
-import { IsNumber } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { OffsetPaginationDto } from 'src/common/dtos/offset-pagination.dto';
 
-export class FetchMyBookmarkCollectionDto {
-  @ApiProperty({
-    description: '불러올 페이지 번호(기본값: 1)',
-    required: false,
-  })
-  @Type(() => Number)
-  @IsNumber()
-  page: number = 1;
-
-  @ApiProperty({
-    description: '한 페이지당 최대 문제집 수(기본값: 25)',
-    required: false,
-  })
-  @Type(() => Number)
-  @IsNumber()
-  limit: number = 25;
-
+export class FetchMyBookmarkCollectionDto extends OffsetPaginationDto {
   @ApiProperty({
     example: 'FRIENDS_ONLY',
     description:

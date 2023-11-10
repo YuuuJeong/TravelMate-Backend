@@ -32,6 +32,7 @@ import { JwtAuthGuard } from 'src/auth/strategies/jwt.strategy';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { User } from '@prisma/client';
 import { FetchMyBookmarkCollectionDto } from 'src/bookmarkCollection/dtos/req/fetch-my-bookmark-collections.dto';
+import { OffsetPaginationDto } from '../common/dtos/offset-pagination.dto';
 
 @Controller('users')
 @ApiTags('users')
@@ -109,11 +110,14 @@ export class UserController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get('me/bookmark-collections')
-  async fetchBookmarkCollections(
+  async fetchMyBookmarkCollections(
     @CurrentUser() user: User,
     @Query() dto: FetchMyBookmarkCollectionDto,
   ) {
-    return await this.bookmarkCollection.fetchBookmarkCollections(user.id, dto);
+    return await this.bookmarkCollection.fetchMyBookmarkCollections(
+      user.id,
+      dto,
+    );
   }
 
   @ApiOperation({
@@ -227,5 +231,32 @@ export class UserController {
   @Get(':id')
   async getUserInfoById(@Param('id', ParseIntPipe) id: number) {
     return await this.userService.findUserById(id);
+  }
+
+  @ApiResponse({
+    status: 200,
+    type: BookmarkCollectionDto,
+    isArray: true,
+    description: '다른 유저의 북마크 컬렉션 조회완료',
+  })
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    required: true,
+  })
+  @ApiOkResponsePaginated(BookmarkCollectionDto)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get(':id/bookmark-collections')
+  async getBookmarkCollections(
+    @CurrentUser() user: User,
+    @Param('id', ParseIntPipe) userId: number,
+    @Query() dto: OffsetPaginationDto,
+  ) {
+    return await this.bookmarkCollection.getBookmarkCollections(
+      user.id,
+      userId,
+      dto,
+    );
   }
 }
