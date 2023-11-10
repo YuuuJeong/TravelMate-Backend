@@ -143,7 +143,7 @@ model ArticleVersionHistory {
   articleId Int
   userId    Int
   period    Period
-  content   String
+  content   String   @db.Text
   createdAt DateTime @default(now()) @db.Timestamp(0)
   updatedAt DateTime @default(now()) @updatedAt @db.Timestamp(0)
 
