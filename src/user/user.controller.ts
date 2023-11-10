@@ -258,6 +258,9 @@ export class UserController {
     return await this.friendService.sendFriendInviteRequest(user.id, friendId);
   }
 
+  @ApiOperation({
+    summary: '내 친구 목록 조회 API (페이지네이션o)',
+  })
   @ApiResponse({
     status: 200,
     isArray: true,
@@ -273,6 +276,9 @@ export class UserController {
     return await this.friendService.fetchMyFriends(user.id, dto);
   }
 
+  @ApiOperation({
+    summary: '친구 요청 수락',
+  })
   @ApiResponse({
     status: 201,
     description: '친구 요청 수락',
@@ -286,6 +292,9 @@ export class UserController {
     return await this.friendService.acceptFriendInvitation(invitationId);
   }
 
+  @ApiOperation({
+    summary: '친구 삭제 API',
+  })
   @ApiResponse({
     status: 200,
     description: '친구 삭제 API',
@@ -297,6 +306,9 @@ export class UserController {
     return await this.friendService.removeFriend(invitationId);
   }
 
+  @ApiOperation({
+    summary: '내가 받은 친구요청 확인 (페이지네이션o)',
+  })
   @ApiResponse({
     status: 200,
     description: '내가 받은 친구요청 확인하기',
@@ -311,6 +323,9 @@ export class UserController {
     return await this.friendService.fetchReceivedFriendInvitation(user.id, dto);
   }
 
+  @ApiOperation({
+    summary: '내가 보낸 친구요청 확인 (페이지네이션o)',
+  })
   @ApiResponse({
     status: 200,
     description: '내가 보낸 친구요청 확인하기',
