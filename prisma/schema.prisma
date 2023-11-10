@@ -21,6 +21,12 @@ enum Period {
   WINTER
 }
 
+enum FriendInviteStatus {
+  PENDING
+  ACCEPTED
+  DELETED
+}
+
 model Location {
   id        Int     @id @default(autoincrement())
   latitude  Decimal @db.Decimal(65, 30)
@@ -208,11 +214,13 @@ model FriendInvite {
   id         Int       @id @default(autoincrement())
   userId     Int
   friendId   Int
+  status     FriendInviteStatus   @default(PENDING)
+  deletedAt  DateTime?  
   acceptedAt DateTime?
   createdAt  DateTime  @default(now()) @db.Timestamp(0)
 
   user   User @relation("userSentInvites", fields: [userId], references: [id], map: "userSentInvites")
   friend User @relation("friendReceivedInvites", fields: [friendId], references: [id], map: "friendReceivedInvites")
 
-  @@unique([userId, friendId])
+  @@unique([userId, friendId, status])
 }
