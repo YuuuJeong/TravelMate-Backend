@@ -12,6 +12,7 @@ import awsConfig from './config/aws.config';
 import { AttachmentModule } from './attachment/attachment.module';
 import { TagModule } from './tag/tag.module';
 import { ArticleModule } from './article/article.module';
+import { FriendModule } from './friend/friend.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { ArticleModule } from './article/article.module';
     AttachmentModule,
     TagModule,
     ArticleModule,
+    FriendModule,
   ],
   controllers: [AppController],
   providers: [AppService, ConfigService],

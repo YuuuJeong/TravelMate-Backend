@@ -32,6 +32,7 @@ import { JwtAuthGuard } from 'src/auth/strategies/jwt.strategy';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { User } from '@prisma/client';
 import { FetchMyBookmarkCollectionDto } from 'src/bookmarkCollection/dtos/req/fetch-my-bookmark-collections.dto';
+import { FriendService } from '../friend/friend.service';
 
 @Controller('users')
 @ApiTags('users')
@@ -40,6 +41,7 @@ export class UserController {
     private readonly bookmarkCollection: BookmarkCollectionService,
     private readonly bookmark: BookmarkService,
     private readonly userService: UserService,
+    private readonly friendService: FriendService,
   ) {}
 
   @ApiOperation({
@@ -56,7 +58,6 @@ export class UserController {
     summary: '북마크 컬렉션 생성 API',
     description: '제목, 공개여부를 선택하여 유저의 북마크 컬렉션을 생성한다.',
   })
-  //TODO: 로그인 및 회원가입 구현후 ApiBearerAuth 추가
   @ApiBody({
     type: CreateBookmarkCollectionRequestDTO,
     required: true,
@@ -227,5 +228,32 @@ export class UserController {
   @Get(':id')
   async getUserInfoById(@Param('id', ParseIntPipe) id: number) {
     return await this.userService.findUserById(id);
+  }
+
+  @ApiOperation({
+    summary: '친구 추가 API',
+    description: '상대방에게 친구요청을 보내는 API이다.',
+  })
+  @ApiBody({
+    type: Number,
+    schema: {
+      example: {
+        friendId: 1,
+      },
+    },
+    required: true,
+  })
+  @ApiResponse({
+    status: 200,
+    description: '친구초대 요청 완료',
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Post('/friend')
+  async sendFriendInviteRequest(
+    @CurrentUser() user: User,
+    @Body('friendId') friendId: number,
+  ): Promise<any> {
+    return await this.friendService.sendFriendInviteRequest(user.id, friendId);
   }
 }
