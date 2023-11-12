@@ -10,6 +10,11 @@ export class UserService {
       where: {
         id: userId,
       },
+      select: {
+        id: true,
+        nickname: true,
+        profileImageId: true,
+      },
     });
   }
 

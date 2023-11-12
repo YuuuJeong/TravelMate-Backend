@@ -4,7 +4,7 @@ import { UpdateBookmarkCollectionRequestDTO } from './dtos/req/update-bookmark-c
 import { BookmarkCollectionEntity } from './entities/bookmark-collection.entity';
 import { PrismaService } from 'src/prisma.service';
 import { FetchMyBookmarkCollectionDto } from './dtos/req/fetch-my-bookmark-collections.dto';
-import { Prisma, Visibility } from '@prisma/client';
+import { FriendInviteStatus, Prisma, Visibility } from '@prisma/client';
 import { OffsetPaginationDto } from 'src/common/dtos/offset-pagination.dto';
 
 @Injectable()
@@ -235,7 +235,27 @@ export class BookmarkCollectionService {
   ) {
     const { limit, page } = dto;
     const visibilities: Visibility[] = [Visibility.PUBLIC];
-    //TODO: 친구추가 기능이후 id 유저와 userId 유저가 서로 친구인지 확인후 친구라면 visibilites 배열에 FRIENDS_ONLY추가
+
+    const friendInvitations = await this.prisma.friendInvite.findMany({
+      where: {
+        status: FriendInviteStatus.ACCEPTED,
+        OR: [
+          {
+            userId: id,
+            friendId: userId,
+          },
+          {
+            userId,
+            friendId: id,
+          },
+        ],
+      },
+    });
+
+    if (friendInvitations.length > 0) {
+      visibilities.push(Visibility.FRIENDS_ONLY);
+    }
+
     const count = await this.prisma.bookmarkCollection.count({
       where: {
         userId,

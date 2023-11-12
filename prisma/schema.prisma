@@ -21,6 +21,12 @@ enum Period {
   WINTER
 }
 
+enum FriendInviteStatus {
+  PENDING
+  ACCEPTED
+  DELETED
+}
+
 model Location {
   id        Int     @id @default(autoincrement())
   latitude  Decimal @db.Decimal(65, 30)
@@ -88,6 +94,9 @@ model User {
   pendingArticleRequests PendingArticleRequest[]
   attachments            Attachment[]
   ArticleVersionHistory  ArticleVersionHistory[]
+
+  receivedFriendInvites FriendInvite[] @relation("friendReceivedInvites")
+  sentFriendInvites     FriendInvite[] @relation("userSentInvites")
 }
 
 enum AttachmentType {
@@ -143,7 +152,7 @@ model ArticleVersionHistory {
   articleId Int
   userId    Int
   period    Period
-  content   String
+  content   String   @db.Text
   createdAt DateTime @default(now()) @db.Timestamp(0)
   updatedAt DateTime @default(now()) @updatedAt @db.Timestamp(0)
 
@@ -199,4 +208,19 @@ model ArticleBookmarkMap {
   updatedAt DateTime @default(now()) @updatedAt @db.Timestamp(0)
 
   @@index([period], map: "fk_ArticleBookmarkMap_period")
+}
+
+model FriendInvite {
+  id         Int                @id @default(autoincrement())
+  userId     Int
+  friendId   Int
+  status     FriendInviteStatus @default(PENDING)
+  deletedAt  DateTime?
+  acceptedAt DateTime?
+  createdAt  DateTime           @default(now()) @db.Timestamp(0)
+
+  user   User @relation("userSentInvites", fields: [userId], references: [id], map: "userSentInvites")
+  friend User @relation("friendReceivedInvites", fields: [friendId], references: [id], map: "friendReceivedInvites")
+
+  @@unique([userId, friendId, status])
 }

@@ -4,6 +4,7 @@ import { BookmarkCollectionService } from 'src/bookmarkCollection/bookmark-colle
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { PrismaService } from '../prisma.service';
+import { FriendService } from '../friend/friend.service';
 
 @Module({
   imports: [],
@@ -13,6 +14,7 @@ import { PrismaService } from '../prisma.service';
     BookmarkService,
     BookmarkCollectionService,
     PrismaService,
+    FriendService,
   ],
   exports: [UserService],
 })

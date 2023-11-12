@@ -32,7 +32,12 @@ import { JwtAuthGuard } from 'src/auth/strategies/jwt.strategy';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { User } from '@prisma/client';
 import { FetchMyBookmarkCollectionDto } from 'src/bookmarkCollection/dtos/req/fetch-my-bookmark-collections.dto';
+<<<<<<< HEAD
 import { OffsetPaginationDto } from '../common/dtos/offset-pagination.dto';
+=======
+import { FriendService } from '../friend/friend.service';
+import { OffsetPaginationDto } from 'src/common/dtos/offset-pagination.dto';
+>>>>>>> 22e5f740606d88cc291b5bf8d7911b2bb6badf9a
 
 @Controller('users')
 @ApiTags('users')
@@ -41,6 +46,7 @@ export class UserController {
     private readonly bookmarkCollection: BookmarkCollectionService,
     private readonly bookmark: BookmarkService,
     private readonly userService: UserService,
+    private readonly friendService: FriendService,
   ) {}
 
   @ApiOperation({
@@ -57,7 +63,6 @@ export class UserController {
     summary: '북마크 컬렉션 생성 API',
     description: '제목, 공개여부를 선택하여 유저의 북마크 컬렉션을 생성한다.',
   })
-  //TODO: 로그인 및 회원가입 구현후 ApiBearerAuth 추가
   @ApiBody({
     type: CreateBookmarkCollectionRequestDTO,
     required: true,
@@ -214,8 +219,8 @@ export class UserController {
   }
 
   @ApiOperation({
-    summary: '채팅서버에 유저정보를 제공하기 위한 API(Client 사용x)',
-    description: '채팅서버에 유저정보를 제공하기 위한 API(Client 사용x)',
+    summary: '유저정보를 제공하기 위한 API',
+    description: '유저정보를 제공하기 위한 API',
   })
   @ApiParam({
     name: 'id',
@@ -224,9 +229,7 @@ export class UserController {
   })
   @ApiResponse({
     status: 200,
-    type: BookmarkDto,
-    isArray: true,
-    description: '북마크 컬렉션안에 있는 북마크들 조회완료',
+    description: '유저 정보 얻어오는 API',
   })
   @Get(':id')
   async getUserInfoById(@Param('id', ParseIntPipe) id: number) {
@@ -258,5 +261,114 @@ export class UserController {
       userId,
       dto,
     );
+  }
+
+  @ApiOperation({
+    summary: '친구 추가 API',
+    description: '상대방에게 친구요청을 보내는 API이다.',
+  })
+  @ApiBody({
+    type: Number,
+    schema: {
+      example: {
+        friendId: 1,
+      },
+    },
+    required: true,
+  })
+  @ApiResponse({
+    status: 200,
+    description: '친구초대 요청 완료',
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Post('/invite-friend')
+  async sendFriendInviteRequest(
+    @CurrentUser() user: User,
+    @Body('friendId') friendId: number,
+  ): Promise<any> {
+    return await this.friendService.sendFriendInviteRequest(user.id, friendId);
+  }
+
+  @ApiOperation({
+    summary: '내 친구 목록 조회 API (페이지네이션o)',
+  })
+  @ApiResponse({
+    status: 200,
+    isArray: true,
+    description: '내 친구 목록 조회완료',
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('me/friends')
+  async fetchMyFriends(
+    @CurrentUser() user: User,
+    @Query() dto: OffsetPaginationDto,
+  ) {
+    return await this.friendService.fetchMyFriends(user.id, dto);
+  }
+
+  @ApiOperation({
+    summary: '친구 요청 수락',
+  })
+  @ApiResponse({
+    status: 201,
+    description: '친구 요청 수락',
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Post('me/friend-invitation/received/:id/accept')
+  async acceptFriendInvitation(
+    @Param('id', ParseIntPipe) invitationId: number,
+  ) {
+    return await this.friendService.acceptFriendInvitation(invitationId);
+  }
+
+  @ApiOperation({
+    summary: '친구 삭제 API',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '친구 삭제 API',
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Delete('me/friend/:id')
+  async removeFriend(@Param('id', ParseIntPipe) invitationId: number) {
+    return await this.friendService.removeFriend(invitationId);
+  }
+
+  @ApiOperation({
+    summary: '내가 받은 친구요청 확인 (페이지네이션o)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '내가 받은 친구요청 확인하기',
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('me/friend-invitation/received')
+  async fetchReceivedFriendInvitiations(
+    @CurrentUser() user: User,
+    @Query() dto: OffsetPaginationDto,
+  ) {
+    return await this.friendService.fetchReceivedFriendInvitation(user.id, dto);
+  }
+
+  @ApiOperation({
+    summary: '내가 보낸 친구요청 확인 (페이지네이션o)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '내가 보낸 친구요청 확인하기',
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('/me/friend-invitation/sent')
+  async fetchSentFriendInvitiations(
+    @CurrentUser() user: User,
+    @Query() dto: OffsetPaginationDto,
+  ) {
+    return await this.friendService.fetchSentFriendInvitation(user.id, dto);
   }
 }
