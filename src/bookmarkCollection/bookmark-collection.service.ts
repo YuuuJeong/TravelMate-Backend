@@ -4,6 +4,8 @@ import { UpdateBookmarkCollectionRequestDTO } from './dtos/req/update-bookmark-c
 import { BookmarkCollectionEntity } from './entities/bookmark-collection.entity';
 import { PrismaService } from 'src/prisma.service';
 import { FetchMyBookmarkCollectionDto } from './dtos/req/fetch-my-bookmark-collections.dto';
+import { FriendInviteStatus, Prisma, Visibility } from '@prisma/client';
+import { OffsetPaginationDto } from 'src/common/dtos/offset-pagination.dto';
 
 @Injectable()
 export class BookmarkCollectionService {
@@ -107,7 +109,7 @@ export class BookmarkCollectionService {
     });
   }
 
-  async fetchBookmarkCollections(
+  async fetchMyBookmarkCollections(
     userId: number,
     dto: FetchMyBookmarkCollectionDto,
   ) {
@@ -130,7 +132,7 @@ export class BookmarkCollectionService {
       skip: (page - 1) * limit,
       take: limit,
       orderBy: {
-        createdAt: 'desc',
+        createdAt: Prisma.SortOrder.desc,
       },
     });
 
@@ -224,5 +226,59 @@ export class BookmarkCollectionService {
         visibility,
       },
     });
+  }
+
+  async getBookmarkCollections(
+    id: number,
+    userId: number,
+    dto: OffsetPaginationDto,
+  ) {
+    const { limit, page } = dto;
+    const visibilities: Visibility[] = [Visibility.PUBLIC];
+
+    const friendInvitations = await this.prisma.friendInvite.findMany({
+      where: {
+        status: FriendInviteStatus.ACCEPTED,
+        OR: [
+          {
+            userId: id,
+            friendId: userId,
+          },
+          {
+            userId,
+            friendId: id,
+          },
+        ],
+      },
+    });
+
+    if (friendInvitations.length > 0) {
+      visibilities.push(Visibility.FRIENDS_ONLY);
+    }
+
+    const count = await this.prisma.bookmarkCollection.count({
+      where: {
+        userId,
+        visibility: {
+          in: visibilities,
+        },
+      },
+    });
+
+    const bookmarkCollections = await this.prisma.bookmarkCollection.findMany({
+      where: {
+        userId,
+        visibility: {
+          in: visibilities,
+        },
+      },
+      skip: (page - 1) * limit,
+      take: limit,
+      orderBy: {
+        createdAt: Prisma.SortOrder.desc,
+      },
+    });
+
+    return { bookmarkCollections, count };
   }
 }

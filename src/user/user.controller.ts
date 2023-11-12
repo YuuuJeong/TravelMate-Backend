@@ -32,8 +32,8 @@ import { JwtAuthGuard } from 'src/auth/strategies/jwt.strategy';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { User } from '@prisma/client';
 import { FetchMyBookmarkCollectionDto } from 'src/bookmarkCollection/dtos/req/fetch-my-bookmark-collections.dto';
+import { OffsetPaginationDto } from '../common/dtos/offset-pagination.dto';
 import { FriendService } from '../friend/friend.service';
-import { OffsetPaginationDto } from 'src/common/dtos/offset-pagination.dto';
 
 @Controller('users')
 @ApiTags('users')
@@ -111,11 +111,14 @@ export class UserController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get('me/bookmark-collections')
-  async fetchBookmarkCollections(
+  async fetchMyBookmarkCollections(
     @CurrentUser() user: User,
     @Query() dto: FetchMyBookmarkCollectionDto,
   ) {
-    return await this.bookmarkCollection.fetchBookmarkCollections(user.id, dto);
+    return await this.bookmarkCollection.fetchMyBookmarkCollections(
+      user.id,
+      dto,
+    );
   }
 
   @ApiOperation({
@@ -212,8 +215,8 @@ export class UserController {
   }
 
   @ApiOperation({
-    summary: '채팅서버에 유저정보를 제공하기 위한 API(Client 사용x)',
-    description: '채팅서버에 유저정보를 제공하기 위한 API(Client 사용x)',
+    summary: '유저정보를 제공하기 위한 API',
+    description: '유저정보를 제공하기 위한 API',
   })
   @ApiParam({
     name: 'id',
@@ -222,13 +225,38 @@ export class UserController {
   })
   @ApiResponse({
     status: 200,
-    type: BookmarkDto,
-    isArray: true,
-    description: '북마크 컬렉션안에 있는 북마크들 조회완료',
+    description: '유저 정보 얻어오는 API',
   })
   @Get(':id')
   async getUserInfoById(@Param('id', ParseIntPipe) id: number) {
     return await this.userService.findUserById(id);
+  }
+
+  @ApiResponse({
+    status: 200,
+    type: BookmarkCollectionDto,
+    isArray: true,
+    description: '다른 유저의 북마크 컬렉션 조회완료',
+  })
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    required: true,
+  })
+  @ApiOkResponsePaginated(BookmarkCollectionDto)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get(':id/bookmark-collections')
+  async getBookmarkCollections(
+    @CurrentUser() user: User,
+    @Param('id', ParseIntPipe) userId: number,
+    @Query() dto: OffsetPaginationDto,
+  ) {
+    return await this.bookmarkCollection.getBookmarkCollections(
+      user.id,
+      userId,
+      dto,
+    );
   }
 
   @ApiOperation({
