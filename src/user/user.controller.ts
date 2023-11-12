@@ -32,12 +32,8 @@ import { JwtAuthGuard } from 'src/auth/strategies/jwt.strategy';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { User } from '@prisma/client';
 import { FetchMyBookmarkCollectionDto } from 'src/bookmarkCollection/dtos/req/fetch-my-bookmark-collections.dto';
-<<<<<<< HEAD
 import { OffsetPaginationDto } from '../common/dtos/offset-pagination.dto';
-=======
 import { FriendService } from '../friend/friend.service';
-import { OffsetPaginationDto } from 'src/common/dtos/offset-pagination.dto';
->>>>>>> 22e5f740606d88cc291b5bf8d7911b2bb6badf9a
 
 @Controller('users')
 @ApiTags('users')
