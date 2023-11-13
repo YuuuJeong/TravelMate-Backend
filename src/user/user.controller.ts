@@ -367,4 +367,21 @@ export class UserController {
   ) {
     return await this.friendService.fetchSentFriendInvitation(user.id, dto);
   }
+
+  @ApiOperation({
+    summary: '내가 즐겨찾기한 게시글 목록',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '즐겨찾기한 게시글 목록 가져오기 성공',
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('/me/favorite-articles')
+  async getUserFavoriteArticles(
+    @CurrentUser() user: User,
+    @Query() dto: OffsetPaginationDto,
+  ) {
+    return this.friendService.fetchMyFavoriteArticles(user.id, dto);
+  }
 }

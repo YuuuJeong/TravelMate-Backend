@@ -105,4 +105,30 @@ export class ArticleController {
   ) {
     return this.articleService.showRequests(user.id, articleId, dto.period);
   }
+
+  @ApiOperation({
+    summary: 'Add post to favorites',
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Post('/:articleId/favorite')
+  async addArticleToFavoriteList(
+    @CurrentUser() user: User,
+    @Param('articleId') articleId: number,
+  ) {
+    return this.articleService.addArticleToFavoriteList(user.id, articleId);
+  }
+
+  @ApiOperation({
+    summary: 'Delete post favorites',
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Delete('/:articleId/favorite')
+  async deleteArticleFavorite(
+    @CurrentUser() user: User,
+    @Param('articleId') articleId: number,
+  ) {
+    return this.articleService.deleteArticleFavorite(user.id, articleId);
+  }
 }
