@@ -42,11 +42,11 @@ export class GetArticlesDto {
 
   @ApiProperty({
     required: false,
-    enum: Period,
+    // enum: Period,
+    isArray: true,
   })
   @IsOptional()
-  @IsString()
-  period?: Period;
+  period?: Period[];
 
   @ApiProperty({
     required: false,

@@ -83,51 +83,11 @@ export class ArticleService {
 
     const whereClause = {
       deletedAt: null,
-      ...(period === Period.SPRING && {
-        springVersionID: {
-          not: null,
-        },
-      }),
-      ...(period === Period.SUMMER && {
-        summerVersionID: {
-          not: null,
-        },
-      }),
-      ...(period === Period.FALL && {
-        fallVersionID: {
-          not: null,
-        },
-      }),
-      ...(period === Period.WINTER && {
-        winterVersionID: {
-          not: null,
-        },
-      }),
       ...(authorId && {
         authorId,
       }),
       ...(location && {
         location,
-      }),
-      ...(keyword && {
-        OR: [
-          {
-            title: {
-              contains: keyword,
-            },
-          },
-          {
-            articleTagMap: {
-              some: {
-                tag: {
-                  name: {
-                    contains: keyword,
-                  },
-                },
-              },
-            },
-          },
-        ],
       }),
     };
 
@@ -147,11 +107,123 @@ export class ArticleService {
     const count = await this.prisma.article.count({
       where: {
         ...whereClause,
+        OR: [
+          {
+            ...(period?.includes(Period.SPRING) && {
+              springVersionID: {
+                not: null,
+              },
+            }),
+          },
+          {
+            ...(period?.includes(Period.WINTER) && {
+              winterVersionID: {
+                not: null,
+              },
+            }),
+          },
+          {
+            ...(period?.includes(Period.FALL) && {
+              fallVersionID: {
+                not: null,
+              },
+            }),
+          },
+          {
+            ...(period?.includes(Period.SUMMER) && {
+              summerVersionID: {
+                not: null,
+              },
+            }),
+          },
+        ],
+        AND: [
+          {
+            OR: [
+              {
+                ...(keyword && {
+                  title: {
+                    contains: keyword,
+                  },
+                }),
+              },
+              {
+                ...(keyword && {
+                  articleTagMap: {
+                    some: {
+                      tag: {
+                        name: {
+                          contains: keyword,
+                        },
+                      },
+                    },
+                  },
+                }),
+              },
+            ],
+          },
+        ],
       },
     });
     const articles = await this.prisma.article.findMany({
       where: {
         ...whereClause,
+        OR: [
+          {
+            ...(period?.includes(Period.SPRING) && {
+              springVersionID: {
+                not: null,
+              },
+            }),
+          },
+          {
+            ...(period?.includes(Period.WINTER) && {
+              winterVersionID: {
+                not: null,
+              },
+            }),
+          },
+          {
+            ...(period?.includes(Period.FALL) && {
+              fallVersionID: {
+                not: null,
+              },
+            }),
+          },
+          {
+            ...(period?.includes(Period.SUMMER) && {
+              summerVersionID: {
+                not: null,
+              },
+            }),
+          },
+        ],
+        AND: [
+          {
+            OR: [
+              {
+                ...(keyword && {
+                  title: {
+                    contains: keyword,
+                  },
+                }),
+              },
+              {
+                ...(keyword && {
+                  articleTagMap: {
+                    some: {
+                      tag: {
+                        name: {
+                          contains: keyword,
+                        },
+                      },
+                    },
+                  },
+                }),
+              },
+            ],
+          },
+        ],
       },
       orderBy: [orderClause],
       skip: (page - 1) * limit,
