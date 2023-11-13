@@ -78,10 +78,67 @@ export class ArticleService {
     });
   }
 
-  public async getArticles(dto: GetArticlesDto) {
-    const { page, limit, period, location, authorId, keyword, order } = dto;
+  private buildGetArticlesWhereInput(dto: GetArticlesDto) {
+    const { period, location, authorId, keyword, order } = dto;
+    const orInput = [
+      {
+        ...(period?.includes(Period.SPRING) && {
+          springVersionID: {
+            not: null,
+          },
+        }),
+      },
+      {
+        ...(period?.includes(Period.WINTER) && {
+          winterVersionID: {
+            not: null,
+          },
+        }),
+      },
+      {
+        ...(period?.includes(Period.FALL) && {
+          fallVersionID: {
+            not: null,
+          },
+        }),
+      },
+      {
+        ...(period?.includes(Period.SUMMER) && {
+          summerVersionID: {
+            not: null,
+          },
+        }),
+      },
+    ];
 
-    const whereClause = {
+    const andInput = [
+      {
+        OR: [
+          {
+            ...(keyword && {
+              title: {
+                contains: keyword,
+              },
+            }),
+          },
+          {
+            ...(keyword && {
+              articleTagMap: {
+                some: {
+                  tag: {
+                    name: {
+                      contains: keyword,
+                    },
+                  },
+                },
+              },
+            }),
+          },
+        ],
+      },
+    ];
+
+    return {
       deletedAt: null,
       ...(authorId && {
         authorId,
@@ -89,7 +146,13 @@ export class ArticleService {
       ...(location && {
         location,
       }),
+      OR: orInput,
+      AND: andInput,
     };
+  }
+
+  public async getArticles(dto: GetArticlesDto) {
+    const { page, limit, period, location, authorId, keyword, order } = dto;
 
     const orderClause = {
       ...(order === ArticleOrderField.RECENT && {
@@ -104,126 +167,16 @@ export class ArticleService {
       ...(!order && { createdAt: Prisma.SortOrder.desc }),
     };
 
+    const whereClause = this.buildGetArticlesWhereInput(dto);
+
     const count = await this.prisma.article.count({
       where: {
         ...whereClause,
-        OR: [
-          {
-            ...(period?.includes(Period.SPRING) && {
-              springVersionID: {
-                not: null,
-              },
-            }),
-          },
-          {
-            ...(period?.includes(Period.WINTER) && {
-              winterVersionID: {
-                not: null,
-              },
-            }),
-          },
-          {
-            ...(period?.includes(Period.FALL) && {
-              fallVersionID: {
-                not: null,
-              },
-            }),
-          },
-          {
-            ...(period?.includes(Period.SUMMER) && {
-              summerVersionID: {
-                not: null,
-              },
-            }),
-          },
-        ],
-        AND: [
-          {
-            OR: [
-              {
-                ...(keyword && {
-                  title: {
-                    contains: keyword,
-                  },
-                }),
-              },
-              {
-                ...(keyword && {
-                  articleTagMap: {
-                    some: {
-                      tag: {
-                        name: {
-                          contains: keyword,
-                        },
-                      },
-                    },
-                  },
-                }),
-              },
-            ],
-          },
-        ],
       },
     });
     const articles = await this.prisma.article.findMany({
       where: {
         ...whereClause,
-        OR: [
-          {
-            ...(period?.includes(Period.SPRING) && {
-              springVersionID: {
-                not: null,
-              },
-            }),
-          },
-          {
-            ...(period?.includes(Period.WINTER) && {
-              winterVersionID: {
-                not: null,
-              },
-            }),
-          },
-          {
-            ...(period?.includes(Period.FALL) && {
-              fallVersionID: {
-                not: null,
-              },
-            }),
-          },
-          {
-            ...(period?.includes(Period.SUMMER) && {
-              summerVersionID: {
-                not: null,
-              },
-            }),
-          },
-        ],
-        AND: [
-          {
-            OR: [
-              {
-                ...(keyword && {
-                  title: {
-                    contains: keyword,
-                  },
-                }),
-              },
-              {
-                ...(keyword && {
-                  articleTagMap: {
-                    some: {
-                      tag: {
-                        name: {
-                          contains: keyword,
-                        },
-                      },
-                    },
-                  },
-                }),
-              },
-            ],
-          },
-        ],
       },
       orderBy: [orderClause],
       skip: (page - 1) * limit,
