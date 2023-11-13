@@ -4,6 +4,7 @@ import { CreateArticleDto } from './dtos/create-article.dto';
 import { Period, Prisma, User } from '@prisma/client';
 import { ArticleOrderField, GetArticlesDto } from './dtos/get-articles.dto';
 import { UpdateArticleDto } from './dtos/update-article.dto';
+import { RequestArticleDto } from './dtos/request-article.dto';
 
 @Injectable()
 export class ArticleService {
@@ -306,6 +307,30 @@ export class ArticleService {
   }
 
   async deleteArticle(userId: number, articleId: number) {
+  public async requestArticle(
+    userId: number,
+    articleId: number,
+    dto: RequestArticleDto,
+  ) {
+    const { period, content } = dto;
+
+    await this.prisma.article.findUniqueOrThrow({
+      where: {
+        id: articleId,
+      },
+    });
+
+    return this.prisma.pendingArticleRequest.create({
+      data: {
+        articleId,
+        content,
+        period,
+        userId,
+      },
+    });
+  }
+
+  public async showRequests(userId: number, articleId: number, period: Period) {
     const article = await this.prisma.article.findUniqueOrThrow({
       where: {
         id: articleId,
@@ -322,6 +347,10 @@ export class ArticleService {
       },
       data: {
         deletedAt: new Date(),
+    return this.prisma.pendingArticleRequest.findMany({
+      where: {
+        articleId,
+        period,
       },
     });
   }

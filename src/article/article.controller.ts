@@ -17,6 +17,8 @@ import { User } from '@prisma/client';
 import { CreateArticleDto } from './dtos/create-article.dto';
 import { GetArticlesDto } from './dtos/get-articles.dto';
 import { UpdateArticleDto } from './dtos/update-article.dto';
+import { RequestArticleDto } from './dtos/request-article.dto';
+import { ShowRequestsDto } from './dtos/show-requests.dto';
 
 @Controller('articles')
 @ApiTags('articles')
@@ -74,5 +76,30 @@ export class ArticleController {
     @Param('articleId') articleId: number,
   ) {
     return this.articleService.deleteArticle(user.id, articleId);
+    summary: 'Request update',
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Post('/:articleId/reqeusts')
+  requestArticle(
+    @CurrentUser() user: User,
+    @Param('articleId') articleId: number,
+    @Body() dto: RequestArticleDto,
+  ) {
+    return this.articleService.requestArticle(user.id, articleId, dto);
+  }
+
+  @ApiOperation({
+    summary: 'Show update requests',
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('/:articleId/reqeusts')
+  showRequests(
+    @CurrentUser() user: User,
+    @Param('articleId') articleId: number,
+    @Query() dto: ShowRequestsDto,
+  ) {
+    return this.articleService.showRequests(user.id, articleId, dto.period);
   }
 }
