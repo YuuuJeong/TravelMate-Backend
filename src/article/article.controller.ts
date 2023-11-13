@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -60,5 +61,18 @@ export class ArticleController {
     @Body() dto: UpdateArticleDto,
   ) {
     return this.articleService.updateArticle(user.id, articleId, dto);
+  }
+
+  @ApiOperation({
+    summary: 'Delete article',
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Delete(':articleId')
+  deleteArticle(
+    @CurrentUser() user: User,
+    @Param('articleId') articleId: number,
+  ) {
+    return this.articleService.deleteArticle(user.id, articleId);
   }
 }
