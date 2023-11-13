@@ -358,4 +358,31 @@ export class ArticleService {
       },
     });
   }
+
+  async addArticleToFavoriteList(userId: number, articleId: number) {
+    return await this.prisma.userFavoriteArticleMap.upsert({
+      where: {
+        userId_articleId: {
+          userId,
+          articleId,
+        },
+      },
+      create: {
+        userId,
+        articleId,
+      },
+      update: {},
+    });
+  }
+
+  async deleteArticleFavorite(userId: number, articleId: number) {
+    return await this.prisma.userFavoriteArticleMap.delete({
+      where: {
+        userId_articleId: {
+          userId,
+          articleId,
+        },
+      },
+    });
+  }
 }

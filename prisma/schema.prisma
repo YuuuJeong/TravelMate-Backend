@@ -95,8 +95,9 @@ model User {
   attachments            Attachment[]
   ArticleVersionHistory  ArticleVersionHistory[]
 
-  receivedFriendInvites FriendInvite[] @relation("friendReceivedInvites")
-  sentFriendInvites     FriendInvite[] @relation("userSentInvites")
+  receivedFriendInvites  FriendInvite[]           @relation("friendReceivedInvites")
+  sentFriendInvites      FriendInvite[]           @relation("userSentInvites")
+  userFavoriteArticleMap UserFavoriteArticleMap[] @relation("user")
 }
 
 enum AttachmentType {
@@ -138,14 +139,15 @@ model Article {
   winterVersionID Int?
 
   deletedAt DateTime? @db.Timestamp(0)
-  createdAt DateTime @default(now()) @db.Timestamp(0)
-  updatedAt DateTime @default(now()) @updatedAt @db.Timestamp(0)
+  createdAt DateTime  @default(now()) @db.Timestamp(0)
+  updatedAt DateTime  @default(now()) @updatedAt @db.Timestamp(0)
 
-  author                  User                    @relation(fields: [authorId], references: [id])
+  author                  User                     @relation(fields: [authorId], references: [id])
   pendingArticleRequests  PendingArticleRequest[]
   articleTagMap           ArticleTagMap[]
   articleVersionHistories ArticleVersionHistory[]
   attachments             Attachment[]
+  userFavoriteArticleMap  UserFavoriteArticleMap[] @relation("favoriteArticles")
 }
 
 model ArticleVersionHistory {
@@ -224,4 +226,15 @@ model FriendInvite {
   friend User @relation("friendReceivedInvites", fields: [friendId], references: [id], map: "friendReceivedInvites")
 
   @@unique([userId, friendId, status])
+}
+
+model UserFavoriteArticleMap {
+  id        Int @id @default(autoincrement())
+  userId    Int
+  articleId Int
+
+  user    User    @relation("user", fields: [userId], references: [id], map: "user")
+  article Article @relation("favoriteArticles", fields: [articleId], references: [id], map: "favoriteArticles")
+
+  @@unique([userId, articleId])
 }

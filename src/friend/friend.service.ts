@@ -183,4 +183,48 @@ export class FriendService {
 
     return { friends, count };
   }
+
+  async fetchMyFavoriteArticles(userId: number, dto: OffsetPaginationDto) {
+    const { page, limit } = dto;
+
+    const articleIds: number[] = (
+      await this.prisma.userFavoriteArticleMap.findMany({
+        where: {
+          userId,
+        },
+      })
+    ).map((userFavoriteArticle) => userFavoriteArticle.articleId);
+
+    const count = await this.prisma.article.count({
+      where: {
+        deletedAt: null,
+        id: {
+          in: articleIds,
+        },
+      },
+    });
+
+    const articles = await this.prisma.article.findMany({
+      where: {
+        deletedAt: null,
+        id: {
+          in: articleIds,
+        },
+      },
+      skip: (page - 1) * limit,
+      take: limit,
+      include: {
+        articleTagMap: {
+          include: {
+            tag: true,
+          },
+        },
+      },
+    });
+
+    return {
+      count,
+      articles,
+    };
+  }
 }
