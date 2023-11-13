@@ -81,6 +81,7 @@ export class ArticleService {
     const { page, limit, period, location, authorId, keyword, order } = dto;
 
     const whereClause = {
+      deletedAt: null,
       ...(period === Period.SPRING && {
         springVersionID: {
           not: null,
@@ -300,6 +301,27 @@ export class ArticleService {
             tag: true,
           },
         },
+      },
+    });
+  }
+
+  async deleteArticle(userId: number, articleId: number) {
+    const article = await this.prisma.article.findUniqueOrThrow({
+      where: {
+        id: articleId,
+      },
+    });
+
+    if (article.authorId !== userId) {
+      throw new BadRequestException('권한이 없습니다.');
+    }
+
+    return await this.prisma.article.update({
+      where: {
+        id: articleId,
+      },
+      data: {
+        deletedAt: new Date(),
       },
     });
   }
