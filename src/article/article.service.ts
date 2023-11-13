@@ -80,63 +80,68 @@ export class ArticleService {
 
   private buildGetArticlesWhereInput(dto: GetArticlesDto) {
     const { period, location, authorId, keyword, order } = dto;
-    const orInput = [
-      {
-        ...(period?.includes(Period.SPRING) && {
-          springVersionID: {
-            not: null,
-          },
-        }),
-      },
-      {
-        ...(period?.includes(Period.WINTER) && {
-          winterVersionID: {
-            not: null,
-          },
-        }),
-      },
-      {
-        ...(period?.includes(Period.FALL) && {
-          fallVersionID: {
-            not: null,
-          },
-        }),
-      },
-      {
-        ...(period?.includes(Period.SUMMER) && {
-          summerVersionID: {
-            not: null,
-          },
-        }),
-      },
-    ];
 
-    const andInput = [
-      {
-        OR: [
+    const orInput = period
+      ? [
           {
-            ...(keyword && {
-              title: {
-                contains: keyword,
+            ...(period?.includes(Period.SPRING) && {
+              springVersionID: {
+                not: null,
               },
             }),
           },
           {
-            ...(keyword && {
-              articleTagMap: {
-                some: {
-                  tag: {
-                    name: {
-                      contains: keyword,
+            ...(period?.includes(Period.WINTER) && {
+              winterVersionID: {
+                not: null,
+              },
+            }),
+          },
+          {
+            ...(period?.includes(Period.FALL) && {
+              fallVersionID: {
+                not: null,
+              },
+            }),
+          },
+          {
+            ...(period?.includes(Period.SUMMER) && {
+              summerVersionID: {
+                not: null,
+              },
+            }),
+          },
+        ]
+      : [];
+
+    const andInput = keyword
+      ? [
+          {
+            OR: [
+              {
+                ...(keyword && {
+                  title: {
+                    contains: keyword,
+                  },
+                }),
+              },
+              {
+                ...(keyword && {
+                  articleTagMap: {
+                    some: {
+                      tag: {
+                        name: {
+                          contains: keyword,
+                        },
+                      },
                     },
                   },
-                },
+                }),
               },
-            }),
+            ],
           },
-        ],
-      },
-    ];
+        ]
+      : [];
 
     return {
       deletedAt: null,
@@ -146,8 +151,12 @@ export class ArticleService {
       ...(location && {
         location,
       }),
-      OR: orInput,
-      AND: andInput,
+      ...(orInput.length > 0 && {
+        OR: orInput,
+      }),
+      ...(andInput.length > 0 && {
+        AND: andInput,
+      }),
     };
   }
 
