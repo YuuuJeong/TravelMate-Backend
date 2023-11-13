@@ -76,7 +76,10 @@ export class ArticleController {
     @Param('articleId') articleId: number,
   ) {
     return this.articleService.deleteArticle(user.id, articleId);
-    summary: 'Request update',
+  }
+
+  @ApiOperation({
+    description: 'Request article',
   })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)

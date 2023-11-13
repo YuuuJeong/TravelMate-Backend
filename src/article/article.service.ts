@@ -306,7 +306,17 @@ export class ArticleService {
     });
   }
 
-  async deleteArticle(userId: number, articleId: number) {
+  deleteArticle(userId: number, articleId: number) {
+    return this.prisma.article.update({
+      where: {
+        id: articleId,
+      },
+      data: {
+        deletedAt: new Date(),
+      },
+    });
+  }
+
   public async requestArticle(
     userId: number,
     articleId: number,
@@ -341,12 +351,6 @@ export class ArticleService {
       throw new BadRequestException('권한이 없습니다.');
     }
 
-    return await this.prisma.article.update({
-      where: {
-        id: articleId,
-      },
-      data: {
-        deletedAt: new Date(),
     return this.prisma.pendingArticleRequest.findMany({
       where: {
         articleId,
