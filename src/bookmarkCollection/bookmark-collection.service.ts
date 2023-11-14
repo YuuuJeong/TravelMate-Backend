@@ -193,12 +193,10 @@ export class BookmarkCollectionService {
               create: {
                 latitude: location.latitude,
                 longitude: location.longitude,
+                placeId: location.placeId,
               },
               where: {
-                latitude_longitude: {
-                  latitude: location.latitude,
-                  longitude: location.longitude,
-                },
+                placeId: location.placeId,
               },
             },
           },

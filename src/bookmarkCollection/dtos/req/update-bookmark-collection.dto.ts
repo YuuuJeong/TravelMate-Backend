@@ -7,6 +7,7 @@ export interface LocationWithContent {
   latitude: Decimal;
   longitude: Decimal;
   content?: string;
+  placeId: string;
 }
 
 export class UpdateBookmarkCollectionRequestDTO {
@@ -33,6 +34,7 @@ export class UpdateBookmarkCollectionRequestDTO {
       {
         latitude: 12.52,
         longitude: 10.1,
+        placeId: 'ChIJ-b-cvCxdezURhkcMDVqEYuk',
         content: '뭘까용?',
       },
     ],

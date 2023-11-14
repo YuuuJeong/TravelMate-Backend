@@ -165,6 +165,7 @@ export class ArticleService {
         ],
       },
     });
+
     const articles = await this.prisma.article.findMany({
       where: {
         ...whereClause,

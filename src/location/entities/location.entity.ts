@@ -5,4 +5,5 @@ export class LocationEntity implements Location {
   id: number;
   latitude: Decimal;
   longitude: Decimal;
+  placeId: string;
 }
