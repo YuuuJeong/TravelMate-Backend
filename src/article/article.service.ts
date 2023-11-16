@@ -28,7 +28,8 @@ export class ArticleService {
     const versionHistory = await this.createArticleVerionHistory(
       user.id,
       article.id,
-      dto,
+      dto.content,
+      dto.period,
     );
 
     const articleUpdateInput = {
@@ -66,13 +67,14 @@ export class ArticleService {
   public createArticleVerionHistory(
     userId: number,
     articleId: number,
-    dto: CreateArticleDto,
+    content: string,
+    period: Period,
   ) {
     return this.prisma.articleVersionHistory.create({
       data: {
         articleId,
-        content: dto.content,
-        period: dto.period,
+        content,
+        period,
         userId,
       },
     });
@@ -284,7 +286,8 @@ export class ArticleService {
       const newVersionHistory = await this.createArticleVerionHistory(
         userId,
         article.id,
-        dto as CreateArticleDto,
+        dto.content,
+        dto.period,
       );
 
       historyUpdateInput = {
@@ -390,6 +393,97 @@ export class ArticleService {
       where: {
         articleId,
         period,
+        acceptedAt: null,
+        declinedAt: null,
+      },
+    });
+  }
+
+  public async acceptRequest(
+    userId: number,
+    articleId: number,
+    requestId: number,
+  ) {
+    const article = await this.prisma.article.findUniqueOrThrow({
+      where: {
+        id: articleId,
+      },
+    });
+
+    if (article.authorId !== userId) {
+      throw new BadRequestException('권한이 없습니다.');
+    }
+
+    const request = await this.prisma.pendingArticleRequest.findUniqueOrThrow({
+      where: {
+        id: requestId,
+      },
+    });
+
+    await this.prisma.pendingArticleRequest.update({
+      where: {
+        id: requestId,
+      },
+      data: {
+        acceptedAt: new Date(),
+      },
+    });
+
+    const versionHistory = await this.createArticleVerionHistory(
+      request.userId,
+      article.id,
+      request.content,
+      request.period,
+    );
+
+    await this.prisma.article.update({
+      where: {
+        id: articleId,
+      },
+      data: {
+        ...(request.period === Period.SPRING && {
+          springVersionID: versionHistory.id,
+        }),
+        ...(request.period === Period.SUMMER && {
+          summerVersionID: versionHistory.id,
+        }),
+        ...(request.period === Period.FALL && {
+          fallVersionID: versionHistory.id,
+        }),
+        ...(request.period === Period.WINTER && {
+          winterVersionID: versionHistory.id,
+        }),
+      },
+    });
+
+    return this.prisma.pendingArticleRequest.findUnique({
+      where: {
+        id: requestId,
+      },
+    });
+  }
+
+  public async declineRequest(
+    userId: number,
+    articleId: number,
+    requestId: number,
+  ) {
+    const article = await this.prisma.article.findUniqueOrThrow({
+      where: {
+        id: articleId,
+      },
+    });
+
+    if (article.authorId !== userId) {
+      throw new BadRequestException('권한이 없습니다.');
+    }
+
+    return this.prisma.pendingArticleRequest.update({
+      where: {
+        id: requestId,
+      },
+      data: {
+        declinedAt: new Date(),
       },
     });
   }

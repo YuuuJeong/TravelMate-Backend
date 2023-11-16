@@ -28,12 +28,11 @@ enum FriendInviteStatus {
 }
 
 model Location {
-  id        Int     @id @default(autoincrement())
-  latitude  Decimal @db.Decimal(65, 30)
-  longitude Decimal @db.Decimal(65, 30)
-  placeId   String  @unique @db.VarChar(200)
+  id        Int        @id @default(autoincrement())
+  latitude  Decimal    @db.Decimal(65, 30)
+  longitude Decimal    @db.Decimal(65, 30)
+  placeId   String     @unique @db.VarChar(200)
   bookmarks Bookmark[]
-
 }
 
 model Bookmark {
@@ -165,13 +164,15 @@ model ArticleVersionHistory {
 }
 
 model PendingArticleRequest {
-  id        Int      @id @default(autoincrement())
-  articleId Int
-  period    Period
-  content   String
-  userId    Int
-  createdAt DateTime @default(now()) @db.Timestamp(0)
-  updatedAt DateTime @default(now()) @updatedAt @db.Timestamp(0)
+  id         Int       @id @default(autoincrement())
+  articleId  Int
+  period     Period
+  content    String
+  userId     Int
+  createdAt  DateTime  @default(now()) @db.Timestamp(0)
+  updatedAt  DateTime  @default(now()) @updatedAt @db.Timestamp(0)
+  acceptedAt DateTime? @db.Timestamp(0)
+  declinedAt DateTime? @db.Timestamp(0)
 
   user    User    @relation(fields: [userId], references: [id])
   article Article @relation(fields: [articleId], references: [id])
