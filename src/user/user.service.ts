@@ -5,6 +5,20 @@ import { PrismaService } from 'src/prisma.service';
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
 
+  findUsersByIds(userIds: number[]) {
+    return this.prisma.user.findMany({
+      where: {
+        id: {
+          in: userIds,
+        },
+      },
+      select: {
+        id: true,
+        nickname: true,
+        profileImageId: true,
+      },
+    });
+  }
   findUserById(userId: number) {
     return this.prisma.user.findUnique({
       where: {

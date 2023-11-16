@@ -15,6 +15,7 @@ import {
   ApiBody,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -218,18 +219,18 @@ export class UserController {
     summary: '유저정보를 제공하기 위한 API',
     description: '유저정보를 제공하기 위한 API',
   })
-  @ApiParam({
-    name: 'id',
-    type: Number,
-    required: true,
+  @ApiQuery({
+    name: 'userIds',
+    example: 1,
   })
   @ApiResponse({
     status: 200,
-    description: '유저 정보 얻어오는 API',
+    description: '유저 정보들을 제공하는 API',
   })
-  @Get(':id')
-  async getUserInfoById(@Param('id', ParseIntPipe) id: number) {
-    return await this.userService.findUserById(id);
+  @Get('users')
+  async getUserInfoById(@Query('userIds') userIds: string) {
+    const userIdList = userIds.split(',').map((id) => parseInt(id, 10));
+    return await this.userService.findUsersByIds(userIdList);
   }
 
   @ApiResponse({
