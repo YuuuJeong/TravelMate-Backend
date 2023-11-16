@@ -227,7 +227,7 @@ export class UserController {
     status: 200,
     description: '유저 정보들을 제공하는 API',
   })
-  @Get('users')
+  @Get('')
   async getUserInfoById(@Query('userIds') userIds: string) {
     const userIdList = userIds.split(',').map((id) => parseInt(id, 10));
     return await this.userService.findUsersByIds(userIdList);
