@@ -93,6 +93,34 @@ export class ArticleController {
   }
 
   @ApiOperation({
+    summary: 'Accept update requests',
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('/:articleId/reqeusts/accept/:requestId')
+  acceptRequest(
+    @CurrentUser() user: User,
+    @Param('articleId') articleId: number,
+    @Param('requestId') requestId: number,
+  ) {
+    return this.articleService.acceptRequest(user.id, articleId, requestId);
+  }
+
+  @ApiOperation({
+    summary: 'Decline update requests',
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('/:articleId/reqeusts/decline/:requestId')
+  declineRequest(
+    @CurrentUser() user: User,
+    @Param('articleId') articleId: number,
+    @Param('requestId') requestId: number,
+  ) {
+    return this.articleService.declineRequest(user.id, articleId, requestId);
+  }
+
+  @ApiOperation({
     summary: 'Show update requests',
   })
   @ApiBearerAuth()
