@@ -55,6 +55,7 @@ export class CreateArticleDto {
 
   @ApiProperty({
     description: 'tagIds',
+    type: [Number],
   })
   tagIds: number[];
 }

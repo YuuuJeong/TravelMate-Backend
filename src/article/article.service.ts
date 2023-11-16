@@ -309,11 +309,7 @@ export class ArticleService {
     const tagUpdateInput = {
       ...(tagIds && {
         articleTagMap: {
-          deleteMany: {
-            tagId: {
-              notIn: tagIds,
-            },
-          },
+          deleteMany: {},
           createMany: {
             data: tagIds.map((tagId) => ({
               tagId,
