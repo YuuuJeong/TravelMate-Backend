@@ -167,7 +167,7 @@ model PendingArticleRequest {
   id         Int       @id @default(autoincrement())
   articleId  Int
   period     Period
-  content    String
+  content    String    @db.Text
   userId     Int
   createdAt  DateTime  @default(now()) @db.Timestamp(0)
   updatedAt  DateTime  @default(now()) @updatedAt @db.Timestamp(0)
