@@ -35,7 +35,7 @@ export class FriendService {
 
     const count = await this.prisma.friendInvite.count({
       where: {
-        status: FriendInviteStatus.PENDING,
+        status: FriendInviteStatus.ACCEPTED,
         OR: [
           {
             userId,
@@ -49,7 +49,7 @@ export class FriendService {
 
     const friends = await this.prisma.friendInvite.findMany({
       where: {
-        status: FriendInviteStatus.PENDING,
+        status: FriendInviteStatus.ACCEPTED,
         OR: [
           {
             userId,
