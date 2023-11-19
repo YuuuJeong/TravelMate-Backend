@@ -135,6 +135,20 @@ export class ArticleController {
   }
 
   @ApiOperation({
+    summary: 'Get update single request',
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('/:articleId/reqeusts/:requestId')
+  getRequest(
+    @CurrentUser() user: User,
+    @Param('articleId') articleId: number,
+    @Param('requestId') requestId: number,
+  ) {
+    return this.articleService.getRequest(user.id, articleId, requestId);
+  }
+
+  @ApiOperation({
     summary: 'Add post to favorites',
   })
   @ApiBearerAuth()

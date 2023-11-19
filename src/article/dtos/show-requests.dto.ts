@@ -1,11 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Period } from '@prisma/client';
 import { IsEnum } from 'class-validator';
+
+enum PeriodOrAll {
+  ALL = 'ALL',
+  SPRING = 'SPRING',
+  SUMMER = 'SUMMER',
+  FALL = 'FALL',
+  WINTER = 'WINTER',
+}
 
 export class ShowRequestsDto {
   @ApiProperty({
-    enum: Period,
+    enum: PeriodOrAll,
   })
-  @IsEnum(Period)
-  period: Period;
+  @IsEnum(PeriodOrAll)
+  period: PeriodOrAll;
 }

@@ -374,7 +374,34 @@ export class ArticleService {
     });
   }
 
-  public async showRequests(userId: number, articleId: number, period: Period) {
+  public async getRequest(
+    userId: number,
+    articleId: number,
+    requestId: number,
+  ) {
+    const article = await this.prisma.article.findUniqueOrThrow({
+      where: {
+        id: articleId,
+      },
+    });
+
+    if (article.authorId !== userId) {
+      throw new BadRequestException('권한이 없습니다.');
+    }
+
+    return this.prisma.pendingArticleRequest.findUniqueOrThrow({
+      where: {
+        id: requestId,
+        articleId,
+      },
+    });
+  }
+
+  public async showRequests(
+    userId: number,
+    articleId: number,
+    period: Period | string,
+  ) {
     const article = await this.prisma.article.findUniqueOrThrow({
       where: {
         id: articleId,
@@ -388,7 +415,9 @@ export class ArticleService {
     return this.prisma.pendingArticleRequest.findMany({
       where: {
         articleId,
-        period,
+        ...(period !== 'ALL' && {
+          period: period as Period,
+        }),
         acceptedAt: null,
         declinedAt: null,
       },
