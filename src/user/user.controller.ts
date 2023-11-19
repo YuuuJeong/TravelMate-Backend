@@ -228,8 +228,12 @@ export class UserController {
     description: '유저 정보들을 제공하는 API',
   })
   @Get('')
-  async getUserInfoById(@Query('userIds') userIds: string) {
-    const userIdList = userIds.split(',').map((id) => parseInt(id, 10));
+  async getUserInfoById(@Query('userIds') userIds: string | string[]) {
+    const userIdList =
+      typeof userIds === 'string'
+        ? userIds.split(',').map((id) => Number(id))
+        : (userIds as string[]).map((id) => Number(id));
+
     return await this.userService.findUsersByIds(userIdList);
   }
 
