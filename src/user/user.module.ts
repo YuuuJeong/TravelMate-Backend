@@ -5,9 +5,10 @@ import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { PrismaService } from '../prisma.service';
 import { FriendService } from '../friend/friend.service';
+import { ArticleModule } from 'src/article/article.module';
 
 @Module({
-  imports: [],
+  imports: [ArticleModule],
   controllers: [UserController],
   providers: [
     UserService,

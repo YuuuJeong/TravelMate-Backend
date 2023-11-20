@@ -38,4 +38,10 @@ export class UpdateArticleDto {
     required: false,
   })
   content: string;
+
+  @ApiProperty({
+    description: 'Bookmark ids',
+    type: [Number],
+  })
+  bookmarkIds: number[];
 }

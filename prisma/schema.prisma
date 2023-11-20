@@ -31,7 +31,7 @@ model Location {
   id        Int        @id @default(autoincrement())
   latitude  Decimal    @db.Decimal(65, 30)
   longitude Decimal    @db.Decimal(65, 30)
-  placeId   String     @unique @db.VarChar(200)
+  placeId   String?    @unique @db.VarChar(200)
   bookmarks Bookmark[]
 }
 
@@ -143,6 +143,7 @@ model Article {
   author                  User                     @relation(fields: [authorId], references: [id])
   pendingArticleRequests  PendingArticleRequest[]
   articleTagMap           ArticleTagMap[]
+  articleBookmarkMap      ArticleBookmarkMap[]
   articleVersionHistories ArticleVersionHistory[]
   attachments             Attachment[]
   userFavoriteArticleMap  UserFavoriteArticleMap[] @relation("favoriteArticles")
@@ -209,6 +210,7 @@ model ArticleBookmarkMap {
   bookmark  Bookmark @relation(fields: [bookmarkId], references: [id])
   createdAt DateTime @default(now()) @db.Timestamp(0)
   updatedAt DateTime @default(now()) @updatedAt @db.Timestamp(0)
+  Article   Article  @relation(fields: [articleId], references: [id])
 
   @@index([period], map: "fk_ArticleBookmarkMap_period")
 }

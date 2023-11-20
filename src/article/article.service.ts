@@ -5,6 +5,7 @@ import { Period, Prisma, User } from '@prisma/client';
 import { ArticleOrderField, GetArticlesDto } from './dtos/get-articles.dto';
 import { UpdateArticleDto } from './dtos/update-article.dto';
 import { RequestArticleDto } from './dtos/request-article.dto';
+import { OffsetPaginationDto } from 'src/common/dtos/offset-pagination.dto';
 
 @Injectable()
 export class ArticleService {
@@ -17,6 +18,12 @@ export class ArticleService {
         authorId: user.id,
         location: dto.location,
         thumbnail: dto.thumbnail,
+        articleBookmarkMap: {
+          create: dto.bookmarkIds.map((bookmarkId) => ({
+            bookmarkId,
+            period: dto.period,
+          })),
+        },
         articleTagMap: {
           create: dto.tagIds.map((tagId) => ({
             tagId,
@@ -214,6 +221,15 @@ export class ArticleService {
         id: articleId,
       },
       include: {
+        articleBookmarkMap: {
+          include: {
+            bookmark: {
+              include: {
+                location: true,
+              },
+            },
+          },
+        },
         articleTagMap: {
           include: {
             tag: true,
@@ -263,12 +279,47 @@ export class ArticleService {
     };
   }
 
+  async getMyArticles(userId: number, dto: OffsetPaginationDto) {
+    const { page, limit } = dto;
+    const count = await this.prisma.article.count({
+      where: {
+        authorId: userId,
+      },
+    });
+
+    const articles = await this.prisma.article.findMany({
+      where: {
+        authorId: userId,
+      },
+      skip: (page - 1) * limit,
+      take: limit,
+      include: {
+        articleTagMap: {
+          include: {
+            tag: true,
+          },
+        },
+        pendingArticleRequests: {
+          select: {
+            id: true,
+            period: true,
+          },
+        },
+      },
+    });
+
+    return {
+      count,
+      articles,
+    };
+  }
+
   async updateArticle(
     userId: number,
     articleId: number,
     dto: UpdateArticleDto,
   ) {
-    const { title, period, tagIds, location, thumbnail } = dto;
+    const { title, period, tagIds, location, thumbnail, bookmarkIds } = dto;
 
     const article = await this.prisma.article.findUniqueOrThrow({
       where: {
@@ -306,6 +357,22 @@ export class ArticleService {
       };
     }
 
+    const bookmarkUpdateInput = {
+      ...(bookmarkIds && {
+        articleBookmarkMap: {
+          deleteMany: {
+            period,
+          },
+          createMany: {
+            data: bookmarkIds.map((bookmarkId) => ({
+              bookmarkId,
+              period,
+            })),
+          },
+        },
+      }),
+    };
+
     const tagUpdateInput = {
       ...(tagIds && {
         articleTagMap: {
@@ -327,6 +394,7 @@ export class ArticleService {
         title,
         location,
         thumbnail,
+        ...bookmarkUpdateInput,
         ...historyUpdateInput,
         ...tagUpdateInput,
       },

@@ -35,6 +35,7 @@ import { User } from '@prisma/client';
 import { FetchMyBookmarkCollectionDto } from 'src/bookmarkCollection/dtos/req/fetch-my-bookmark-collections.dto';
 import { OffsetPaginationDto } from '../common/dtos/offset-pagination.dto';
 import { FriendService } from '../friend/friend.service';
+import { ArticleService } from 'src/article/article.service';
 
 @Controller('users')
 @ApiTags('users')
@@ -44,6 +45,7 @@ export class UserController {
     private readonly bookmark: BookmarkService,
     private readonly userService: UserService,
     private readonly friendService: FriendService,
+    private readonly articleService: ArticleService,
   ) {}
 
   @ApiOperation({
@@ -54,6 +56,16 @@ export class UserController {
   @Get('/me')
   profile(@CurrentUser() user: User) {
     return user;
+  }
+
+  @ApiOperation({
+    summary: 'My Articles',
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('/me/articles')
+  articles(@CurrentUser() user: User, @Query() dto: OffsetPaginationDto) {
+    return this.articleService.getMyArticles(user.id, dto);
   }
 
   @ApiOperation({

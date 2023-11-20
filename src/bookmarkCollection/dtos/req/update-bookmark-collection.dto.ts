@@ -7,7 +7,7 @@ export interface LocationWithContent {
   latitude: Decimal;
   longitude: Decimal;
   content?: string;
-  placeId: string;
+  placeId?: string;
 }
 
 export class UpdateBookmarkCollectionRequestDTO {
