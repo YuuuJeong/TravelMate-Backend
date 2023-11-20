@@ -21,7 +21,7 @@ export class S3Controller {
     @CurrentUser() user: User,
     @Query() dto: GetPresignedPostDto,
   ) {
-    return await this.s3Service.getPresignedPost(1, dto.type);
+    return await this.s3Service.getPresignedPost(user.id, dto.type);
   }
 
   @ApiOperation({
