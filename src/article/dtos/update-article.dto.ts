@@ -25,7 +25,7 @@ export class UpdateArticleDto {
     required: false,
     type: [Number],
   })
-  tagIds: number[];
+  tagIds?: number[];
 
   @ApiProperty({
     required: false,
@@ -43,5 +43,5 @@ export class UpdateArticleDto {
     description: 'Bookmark ids',
     type: [Number],
   })
-  bookmarkIds: number[];
+  bookmarkIds?: number[];
 }

@@ -18,17 +18,21 @@ export class ArticleService {
         authorId: user.id,
         location: dto.location,
         thumbnail: dto.thumbnail,
-        articleBookmarkMap: {
-          create: dto.bookmarkIds.map((bookmarkId) => ({
-            bookmarkId,
-            period: dto.period,
-          })),
-        },
-        articleTagMap: {
-          create: dto.tagIds.map((tagId) => ({
-            tagId,
-          })),
-        },
+        ...(dto.bookmarkIds && {
+          articleBookmarkMap: {
+            create: dto.bookmarkIds.map((bookmarkId) => ({
+              bookmarkId,
+              period: dto.period,
+            })),
+          },
+        }),
+        ...(dto.tagIds && {
+          articleTagMap: {
+            create: dto.tagIds.map((tagId) => ({
+              tagId,
+            })),
+          },
+        }),
       },
     });
 
@@ -62,6 +66,15 @@ export class ArticleService {
         ...articleUpdateInput,
       },
       include: {
+        articleBookmarkMap: {
+          include: {
+            bookmark: {
+              include: {
+                location: true,
+              },
+            },
+          },
+        },
         articleTagMap: {
           include: {
             tag: true,
@@ -399,6 +412,15 @@ export class ArticleService {
         ...tagUpdateInput,
       },
       include: {
+        articleBookmarkMap: {
+          include: {
+            bookmark: {
+              include: {
+                location: true,
+              },
+            },
+          },
+        },
         articleTagMap: {
           include: {
             tag: true,

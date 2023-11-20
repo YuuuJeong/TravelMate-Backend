@@ -57,11 +57,11 @@ export class CreateArticleDto {
     description: 'tagIds',
     type: [Number],
   })
-  tagIds: number[];
+  tagIds?: number[];
 
   @ApiProperty({
     description: 'Bookmark ids',
     type: [Number],
   })
-  bookmarkIds: number[];
+  bookmarkIds?: number[];
 }
