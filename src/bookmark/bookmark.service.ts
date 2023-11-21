@@ -16,6 +16,7 @@ export class BookmarkService {
       where: {
         latitude: dto.latitude,
         longitude: dto.longitude,
+        ...(dto.placeId && { placeId: dto.placeId }),
       },
     });
 
@@ -24,6 +25,7 @@ export class BookmarkService {
         data: {
           latitude: dto.latitude,
           longitude: dto.longitude,
+          ...(dto.placeId && { placeId: dto.placeId }),
         },
       });
     }
