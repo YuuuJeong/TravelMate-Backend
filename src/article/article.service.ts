@@ -483,7 +483,6 @@ export class ArticleService {
     return this.prisma.pendingArticleRequest.findUniqueOrThrow({
       where: {
         id: requestId,
-        articleId,
       },
     });
   }

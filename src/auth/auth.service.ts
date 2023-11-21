@@ -28,7 +28,7 @@ export class AuthService {
       create: {
         provider: 'kakao',
         providerId: kakaoProfile.id.toString(),
-        nickname: this.generateRandomNickname(),
+        nickname: await this.generateRandomNickname(),
       },
       update: {},
     });
@@ -46,7 +46,7 @@ export class AuthService {
       create: {
         provider: 'google',
         providerId: googleProfile.id.toString(),
-        nickname: this.generateRandomNickname(),
+        nickname: await this.generateRandomNickname(),
       },
       update: {},
     });
@@ -73,13 +73,27 @@ export class AuthService {
     return this.signJwt(user);
   }
 
-  private generateRandomNickname() {
+  private async generateRandomNickname() {
     function getRandomInteger(max) {
       return Math.floor(Math.random() * max);
     }
 
-    const adjective = NicknameAdj[getRandomInteger(NicknameAdj.length)];
-    const noun = NicknameNoun[getRandomInteger(NicknameNoun.length)];
+    let adjective = NicknameAdj[getRandomInteger(NicknameAdj.length)];
+    let noun = NicknameNoun[getRandomInteger(NicknameNoun.length)];
+
+    while (true) {
+      const user = await this.prisma.user.findUnique({
+        where: {
+          nickname: `${adjective} ${noun}`,
+        },
+      });
+
+      if (!user) {
+        break;
+      }
+      adjective = NicknameAdj[getRandomInteger(NicknameAdj.length)];
+      noun = NicknameNoun[getRandomInteger(NicknameNoun.length)];
+    }
 
     return `${adjective} ${noun}`;
   }

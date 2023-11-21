@@ -401,4 +401,21 @@ export class UserController {
   ) {
     return this.friendService.fetchMyFavoriteArticles(user.id, dto);
   }
+
+  @ApiOperation({
+    summary: '닉네임 like search로 유저 검색',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '닉네임으로 유저 목록 조회 성공',
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('/info')
+  async getUsersByNickname(
+    @CurrentUser() user: User,
+    @Query('nickname') nickname: string,
+  ) {
+    return this.userService.fetchUsersByNickname(nickname, user.id);
+  }
 }

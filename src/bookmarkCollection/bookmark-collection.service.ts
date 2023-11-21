@@ -198,7 +198,10 @@ export class BookmarkCollectionService {
                 }),
               },
               where: {
-                placeId: location.placeId,
+                latitude_longitude: {
+                  latitude: location.latitude,
+                  longitude: location.longitude,
+                },
               },
             },
           },

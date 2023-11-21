@@ -13,6 +13,7 @@ import { AttachmentModule } from './attachment/attachment.module';
 import { TagModule } from './tag/tag.module';
 import { ArticleModule } from './article/article.module';
 import { FriendModule } from './friend/friend.module';
+import { BookmarkModule } from './bookmark/bookmark.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { FriendModule } from './friend/friend.module';
     TagModule,
     ArticleModule,
     FriendModule,
+    BookmarkModule,
   ],
   controllers: [AppController],
   providers: [AppService, ConfigService],
