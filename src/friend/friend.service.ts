@@ -7,19 +7,28 @@ import { PrismaService } from 'src/prisma.service';
 export class FriendService {
   constructor(private readonly prisma: PrismaService) {}
   async removeFriend(invitationId: number) {
-    return await this.prisma.friendInvite.update({
+    const friendInvite = await this.prisma.friendInvite.findUniqueOrThrow({
       where: {
         id: invitationId,
       },
-      data: {
-        status: FriendInviteStatus.DELETED,
-        deletedAt: new Date(),
-      },
     });
+
+    await Promise.all([
+      this.prisma.friendInvite.deleteMany({
+        where: {
+          OR: [
+            { id: invitationId },
+            { friendId: friendInvite.userId, userId: friendInvite.friendId },
+          ],
+        },
+      }),
+    ]);
+
+    return '친구가 삭제되었습니다.';
   }
 
   async acceptFriendInvitation(invitationId: number) {
-    return await this.prisma.friendInvite.update({
+    const friendInvite = await this.prisma.friendInvite.update({
       where: {
         id: invitationId,
       },
@@ -28,6 +37,17 @@ export class FriendService {
         acceptedAt: new Date(),
       },
     });
+
+    await this.prisma.friendInvite.create({
+      data: {
+        status: FriendInviteStatus.ACCEPTED,
+        acceptedAt: new Date(),
+        userId: friendInvite.friendId,
+        friendId: friendInvite.userId,
+      },
+    });
+
+    return '친구가 추가되었습니다.';
   }
 
   async fetchMyFriends(userId: number, dto: OffsetPaginationDto) {
@@ -36,28 +56,14 @@ export class FriendService {
     const count = await this.prisma.friendInvite.count({
       where: {
         status: FriendInviteStatus.ACCEPTED,
-        OR: [
-          {
-            userId,
-          },
-          {
-            friendId: userId,
-          },
-        ],
+        userId,
       },
     });
 
     const friends = await this.prisma.friendInvite.findMany({
       where: {
         status: FriendInviteStatus.ACCEPTED,
-        OR: [
-          {
-            userId,
-          },
-          {
-            friendId: userId,
-          },
-        ],
+        userId,
       },
       include: {
         friend: true,
@@ -72,7 +78,24 @@ export class FriendService {
     return { friends, count };
   }
 
-  async sendFriendInviteRequest(id: number, friendId: number): Promise<any> {
+  async sendFriendInviteRequest(id: number, friendId: number) {
+    const acceptedFriendRequest = await this.prisma.friendInvite.findFirst({
+      where: {
+        OR: [
+          { userId: id, friendId, status: FriendInviteStatus.ACCEPTED },
+          {
+            userId: friendId,
+            friendId: id,
+            status: FriendInviteStatus.ACCEPTED,
+          },
+        ],
+      },
+    });
+
+    if (acceptedFriendRequest) {
+      throw new BadRequestException('이미 친구관계인 유저입니다.');
+    }
+
     const friendRequest = await this.prisma.friendInvite.findUnique({
       where: {
         userId_friendId_status: {

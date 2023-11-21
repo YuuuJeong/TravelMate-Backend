@@ -24,7 +24,6 @@ enum Period {
 enum FriendInviteStatus {
   PENDING
   ACCEPTED
-  DELETED
 }
 
 model Location {
@@ -32,7 +31,10 @@ model Location {
   latitude  Decimal    @db.Decimal(65, 30)
   longitude Decimal    @db.Decimal(65, 30)
   placeId   String?    @db.VarChar(200)
+
   bookmarks Bookmark[]
+
+  @@unique([latitude, longitude])
 }
 
 model Bookmark {
@@ -77,7 +79,7 @@ model BookmarkCollection {
 
 model User {
   id             Int      @id @default(autoincrement())
-  nickname       String?
+  nickname       String?  @unique
   provider       String
   providerId     String   @unique
   profileImageId Int?     @unique
@@ -221,7 +223,7 @@ model FriendInvite {
   userId     Int
   friendId   Int
   status     FriendInviteStatus @default(PENDING)
-  deletedAt  DateTime?
+
   acceptedAt DateTime?
   createdAt  DateTime           @default(now()) @db.Timestamp(0)
 

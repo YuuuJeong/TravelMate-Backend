@@ -12,7 +12,7 @@ export class BookmarkController {
   constructor(private readonly bookmark: BookmarkService) {}
 
   @ApiOperation({
-    summary: '북만크 생성',
+    summary: '북마크 생성 (핀꽂기)',
   })
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
