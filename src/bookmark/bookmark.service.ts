@@ -18,12 +18,6 @@ export class BookmarkService {
         longitude: dto.longitude,
         ...(dto.placeId && { placeId: dto.placeId }),
       },
-      create: {
-        latitude: dto.latitude,
-        longitude: dto.longitude,
-        ...(dto.placeId && { placeId: dto.placeId }),
-      },
-      update: {},
     });
 
     if (!location) {
