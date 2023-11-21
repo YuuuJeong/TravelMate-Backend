@@ -169,6 +169,7 @@ model PendingArticleRequest {
   articleId  Int
   period     Period
   content    String    @db.Text
+  comment    String?
   userId     Int
   createdAt  DateTime  @default(now()) @db.Timestamp(0)
   updatedAt  DateTime  @default(now()) @updatedAt @db.Timestamp(0)

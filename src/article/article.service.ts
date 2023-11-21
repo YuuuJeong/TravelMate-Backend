@@ -446,7 +446,7 @@ export class ArticleService {
     articleId: number,
     dto: RequestArticleDto,
   ) {
-    const { period, content } = dto;
+    const { period, content, comment } = dto;
 
     await this.prisma.article.findUniqueOrThrow({
       where: {
@@ -458,6 +458,7 @@ export class ArticleService {
       data: {
         articleId,
         content,
+        comment,
         period,
         userId,
       },

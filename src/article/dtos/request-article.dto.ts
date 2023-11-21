@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Period } from '@prisma/client';
-import { IsEnum, IsString } from 'class-validator';
+import { IsEnum, IsOptional, IsString } from 'class-validator';
 
 export class RequestArticleDto {
   @ApiProperty({
@@ -8,6 +8,13 @@ export class RequestArticleDto {
   })
   @IsString()
   content: string;
+
+  @ApiProperty({
+    description: 'comment',
+  })
+  @IsOptional()
+  @IsString()
+  comment?: string;
 
   @ApiProperty({
     description: 'Period',
