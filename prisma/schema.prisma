@@ -31,7 +31,7 @@ model Location {
   id        Int        @id @default(autoincrement())
   latitude  Decimal    @db.Decimal(65, 30)
   longitude Decimal    @db.Decimal(65, 30)
-  placeId   String?    @unique @db.VarChar(200)
+  placeId   String?    @db.VarChar(200)
   bookmarks Bookmark[]
 }
 
