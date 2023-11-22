@@ -297,12 +297,14 @@ export class ArticleService {
     const count = await this.prisma.article.count({
       where: {
         authorId: userId,
+        deletedAt: null,
       },
     });
 
     const articles = await this.prisma.article.findMany({
       where: {
         authorId: userId,
+        deletedAt: null,
       },
       skip: (page - 1) * limit,
       take: limit,
@@ -313,6 +315,10 @@ export class ArticleService {
           },
         },
         pendingArticleRequests: {
+          where: {
+            acceptedAt: null,
+            declinedAt: null,
+          },
           select: {
             id: true,
             period: true,
