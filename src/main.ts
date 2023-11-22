@@ -7,9 +7,13 @@ import { UnhandledExceptionFilter } from './common/filiters/unhandled-exception.
 import { HttpExceptionFilter } from './common/filiters/http-exception.filter';
 import { ValidationPipe } from '@nestjs/common';
 import { ValidationHttpError } from './common/errors/validation-http-error';
+import { json, urlencoded } from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.use(json({ limit: '50mb' }));
+  app.use(urlencoded({ extended: true, limit: '50mb' }));
 
   //TODO: cors 수정
   app.enableCors({
