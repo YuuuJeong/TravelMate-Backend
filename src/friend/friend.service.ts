@@ -79,6 +79,10 @@ export class FriendService {
   }
 
   async sendFriendInviteRequest(id: number, friendId: number) {
+    if (id === friendId) {
+      throw new BadRequestException('본인에게 친구요청을 할 수 없습니다.');
+    }
+
     const acceptedFriendRequest = await this.prisma.friendInvite.findFirst({
       where: {
         OR: [
