@@ -171,7 +171,7 @@ export class FriendService {
         friendId: userId,
       },
       include: {
-        friend: true,
+        user: true,
       },
       skip: (page - 1) * limit,
       take: limit,

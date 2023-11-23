@@ -242,7 +242,7 @@ export class BookmarkCollectionService {
     const friendInvitations = await this.prisma.friendInvite.findMany({
       where: {
         status: FriendInviteStatus.ACCEPTED,
-        OR: [
+        AND: [
           {
             userId: id,
             friendId: userId,
