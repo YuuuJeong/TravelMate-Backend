@@ -48,6 +48,16 @@ export class S3Service {
         });
         resultId = attachment.id;
         break;
+      case EPresignedPostType.THUMBNAIL:
+        const thumbnail = await this.prisma.attachment.create({
+          data: {
+            bucket: this.configService.getOrThrow('aws.bucketName'),
+            state: 'PENDING',
+            type: 'THUMBNAIL',
+          },
+        });
+        resultId = thumbnail.id;
+        break;
       case EPresignedPostType.PROFILE:
         const profileImage = await this.prisma.profileImage.create({
           data: {
@@ -76,6 +86,13 @@ export class S3Service {
 
   public async uploadSuccess(type: string, id: number) {
     return type === 'article'
+      ? await this.prisma.attachment.update({
+          where: { id },
+          data: {
+            state: 'READY',
+          },
+        })
+      : type === 'thumbnail'
       ? await this.prisma.attachment.update({
           where: { id },
           data: {

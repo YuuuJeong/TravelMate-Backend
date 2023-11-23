@@ -27,10 +27,10 @@ enum FriendInviteStatus {
 }
 
 model Location {
-  id        Int        @id @default(autoincrement())
-  latitude  Decimal    @db.Decimal(65, 30)
-  longitude Decimal    @db.Decimal(65, 30)
-  placeId   String?    @db.VarChar(200)
+  id        Int     @id @default(autoincrement())
+  latitude  Decimal @db.Decimal(65, 30)
+  longitude Decimal @db.Decimal(65, 30)
+  placeId   String? @db.VarChar(200)
 
   bookmarks Bookmark[]
 
@@ -102,6 +102,7 @@ model User {
 
 enum AttachmentType {
   ARTICLE
+  THUMBNAIL
 }
 
 model ProfileImage {
@@ -219,13 +220,13 @@ model ArticleBookmarkMap {
 }
 
 model FriendInvite {
-  id         Int                @id @default(autoincrement())
-  userId     Int
-  friendId   Int
-  status     FriendInviteStatus @default(PENDING)
+  id       Int                @id @default(autoincrement())
+  userId   Int
+  friendId Int
+  status   FriendInviteStatus @default(PENDING)
 
   acceptedAt DateTime?
-  createdAt  DateTime           @default(now()) @db.Timestamp(0)
+  createdAt  DateTime  @default(now()) @db.Timestamp(0)
 
   user   User @relation("userSentInvites", fields: [userId], references: [id], map: "userSentInvites")
   friend User @relation("friendReceivedInvites", fields: [friendId], references: [id], map: "friendReceivedInvites")

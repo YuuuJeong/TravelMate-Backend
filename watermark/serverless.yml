@@ -1,0 +1,49 @@
+service: watermark
+frameworkVersion: '3'
+
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  environment:
+    S3_BUCKET: ${env:S3_BUCKET}
+
+resources:
+  Resources:
+    OAC:
+      Type: AWS::CloudFront::OriginAccessControl
+      Properties:
+        OriginAccessControlConfig:
+          Description: ${sls:stage} Travelmate
+          Name: ${env:S3_BUCKET}.s3.${env:S3_REGION}.amazonaws.com
+          OriginAccessControlOriginType: s3
+          SigningBehavior: always
+          SigningProtocol: sigv4
+
+    CloudFrontDistribution:
+      Type: AWS::CloudFront::Distribution
+      Properties:
+        DistributionConfig:
+          Enabled: true
+          Origins:
+            - DomainName: ${env:S3_BUCKET}.s3.${env:S3_REGION}.amazonaws.com
+              Id: S3Origin
+              OriginAccessControlId: !Ref OAC
+              S3OriginConfig:
+                OriginAccessIdentity:
+          DefaultCacheBehavior:
+            ViewerProtocolPolicy: allow-all
+            CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
+            TargetOriginId: S3Origin
+
+functions:
+  watermark:
+    handler: index.handler
+    events:
+      - s3:
+          bucket: ${env:S3_BUCKET}
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: article/
+          existing: true
