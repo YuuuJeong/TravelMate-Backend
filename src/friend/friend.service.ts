@@ -127,19 +127,30 @@ export class FriendService {
     });
 
     if (receivedFriendRequest) {
-      await this.prisma.friendInvite.update({
-        where: {
-          userId_friendId_status: {
-            friendId: id,
-            userId: friendId,
-            status: FriendInviteStatus.PENDING,
+      await Promise.all([
+        this.prisma.friendInvite.update({
+          where: {
+            userId_friendId_status: {
+              friendId: id,
+              userId: friendId,
+              status: FriendInviteStatus.PENDING,
+            },
           },
-        },
-        data: {
-          status: FriendInviteStatus.ACCEPTED,
-          acceptedAt: new Date(),
-        },
-      });
+          data: {
+            status: FriendInviteStatus.ACCEPTED,
+            acceptedAt: new Date(),
+          },
+        }),
+
+        this.prisma.friendInvite.create({
+          data: {
+            friendId,
+            userId: id,
+            status: FriendInviteStatus.ACCEPTED,
+            acceptedAt: new Date(),
+          },
+        }),
+      ]);
 
       return '친구가 추가되었습니다.';
     }
