@@ -1,10 +1,37 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { FriendInviteStatus } from '@prisma/client';
+import { FriendInviteStatus, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
+import { SearchUserQueryDto } from './dtos/query/search-user-query.dto';
 
 @Injectable()
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
+
+  async searchFriendsExcludeMembersByNickname(
+    userId: number,
+    dto: SearchUserQueryDto,
+  ) {
+    const { nickname, memberIds } = dto;
+
+    const friendIds = (
+      await this.prisma.friendInvite.findMany({
+        where: {
+          userId,
+          status: FriendInviteStatus.ACCEPTED,
+        },
+      })
+    ).map((friendInvite) => friendInvite.friendId);
+
+    const nonMemberIds = friendIds.filter((friendId) => {
+      return memberIds.indexOf(friendId) === -1;
+    });
+
+    const nonMembers = await this.findUsersByIds(nonMemberIds, {
+      nickname,
+    });
+
+    return nonMembers;
+  }
 
   async fetchUsersByNickname(nickname: string, userId: number) {
     const friendInvites = await this.prisma.friendInvite.findMany({
@@ -32,12 +59,13 @@ export class UserService {
     });
   }
 
-  findUsersByIds(userIds: number[]) {
+  findUsersByIds(userIds: number[], where?: Prisma.UserWhereInput) {
     return this.prisma.user.findMany({
       where: {
         id: {
           in: userIds,
         },
+        ...where,
       },
       select: {
         id: true,

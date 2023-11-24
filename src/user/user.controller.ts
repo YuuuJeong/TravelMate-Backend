@@ -36,6 +36,7 @@ import { FetchMyBookmarkCollectionDto } from 'src/bookmarkCollection/dtos/req/fe
 import { OffsetPaginationDto } from '../common/dtos/offset-pagination.dto';
 import { FriendService } from '../friend/friend.service';
 import { ArticleService } from 'src/article/article.service';
+import { SearchUserQueryDto } from './dtos/query/search-user-query.dto';
 
 @Controller('users')
 @ApiTags('users')
@@ -417,5 +418,22 @@ export class UserController {
     @Query('nickname') nickname: string,
   ) {
     return this.userService.fetchUsersByNickname(nickname, user.id);
+  }
+
+  @ApiOperation({
+    summary: '채팅방 멤버가 아닌 친구들을 불러오기 위한 API',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '채팅방에 없는 친구조회 성공',
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('/me/friends/non-members')
+  async searchFriendsExcludeMembersByNickname(
+    @CurrentUser() user: User,
+    @Query() dto: SearchUserQueryDto,
+  ) {
+    return this.userService.searchFriendsExcludeMembersByNickname(user.id, dto);
   }
 }
