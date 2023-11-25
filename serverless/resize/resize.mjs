@@ -40,7 +40,7 @@ const resize = async (srcBucket, srcKey) => {
       throw new Error('Unknown object stream type');
     }
   } catch (error) {
-    console.log(error);
+    console.log('get: ', error);
     return;
   }
 
@@ -73,7 +73,7 @@ const resize = async (srcBucket, srcKey) => {
       '/' +
       srcKey +
       ' and uploaded to ' +
-      dstBucket +
+      srcBucket +
       '/' +
       dstKey,
   );
@@ -89,9 +89,11 @@ export const handler = async (event, context) => {
   const srcKey = decodeURIComponent(
     event.Records[0].s3.object.key.replace(/\+/g, ' '),
   );
+  console.log('srcBucket: ' + srcBucket);
+  console.log('srcKey: ' + srcKey);
 
-  if (srcKey.startsWith('thumbnail/')) {
-    resize(srcBucket, srcKey);
+  if (srcKey.startsWith('thumbnail')) {
+    await resize(srcBucket, srcKey);
     return;
   }
 };

@@ -1,0 +1,35 @@
+service: watermark
+frameworkVersion: '3'
+
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  iam:
+    role:
+      managedPolicies:
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+  environment:
+    S3_BUCKET: ${env:S3_BUCKET}
+
+resources:
+  Resources:
+    CloudFrontDistribution:
+      Type: AWS::CloudFront::Distribution
+      Properties:
+        DistributionConfig:
+          DefaultCacheBehavior:
+            ViewerProtocolPolicy: allow-all
+            DefaultTTL: 31536000
+
+functions:
+  watermark:
+    timeout: 30
+    memorySize: 1024
+    handler: watermark.handler
+    events:
+      - cloudFront:
+          eventType: origin-request
+          pathPattern: 'article/*'
+          origin: S3://${env:S3_BUCKET}.s3.${env:S3_REGION}.amazonaws.com
