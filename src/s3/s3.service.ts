@@ -85,14 +85,7 @@ export class S3Service {
   }
 
   public async uploadSuccess(type: string, id: number) {
-    return type === 'article'
-      ? await this.prisma.attachment.update({
-          where: { id },
-          data: {
-            state: 'READY',
-          },
-        })
-      : type === 'thumbnail'
+    return type === 'article' || type === 'thumbnail'
       ? await this.prisma.attachment.update({
           where: { id },
           data: {
