@@ -8,14 +8,14 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ChatBookmarkCollectionService } from './chat-bookmark-collection.service';
-import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/strategies/jwt.strategy';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { User } from '@prisma/client';
-import { BookmarkService } from 'src/bookmark/bookmark.service';
 import { CreateBookmarkDto } from 'src/bookmark/dtos/req/create-bookmark.dto';
 
 @Controller()
+@ApiTags('chat-bookmark-collection')
 export class ChatBookmarkCollectionController {
   constructor(
     private readonly chatBookmarkCollection: ChatBookmarkCollectionService,
@@ -24,8 +24,6 @@ export class ChatBookmarkCollectionController {
   @ApiOperation({
     summary: '채팅방에서 사용할 북마크 컬렉션 생성',
   })
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
   @Post('chat-room/:chatRoomId/bookmark-collection')
   createChatBookmarkCollection(
     @Param('chatRoomId') chatRoomId: string,
