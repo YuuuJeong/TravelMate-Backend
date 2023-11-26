@@ -1,7 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { FriendInviteStatus, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
-import { SearchUserQueryDto } from './dtos/query/search-user-query.dto';
 
 @Injectable()
 export class UserService {
@@ -9,10 +8,9 @@ export class UserService {
 
   async searchFriendsExcludeMembersByNickname(
     userId: number,
-    dto: SearchUserQueryDto,
+    memberIds: number[],
+    nickname?: string,
   ) {
-    const { nickname, memberIds } = dto;
-
     const friendIds = (
       await this.prisma.friendInvite.findMany({
         where: {
@@ -26,9 +24,16 @@ export class UserService {
       return memberIds.indexOf(friendId) === -1;
     });
 
-    const nonMembers = await this.findUsersByIds(nonMemberIds, {
-      nickname,
-    });
+    const nonMembers = await this.findUsersByIds(
+      nonMemberIds,
+      nickname
+        ? {
+            nickname: {
+              contains: nickname,
+            },
+          }
+        : undefined,
+    );
 
     return nonMembers;
   }

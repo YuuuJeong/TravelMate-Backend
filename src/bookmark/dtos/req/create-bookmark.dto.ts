@@ -1,15 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { LocationWithContent } from 'src/bookmarkCollection/dtos/req/update-bookmark-collection.dto';
 
 export class CreateBookmarkDto {
   @ApiProperty({
-    example: '여기 맛집이더라',
-    description: '위치에 대한 메모',
+    example: [
+      {
+        latitude: 12.52,
+        longitude: 10.1,
+        placeId: 'ChIJ-b-cvCxdezURhkcMDVqEYuk',
+        content: '뭘까용?',
+      },
+    ],
+    description: '북마크로 추가 할 위도, 경도, 장소메모 ',
   })
-  content?: string;
-
-  @ApiProperty({
-    example: 1,
-    description: '위치 id',
-  })
-  locationId: number;
+  locationsWithContent: LocationWithContent[];
 }

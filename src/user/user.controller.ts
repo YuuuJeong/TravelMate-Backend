@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseArrayPipe,
   ParseIntPipe,
   Patch,
   Post,
@@ -36,7 +37,6 @@ import { FetchMyBookmarkCollectionDto } from 'src/bookmarkCollection/dtos/req/fe
 import { OffsetPaginationDto } from '../common/dtos/offset-pagination.dto';
 import { FriendService } from '../friend/friend.service';
 import { ArticleService } from 'src/article/article.service';
-import { SearchUserQueryDto } from './dtos/query/search-user-query.dto';
 
 @Controller('users')
 @ApiTags('users')
@@ -423,6 +423,14 @@ export class UserController {
   @ApiOperation({
     summary: '채팅방 멤버가 아닌 친구들을 불러오기 위한 API',
   })
+  @ApiQuery({
+    name: 'nickname',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'memberIds',
+    required: false,
+  })
   @ApiResponse({
     status: 200,
     description: '채팅방에 없는 친구조회 성공',
@@ -432,8 +440,17 @@ export class UserController {
   @Get('/me/friends/non-members')
   async searchFriendsExcludeMembersByNickname(
     @CurrentUser() user: User,
-    @Query() dto: SearchUserQueryDto,
+    @Query(
+      'memberIds',
+      new ParseArrayPipe({ optional: true, items: Number, separator: ',' }),
+    )
+    memberIds: number[],
+    @Query('nickname') nickname?: string,
   ) {
-    return this.userService.searchFriendsExcludeMembersByNickname(user.id, dto);
+    return this.userService.searchFriendsExcludeMembersByNickname(
+      user.id,
+      memberIds ?? [],
+      nickname,
+    );
   }
 }
