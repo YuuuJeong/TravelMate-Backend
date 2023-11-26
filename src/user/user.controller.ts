@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseArrayPipe,
   ParseIntPipe,
   Patch,
   Post,
@@ -417,5 +418,39 @@ export class UserController {
     @Query('nickname') nickname: string,
   ) {
     return this.userService.fetchUsersByNickname(nickname, user.id);
+  }
+
+  @ApiOperation({
+    summary: '채팅방 멤버가 아닌 친구들을 불러오기 위한 API',
+  })
+  @ApiQuery({
+    name: 'nickname',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'memberIds',
+    required: false,
+  })
+  @ApiResponse({
+    status: 200,
+    description: '채팅방에 없는 친구조회 성공',
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('/me/friends/non-members')
+  async searchFriendsExcludeMembersByNickname(
+    @CurrentUser() user: User,
+    @Query(
+      'memberIds',
+      new ParseArrayPipe({ optional: true, items: Number, separator: ',' }),
+    )
+    memberIds: number[],
+    @Query('nickname') nickname?: string,
+  ) {
+    return this.userService.searchFriendsExcludeMembersByNickname(
+      user.id,
+      memberIds ?? [],
+      nickname,
+    );
   }
 }

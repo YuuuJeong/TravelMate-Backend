@@ -14,6 +14,7 @@ import { TagModule } from './tag/tag.module';
 import { ArticleModule } from './article/article.module';
 import { FriendModule } from './friend/friend.module';
 import { BookmarkModule } from './bookmark/bookmark.module';
+import { ChatBookmarkCollectionModule } from './chatBookmarkCollection/chat-bookmark-collection.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { BookmarkModule } from './bookmark/bookmark.module';
     ArticleModule,
     FriendModule,
     BookmarkModule,
+    ChatBookmarkCollectionModule,
   ],
   controllers: [AppController],
   providers: [AppService, ConfigService],
