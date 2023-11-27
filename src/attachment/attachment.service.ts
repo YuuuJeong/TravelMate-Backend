@@ -16,14 +16,9 @@ export class AttachmentService {
   ) {}
 
   public async getAttachmentUrl(type: string, attachmentID: number) {
-    const attachment =
-      type === 'article'
-        ? await this.prisma.attachment.findUnique({
-            where: { id: attachmentID },
-          })
-        : await this.prisma.profileImage.findUnique({
-            where: { id: attachmentID },
-          });
+    const attachment = await this.prisma.attachment.findUnique({
+      where: { id: attachmentID },
+    });
 
     if (!attachment || attachment.state !== UploadState.READY) {
       return null;
@@ -31,7 +26,8 @@ export class AttachmentService {
 
     const key = attachment.id;
 
+    //TODO : env
+    return `https://d1xeo9u48cowhw.cloudfront.net/${type}/${key}`;
     // return `${AWS_MEDIA_CLOUDFRONT_BASE_URL}/${key}${querystring}`;
-    return this.s3Service.getPresignedUrl(type, key);
   }
 }

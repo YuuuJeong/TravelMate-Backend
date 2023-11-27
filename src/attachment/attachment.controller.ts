@@ -7,8 +7,9 @@ import {
   Query,
   Redirect,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { AttachmentService } from './attachment.service';
+import { EPresignedPostType } from 'src/s3/dtos/get-presigned-post.dto';
 
 @Controller('attachments')
 @ApiTags('attachments')
@@ -17,9 +18,13 @@ export class AttachmentController {
 
   @Get('/:attachmentID')
   @ApiOperation({ summary: 'Get attachment signed url' })
+  @ApiQuery({
+    name: 'type',
+    enum: EPresignedPostType,
+  })
   @Redirect()
   public async getAttachment(
-    @Query('type') type: string,
+    @Query('type') type: EPresignedPostType,
     @Param('attachmentID', ParseIntPipe) attachmentID: number,
   ) {
     const url = await this.attachmentService.getAttachmentUrl(
