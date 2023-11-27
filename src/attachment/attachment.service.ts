@@ -26,8 +26,9 @@ export class AttachmentService {
 
     const key = attachment.id;
 
-    //TODO : env
-    return `https://d1xeo9u48cowhw.cloudfront.net/${type}/${key}`;
+    return `https://d1xeo9u48cowhw.cloudfront.net/${
+      type === 'thumbnail' ? 'resized-thumbnail' : type
+    }/${key}`;
     // return `${AWS_MEDIA_CLOUDFRONT_BASE_URL}/${key}${querystring}`;
   }
 }
