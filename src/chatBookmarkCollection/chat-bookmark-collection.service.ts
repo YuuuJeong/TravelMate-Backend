@@ -55,7 +55,7 @@ export class ChatBookmarkCollectionService {
       bookmarkIds.push(bookmark.id);
     }
 
-    await this.prisma.bookmarkBookmarkCollectionMap.createMany({
+    await this.prisma.bookmarkChatBookmarkCollectionMap.createMany({
       data: bookmarkIds.map((bookmarkId) => ({
         collectionId: id,
         bookmarkId: bookmarkId,
