@@ -9,12 +9,17 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { ArticleService } from './article.service';
 import { JwtAuthGuard } from 'src/auth/strategies/jwt.strategy';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
-import { User } from '@prisma/client';
-import { CreateArticleDto } from './dtos/create-article.dto';
+import { Period, User } from '@prisma/client';
+import { CreateArticleDto, Location } from './dtos/create-article.dto';
 import { GetArticlesDto } from './dtos/get-articles.dto';
 import { UpdateArticleDto } from './dtos/update-article.dto';
 import { RequestArticleDto } from './dtos/request-article.dto';
@@ -41,6 +46,27 @@ export class ArticleController {
   @Get()
   getArticles(@Query() dto: GetArticlesDto) {
     return this.articleService.getArticles(dto);
+  }
+
+  @ApiOperation({
+    summary: 'Get Articles count',
+  })
+  @ApiQuery({
+    name: 'period',
+    enum: Period,
+    isArray: true,
+    required: false,
+  })
+  @ApiQuery({
+    name: 'location',
+    enum: Location,
+    required: false,
+  })
+  @Get('/count')
+  getArticlesCount(
+    @Query() filter: Pick<GetArticlesDto, 'period' | 'location'>,
+  ) {
+    return this.articleService.getArticlesCount(filter);
   }
 
   @ApiOperation({

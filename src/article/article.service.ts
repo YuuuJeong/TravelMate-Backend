@@ -228,6 +228,50 @@ export class ArticleService {
     };
   }
 
+  getArticlesCount(filter: Pick<GetArticlesDto, 'period' | 'location'>) {
+    const { period, location } = filter;
+
+    return this.prisma.article.count({
+      where: {
+        ...(period && {
+          OR: [
+            {
+              ...(period?.includes(Period.SPRING) && {
+                springVersionID: {
+                  not: null,
+                },
+              }),
+            },
+            {
+              ...(period?.includes(Period.WINTER) && {
+                winterVersionID: {
+                  not: null,
+                },
+              }),
+            },
+            {
+              ...(period?.includes(Period.FALL) && {
+                fallVersionID: {
+                  not: null,
+                },
+              }),
+            },
+            {
+              ...(period?.includes(Period.SUMMER) && {
+                summerVersionID: {
+                  not: null,
+                },
+              }),
+            },
+          ],
+        }),
+        ...(location && {
+          location,
+        }),
+      },
+    });
+  }
+
   async getArticle(articleId: number) {
     const article = await this.prisma.article.findUniqueOrThrow({
       where: {
@@ -452,7 +496,7 @@ export class ArticleService {
     articleId: number,
     dto: RequestArticleDto,
   ) {
-    const { period, content, comment } = dto;
+    const { period, content, comment, bookmarkIds } = dto;
 
     await this.prisma.article.findUniqueOrThrow({
       where: {
@@ -467,6 +511,15 @@ export class ArticleService {
         comment,
         period,
         userId,
+        ...(bookmarkIds && {
+          pendingArticleRequestBookmarkMap: {
+            createMany: {
+              data: bookmarkIds.map((bookmarkId) => ({
+                bookmarkId,
+              })),
+            },
+          },
+        }),
       },
     });
   }
@@ -489,6 +542,13 @@ export class ArticleService {
     return this.prisma.pendingArticleRequest.findUniqueOrThrow({
       where: {
         id: requestId,
+      },
+      include: {
+        PendingArticleRequestBookmarkMap: {
+          include: {
+            bookmark: true,
+          },
+        },
       },
     });
   }
@@ -539,7 +599,14 @@ export class ArticleService {
       where: {
         id: requestId,
       },
+      include: {
+        PendingArticleRequestBookmarkMap: true,
+      },
     });
+
+    const bookmarkIds = request.PendingArticleRequestBookmarkMap.map(
+      (map) => map.bookmarkId,
+    );
 
     await this.prisma.pendingArticleRequest.update({
       where: {
@@ -574,6 +641,14 @@ export class ArticleService {
         ...(request.period === Period.WINTER && {
           winterVersionID: versionHistory.id,
         }),
+        articleBookmarkMap: {
+          createMany: {
+            data: bookmarkIds.map((bookmarkId) => ({
+              bookmarkId,
+              period: request.period,
+            })),
+          },
+        },
       },
     });
 

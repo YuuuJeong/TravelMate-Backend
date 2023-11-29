@@ -50,6 +50,7 @@ model Bookmark {
   BookmarkBookmarkCollectionMap     BookmarkBookmarkCollectionMap[]
   articleBookmarkMap                ArticleBookmarkMap[]
   BookmarkChatBookmarkCollectionMap BookmarkChatBookmarkCollectionMap[]
+  PendingArticleRequestBookmarkMap  PendingArticleRequestBookmarkMap[]
 }
 
 model BookmarkBookmarkCollectionMap {
@@ -180,10 +181,22 @@ model PendingArticleRequest {
   acceptedAt DateTime? @db.Timestamp(0)
   declinedAt DateTime? @db.Timestamp(0)
 
-  user    User    @relation(fields: [userId], references: [id])
-  article Article @relation(fields: [articleId], references: [id])
+  user                             User                               @relation(fields: [userId], references: [id])
+  article                          Article                            @relation(fields: [articleId], references: [id])
+  PendingArticleRequestBookmarkMap PendingArticleRequestBookmarkMap[]
 
   @@index([period], map: "fk_PendingArticleRequest_period")
+}
+
+model PendingArticleRequestBookmarkMap {
+  id                      Int @id @default(autoincrement())
+  pendingArticleRequestId Int
+  bookmarkId              Int
+
+  pendingArticleRequest PendingArticleRequest @relation(fields: [pendingArticleRequestId], references: [id])
+  bookmark              Bookmark              @relation(fields: [bookmarkId], references: [id])
+
+  @@unique([pendingArticleRequestId, bookmarkId])
 }
 
 model tag {
@@ -247,12 +260,12 @@ model UserFavoriteArticleMap {
 }
 
 model ChatBookmarkCollection {
-  id                                Int                                 @id @default(autoincrement())
-  title                             String                              @db.VarChar(200)
-  roomId                            String                              @db.VarChar(200)
-  createdAt                         DateTime                            @default(now()) @db.Timestamp(0)
-  updatedAt                         DateTime                            @default(now()) @db.Timestamp(0)
-  
+  id        Int      @id @default(autoincrement())
+  title     String   @db.VarChar(200)
+  roomId    String   @db.VarChar(200)
+  createdAt DateTime @default(now()) @db.Timestamp(0)
+  updatedAt DateTime @default(now()) @db.Timestamp(0)
+
   BookmarkChatBookmarkCollectionMap BookmarkChatBookmarkCollectionMap[]
 }
 

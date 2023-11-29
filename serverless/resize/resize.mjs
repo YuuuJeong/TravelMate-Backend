@@ -14,17 +14,17 @@ const s3 = new S3Client({ region: 'ap-northeast-2' });
 const resize = async (srcBucket, srcKey) => {
   const dstKey = 'resized-' + srcKey;
 
-  const typeMatch = srcKey.match(/\.([^.]*)$/);
-  if (!typeMatch) {
-    console.log('Could not determine the image type.');
-    return;
-  }
-
-  const imageType = typeMatch[1].toLowerCase();
-  if (imageType != 'jpg' && imageType != 'png' && imageType != 'jpeg') {
-    console.log(`Unsupported image type: ${imageType}`);
-    return;
-  }
+  // const typeMatch = srcKey.match(/\.([^.]*)$/);
+  // if (!typeMatch) {
+  //   console.log('Could not determine the image type.');
+  //   return;
+  // }
+  //
+  // const imageType = typeMatch[1].toLowerCase();
+  // if (imageType != 'jpg' && imageType != 'png' && imageType != 'jpeg') {
+  //   console.log(`Unsupported image type: ${imageType}`);
+  //   return;
+  // }
 
   try {
     const params = {
@@ -45,6 +45,8 @@ const resize = async (srcBucket, srcKey) => {
   }
 
   const width = 200;
+
+  console.log(content_buffer);
 
   try {
     var output_buffer = await sharp(content_buffer).resize(width).toBuffer();
@@ -68,7 +70,7 @@ const resize = async (srcBucket, srcKey) => {
   }
 
   console.log(
-    'Successfully resized ' +
+    'Successfully resized !' +
       srcBucket +
       '/' +
       srcKey +
