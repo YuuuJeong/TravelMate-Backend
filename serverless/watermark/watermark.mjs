@@ -35,6 +35,8 @@ const watermark = async (srcBucket, srcKey) => {
       jimp.read(logoBuf),
     ]);
 
+    console.log(image.bitmap.width, image.bitmap.height);
+
     logo.resize(image.bitmap.width / 3, jimp.AUTO);
 
     const x = image.bitmap.width - logo.bitmap.width - 10;
