@@ -44,7 +44,7 @@ const resize = async (srcBucket, srcKey) => {
     return;
   }
 
-  const width = 200;
+  const width = 500;
 
   console.log(content_buffer);
 

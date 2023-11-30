@@ -70,6 +70,19 @@ export class UserController {
   }
 
   @ApiOperation({
+    summary: 'My Article Requests',
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('/me/article/requests')
+  articleRequests(
+    @CurrentUser() user: User,
+    @Query() dto: OffsetPaginationDto,
+  ) {
+    return this.articleService.getMyArticleRequests(user.id, dto);
+  }
+
+  @ApiOperation({
     summary: '북마크 컬렉션 생성 API',
     description: '제목, 공개여부를 선택하여 유저의 북마크 컬렉션을 생성한다.',
   })

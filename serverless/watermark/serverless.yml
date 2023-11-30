@@ -26,7 +26,7 @@ resources:
 functions:
   watermark:
     timeout: 30
-    memorySize: 1024
+    memorySize: 2048
     handler: watermark.handler
     events:
       - cloudFront:

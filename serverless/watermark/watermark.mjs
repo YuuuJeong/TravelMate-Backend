@@ -35,7 +35,10 @@ const watermark = async (srcBucket, srcKey) => {
       jimp.read(logoBuf),
     ]);
 
-    console.log(image.bitmap.width, image.bitmap.height);
+    const originalWidth = image.bitmap.width;
+    const originalHeight = image.bitmap.height;
+
+    console.log(originalWidth, originalHeight);
 
     logo.resize(image.bitmap.width / 3, jimp.AUTO);
 
@@ -46,6 +49,12 @@ const watermark = async (srcBucket, srcKey) => {
       mode: jimp.BLEND_SOURCE_OVER,
       opacitySource: 0.3,
     });
+
+    console.log(image.bitmap.width, image.bitmap.height);
+
+    if (originalWidth !== image.bitmap.width) {
+      image.resize(originalWidth, jimp.AUTO);
+    }
 
     const output_buffer = await image.getBufferAsync(jimp.MIME_JPEG);
 

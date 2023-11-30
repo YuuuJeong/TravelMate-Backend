@@ -6,6 +6,7 @@ import { ArticleOrderField, GetArticlesDto } from './dtos/get-articles.dto';
 import { UpdateArticleDto } from './dtos/update-article.dto';
 import { RequestArticleDto } from './dtos/request-article.dto';
 import { OffsetPaginationDto } from 'src/common/dtos/offset-pagination.dto';
+import { GetMyRequestsDto } from 'src/user/dtos/req/get-my-requests.dto';
 
 @Injectable()
 export class ArticleService {
@@ -340,6 +341,36 @@ export class ArticleService {
       fall,
       winter,
     };
+  }
+
+  getMyArticleRequests(userId: number, dto: GetMyRequestsDto) {
+    return this.prisma.pendingArticleRequest.findMany({
+      where: {
+        userId,
+        ...(dto.type === 'accepted' && {
+          acceptedAt: {
+            not: null,
+          },
+        }),
+        ...(dto.type === 'declined' && {
+          declinedAt: {
+            not: null,
+          },
+        }),
+        ...(dto.type === 'pending' && {
+          acceptedAt: null,
+          declinedAt: null,
+        }),
+      },
+      include: {
+        article: true,
+      },
+      orderBy: {
+        createdAt: Prisma.SortOrder.desc,
+      },
+      take: dto.limit,
+      skip: (dto.page - 1) * dto.limit,
+    });
   }
 
   async getMyArticles(userId: number, dto: OffsetPaginationDto) {
