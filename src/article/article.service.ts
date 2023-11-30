@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { CreateArticleDto, ELocation } from './dtos/create-article.dto';
-import { Period, Prisma, User } from '@prisma/client';
+import { Period, Prisma, RequestBookmarkType, User } from '@prisma/client';
 import { ArticleOrderField, GetArticlesDto } from './dtos/get-articles.dto';
 import { UpdateArticleDto } from './dtos/update-article.dto';
 import { RequestArticleDto } from './dtos/request-article.dto';
@@ -502,7 +502,7 @@ export class ArticleService {
     articleId: number,
     dto: RequestArticleDto,
   ) {
-    const { period, content, comment, bookmarkIds } = dto;
+    const { period, content, comment, bookmarksToAdd, bookmarksToRemove } = dto;
 
     await this.prisma.article.findUniqueOrThrow({
       where: {
@@ -510,24 +510,36 @@ export class ArticleService {
       },
     });
 
-    return this.prisma.pendingArticleRequest.create({
+    await this.prisma.pendingArticleRequestBookmarkMap.deleteMany({
+      where: {
+        bookmarkId: {
+          in: bookmarksToRemove,
+        },
+      },
+    });
+
+    const request = await this.prisma.pendingArticleRequest.create({
       data: {
         articleId,
         content,
         comment,
         period,
         userId,
-        ...(bookmarkIds && {
-          pendingArticleRequestBookmarkMap: {
-            createMany: {
-              data: bookmarkIds.map((bookmarkId) => ({
-                bookmarkId,
-              })),
-            },
-          },
-        }),
       },
     });
+
+    const data = bookmarksToAdd?.map((bookmarkId) => ({
+      bookmarkId,
+      pendingArticleRequestId: request.id,
+      type: RequestBookmarkType.ADD,
+    }));
+
+    if (data)
+      await this.prisma.pendingArticleRequestBookmarkMap.createMany({
+        data,
+      });
+
+    return request;
   }
 
   public async getRequest(

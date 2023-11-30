@@ -188,10 +188,16 @@ model PendingArticleRequest {
   @@index([period], map: "fk_PendingArticleRequest_period")
 }
 
+enum RequestBookmarkType {
+  ADD
+  REMOVE
+}
+
 model PendingArticleRequestBookmarkMap {
-  id                      Int @id @default(autoincrement())
+  id                      Int                 @id @default(autoincrement())
   pendingArticleRequestId Int
   bookmarkId              Int
+  type                    RequestBookmarkType
 
   pendingArticleRequest PendingArticleRequest @relation(fields: [pendingArticleRequestId], references: [id])
   bookmark              Bookmark              @relation(fields: [bookmarkId], references: [id])

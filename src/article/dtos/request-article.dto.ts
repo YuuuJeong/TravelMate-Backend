@@ -24,11 +24,20 @@ export class RequestArticleDto {
   period: Period;
 
   @ApiProperty({
-    description: 'Bookmark ids',
+    description: 'Bookmarks to remove ids',
     isArray: true,
     type: 'number',
   })
   @IsOptional()
   @IsNumber({}, { each: true })
-  bookmarkIds?: number[];
+  bookmarksToRemove?: number[];
+
+  @ApiProperty({
+    description: 'Bookmarks to add ids',
+    isArray: true,
+    type: 'number',
+  })
+  @IsOptional()
+  @IsNumber({}, { each: true })
+  bookmarksToAdd?: number[];
 }
