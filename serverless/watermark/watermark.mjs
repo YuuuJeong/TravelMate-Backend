@@ -9,6 +9,20 @@ import { Readable } from 'stream';
 import util from 'util';
 import fs from 'fs';
 import jimp from 'jimp';
+import exif from 'exif';
+import * as jo from 'jpeg-autorotate';
+
+async function getExifAsync(img) {
+  return new Promise(function (resolve, reject) {
+    new exif.ExifImage({ image: img }, function (error, exifData) {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(exifData);
+      }
+    });
+  });
+}
 
 const s3 = new S3Client({ region: 'ap-northeast-2' });
 
@@ -35,6 +49,15 @@ const watermark = async (srcBucket, srcKey) => {
       jimp.read(logoBuf),
     ]);
 
+    console.log('log exif data');
+
+    try {
+      const exifData = await getExifAsync(content_buffer);
+      console.log(exifData);
+    } catch (e) {
+      console.log(e);
+    }
+
     const originalWidth = image.bitmap.width;
     const originalHeight = image.bitmap.height;
 
@@ -58,12 +81,18 @@ const watermark = async (srcBucket, srcKey) => {
 
     const output_buffer = await image.getBufferAsync(jimp.MIME_JPEG);
 
+    const rotated = await jo
+      .rotate(output_buffer, {
+        quaity: 100,
+      })
+      .then();
+
     const destKey = srcKey.replace('article', 'watermarked/article');
 
     const destparams = {
       Bucket: srcBucket,
       Key: destKey,
-      Body: output_buffer,
+      Body: rotated.buffer,
       ContentType: 'image',
     };
 
