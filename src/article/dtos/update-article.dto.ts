@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Period } from '@prisma/client';
-import { Location } from './create-article.dto';
+import { ELocation } from './create-article.dto';
 import { IsEnum } from 'class-validator';
 
 export class UpdateArticleDto {
@@ -11,10 +11,10 @@ export class UpdateArticleDto {
 
   @ApiProperty({
     required: false,
-    enum: Location,
+    enum: ELocation,
   })
-  @IsEnum(Location)
-  location: Location;
+  @IsEnum(ELocation)
+  location: ELocation;
 
   @ApiProperty({
     required: false,

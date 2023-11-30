@@ -19,16 +19,20 @@ import { ArticleService } from './article.service';
 import { JwtAuthGuard } from 'src/auth/strategies/jwt.strategy';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { Period, User } from '@prisma/client';
-import { CreateArticleDto, Location } from './dtos/create-article.dto';
+import { CreateArticleDto } from './dtos/create-article.dto';
 import { GetArticlesDto } from './dtos/get-articles.dto';
 import { UpdateArticleDto } from './dtos/update-article.dto';
 import { RequestArticleDto } from './dtos/request-article.dto';
 import { ShowRequestsDto } from './dtos/show-requests.dto';
+import { CacheService } from 'src/cache/cache.service';
 
 @Controller('articles')
 @ApiTags('articles')
 export class ArticleController {
-  constructor(private readonly articleService: ArticleService) {}
+  constructor(
+    private readonly articleService: ArticleService,
+    private readonly cacheService: CacheService,
+  ) {}
 
   @ApiOperation({
     summary: 'Create Article',
@@ -54,19 +58,17 @@ export class ArticleController {
   @ApiQuery({
     name: 'period',
     enum: Period,
-    isArray: true,
-    required: false,
-  })
-  @ApiQuery({
-    name: 'location',
-    enum: Location,
-    required: false,
+    required: true,
   })
   @Get('/count')
-  getArticlesCount(
-    @Query() filter: Pick<GetArticlesDto, 'period' | 'location'>,
-  ) {
-    return this.articleService.getArticlesCount(filter);
+  getArticlesCount(@Query('period') period: Period) {
+    return this.cacheService.cacheOrFetch({
+      cachePrefix: 'articles',
+      cacheKey: () => `count-${period}`,
+      ttl: 60,
+      fetch: () => this.articleService.getArticlesCount(period),
+      useCache: true,
+    });
   }
 
   @ApiOperation({

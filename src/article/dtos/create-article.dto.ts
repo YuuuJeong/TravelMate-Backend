@@ -2,18 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Period } from '@prisma/client';
 import { IsEnum } from 'class-validator';
 
-export const locations = [
-  '서울',
-  '경기/인천',
-  '강원',
-  '충청/대전',
-  '전라/광주',
-  '경북/대구',
-  '경남/울산/부산',
-  '제주',
-];
-
-export enum Location {
+export enum ELocation {
   SEOUL = '서울',
   GYEONGGI = '경기/인천',
   GANGWON = '강원',
@@ -38,10 +27,10 @@ export class CreateArticleDto {
 
   @ApiProperty({
     description: 'location',
-    enum: Location,
+    enum: ELocation,
   })
-  @IsEnum(Location)
-  location: Location;
+  @IsEnum(ELocation)
+  location: ELocation;
 
   @ApiProperty({
     description: 'thumbnail image',

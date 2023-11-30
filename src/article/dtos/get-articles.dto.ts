@@ -7,7 +7,7 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import { Location } from './create-article.dto';
+import { ELocation } from './create-article.dto';
 import { Period } from '@prisma/client';
 
 export enum ArticleOrderField {
@@ -50,12 +50,12 @@ export class GetArticlesDto {
 
   @ApiProperty({
     required: false,
-    enum: Location,
+    enum: ELocation,
   })
-  @IsEnum(Location)
+  @IsEnum(ELocation)
   @IsOptional()
   @IsString()
-  location?: Location;
+  location?: ELocation;
 
   @ApiProperty({ required: false })
   @IsString()

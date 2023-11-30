@@ -15,6 +15,7 @@ import { ArticleModule } from './article/article.module';
 import { FriendModule } from './friend/friend.module';
 import { BookmarkModule } from './bookmark/bookmark.module';
 import { ChatBookmarkCollectionModule } from './chatBookmarkCollection/chat-bookmark-collection.module';
+import { CacheModule } from './cache/cache.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { ChatBookmarkCollectionModule } from './chatBookmarkCollection/chat-book
       load: [jwtConfig, redisConfig, awsConfig],
     }),
     RedisModule,
+    CacheModule,
     S3Module,
     AttachmentModule,
     TagModule,
