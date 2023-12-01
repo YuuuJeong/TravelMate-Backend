@@ -368,8 +368,8 @@ export class ArticleService {
       orderBy: {
         createdAt: Prisma.SortOrder.desc,
       },
-      take: dto.limit,
-      skip: (dto.page - 1) * dto.limit,
+      // take: dto.limit,
+      // skip: (dto.page - 1) * dto.limit,
     });
   }
 

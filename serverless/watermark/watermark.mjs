@@ -10,7 +10,6 @@ import util from 'util';
 import fs from 'fs';
 import jimp from 'jimp';
 import exif from 'exif';
-import * as jo from 'jpeg-autorotate';
 
 async function getExifAsync(img) {
   return new Promise(function (resolve, reject) {
@@ -48,18 +47,18 @@ const watermark = async (srcBucket, srcKey) => {
       jimp.read(content_buffer),
       jimp.read(logoBuf),
     ]);
+    const originalWidth = image.bitmap.width;
+    const originalHeight = image.bitmap.height;
 
-    console.log('log exif data');
+    let needToRotate = false;
 
     try {
       const exifData = await getExifAsync(content_buffer);
       console.log(exifData);
+      needToRotate = exifData.image.Orientation === 6;
     } catch (e) {
       console.log(e);
     }
-
-    const originalWidth = image.bitmap.width;
-    const originalHeight = image.bitmap.height;
 
     console.log(originalWidth, originalHeight);
 
@@ -70,8 +69,10 @@ const watermark = async (srcBucket, srcKey) => {
 
     image.composite(logo, x, y, {
       mode: jimp.BLEND_SOURCE_OVER,
-      opacitySource: 0.3,
+      opacitySource: 0.5,
     });
+
+    if (needToRotate) image.rotate(90);
 
     console.log(image.bitmap.width, image.bitmap.height);
 
@@ -81,18 +82,12 @@ const watermark = async (srcBucket, srcKey) => {
 
     const output_buffer = await image.getBufferAsync(jimp.MIME_JPEG);
 
-    const rotated = await jo
-      .rotate(output_buffer, {
-        quaity: 100,
-      })
-      .then();
-
     const destKey = srcKey.replace('article', 'watermarked/article');
 
     const destparams = {
       Bucket: srcBucket,
       Key: destKey,
-      Body: rotated.buffer,
+      Body: output_buffer,
       ContentType: 'image',
     };
 
