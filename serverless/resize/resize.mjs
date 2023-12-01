@@ -8,6 +8,7 @@ import { Readable } from 'stream';
 
 import sharp from 'sharp';
 import util from 'util';
+import exif from 'exif';
 
 const s3 = new S3Client({ region: 'ap-northeast-2' });
 
@@ -46,10 +47,21 @@ const resize = async (srcBucket, srcKey) => {
 
   const width = 500;
 
-  console.log(content_buffer);
+  let needToRotate = false;
 
   try {
-    var output_buffer = await sharp(content_buffer).resize(width).toBuffer();
+    const exifData = await getExifAsync(content_buffer);
+    console.log(exifData);
+    needToRotate = exifData.image.Orientation === 6;
+  } catch (e) {
+    console.log(e);
+  }
+
+  try {
+    var resizedBuffer = await sharp(content_buffer).resize(width).toBuffer();
+    if (needToRotate) {
+      resizedBuffer = await sharp(resizedBuffer).rotate().toBuffer();
+    }
   } catch (error) {
     console.log(error);
     return;
@@ -59,7 +71,7 @@ const resize = async (srcBucket, srcKey) => {
     const destparams = {
       Bucket: srcBucket,
       Key: dstKey,
-      Body: output_buffer,
+      Body: resizedBuffer,
       ContentType: 'image',
     };
 
