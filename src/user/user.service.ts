@@ -1,5 +1,5 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { FriendInviteStatus, Prisma } from '@prisma/client';
+import { FriendInviteStatus, Prisma, User } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
@@ -118,5 +118,19 @@ export class UserService {
     });
 
     return '닉네임 변경 완료';
+  }
+
+  async updateProfileImage(
+    id: number,
+    profileImageId: number | null,
+  ): Promise<User> {
+    return await this.prisma.user.update({
+      where: {
+        id,
+      },
+      data: {
+        profileImageId,
+      },
+    });
   }
 }

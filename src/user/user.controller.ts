@@ -1,15 +1,20 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   ParseArrayPipe,
   ParseIntPipe,
   Patch,
   Post,
+  Put,
   Query,
+  SerializeOptions,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -38,6 +43,7 @@ import { OffsetPaginationDto } from '../common/dtos/offset-pagination.dto';
 import { FriendService } from '../friend/friend.service';
 import { ArticleService } from 'src/article/article.service';
 import { GetMyRequestsDto } from './dtos/req/get-my-requests.dto';
+import { UserDto } from './dtos/user.dto';
 
 @Controller('users')
 @ApiTags('users')
@@ -53,11 +59,12 @@ export class UserController {
   @ApiOperation({
     summary: '내 정보 조회',
   })
+  @UseInterceptors(ClassSerializerInterceptor)
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get('/me')
   profile(@CurrentUser() user: User) {
-    return user;
+    return new UserDto(user);
   }
 
   @ApiOperation({
@@ -240,6 +247,32 @@ export class UserController {
   }
 
   @ApiOperation({
+    summary: 'Update user profile image',
+  })
+  @ApiBody({
+    required: false,
+    schema: {
+      example: {
+        profileImageId: 1,
+      },
+    },
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @SerializeOptions({
+    enableImplicitConversion: true,
+  })
+  @Put('me/profile-image')
+  async updateProfileImage(
+    @CurrentUser() user: User,
+    @Body('profileImageId') profileImageId: number | null,
+  ) {
+    return new UserDto(
+      await this.userService.updateProfileImage(user.id, profileImageId),
+    );
+  }
+
+  @ApiOperation({
     summary: '유저정보를 제공하기 위한 API',
     description: '유저정보를 제공하기 위한 API',
   })
@@ -258,7 +291,8 @@ export class UserController {
         ? userIds.split(',').map((id) => Number(id))
         : (userIds as string[]).map((id) => Number(id));
 
-    return await this.userService.findUsersByIds(userIdList);
+    const users = await this.userService.findUsersByIds(userIdList);
+    return users.map((user) => new UserDto(user));
   }
 
   @ApiResponse({
@@ -467,7 +501,11 @@ export class UserController {
 
   @Get(':id')
   async findUserById(@Param('id', ParseIntPipe) id: number) {
-    return await this.userService.findUserById(id);
+    const user = await this.userService.findUserById(id);
+    if (!user) {
+      throw new NotFoundException();
+    }
+    return new UserDto(user);
   }
 
   @ApiResponse({
