@@ -111,7 +111,7 @@ export class ArticleController {
   })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @Post('/:articleId/reqeusts')
+  @Post('/:articleId/requests')
   requestArticle(
     @CurrentUser() user: User,
     @Param('articleId') articleId: number,
@@ -125,7 +125,7 @@ export class ArticleController {
   })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @Get('/:articleId/reqeusts/accept/:requestId')
+  @Get('/:articleId/requests/accept/:requestId')
   acceptRequest(
     @CurrentUser() user: User,
     @Param('articleId') articleId: number,
@@ -139,7 +139,7 @@ export class ArticleController {
   })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @Get('/:articleId/reqeusts/decline/:requestId')
+  @Get('/:articleId/requests/decline/:requestId')
   declineRequest(
     @CurrentUser() user: User,
     @Param('articleId') articleId: number,
@@ -153,7 +153,7 @@ export class ArticleController {
   })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @Get('/:articleId/reqeusts')
+  @Get('/:articleId/requests')
   showRequests(
     @CurrentUser() user: User,
     @Param('articleId') articleId: number,
@@ -167,7 +167,7 @@ export class ArticleController {
   })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @Get('/:articleId/reqeusts/:requestId')
+  @Get('/:articleId/requests/:requestId')
   getRequest(
     @CurrentUser() user: User,
     @Param('articleId') articleId: number,
