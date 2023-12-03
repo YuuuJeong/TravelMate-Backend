@@ -12,7 +12,7 @@ export class OffsetPaginationDto {
   page: number = 1;
 
   @ApiProperty({
-    description: '한 페이지당 최대 문제집 수(기본값: 25)',
+    description: '한 페이지당 최대 수(기본값: 25)',
     required: false,
   })
   @Type(() => Number)

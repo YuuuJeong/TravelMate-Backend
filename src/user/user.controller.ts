@@ -37,6 +37,7 @@ import { FetchMyBookmarkCollectionDto } from 'src/bookmarkCollection/dtos/req/fe
 import { OffsetPaginationDto } from '../common/dtos/offset-pagination.dto';
 import { FriendService } from '../friend/friend.service';
 import { ArticleService } from 'src/article/article.service';
+import { GetMyRequestsDto } from './dtos/req/get-my-requests.dto';
 
 @Controller('users')
 @ApiTags('users')
@@ -67,6 +68,16 @@ export class UserController {
   @Get('/me/articles')
   articles(@CurrentUser() user: User, @Query() dto: OffsetPaginationDto) {
     return this.articleService.getMyArticles(user.id, dto);
+  }
+
+  @ApiOperation({
+    summary: 'My Article Requests',
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('/me/article/requests')
+  articleRequests(@CurrentUser() user: User, @Query() dto: GetMyRequestsDto) {
+    return this.articleService.getMyArticleRequests(user.id, dto);
   }
 
   @ApiOperation({

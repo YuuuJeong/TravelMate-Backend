@@ -50,6 +50,7 @@ model Bookmark {
   BookmarkBookmarkCollectionMap     BookmarkBookmarkCollectionMap[]
   articleBookmarkMap                ArticleBookmarkMap[]
   BookmarkChatBookmarkCollectionMap BookmarkChatBookmarkCollectionMap[]
+  PendingArticleRequestBookmarkMap  PendingArticleRequestBookmarkMap[]
 }
 
 model BookmarkBookmarkCollectionMap {
@@ -103,6 +104,7 @@ model User {
 
 enum AttachmentType {
   ARTICLE
+  THUMBNAIL
 }
 
 model ProfileImage {
@@ -179,10 +181,28 @@ model PendingArticleRequest {
   acceptedAt DateTime? @db.Timestamp(0)
   declinedAt DateTime? @db.Timestamp(0)
 
-  user    User    @relation(fields: [userId], references: [id])
-  article Article @relation(fields: [articleId], references: [id])
+  user                             User                               @relation(fields: [userId], references: [id])
+  article                          Article                            @relation(fields: [articleId], references: [id])
+  PendingArticleRequestBookmarkMap PendingArticleRequestBookmarkMap[]
 
   @@index([period], map: "fk_PendingArticleRequest_period")
+}
+
+enum RequestBookmarkType {
+  ADD
+  REMOVE
+}
+
+model PendingArticleRequestBookmarkMap {
+  id                      Int                 @id @default(autoincrement())
+  pendingArticleRequestId Int
+  bookmarkId              Int
+  type                    RequestBookmarkType
+
+  pendingArticleRequest PendingArticleRequest @relation(fields: [pendingArticleRequestId], references: [id])
+  bookmark              Bookmark              @relation(fields: [bookmarkId], references: [id])
+
+  @@unique([pendingArticleRequestId, bookmarkId])
 }
 
 model tag {

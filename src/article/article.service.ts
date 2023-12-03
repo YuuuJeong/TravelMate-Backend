@@ -1,11 +1,12 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
-import { CreateArticleDto } from './dtos/create-article.dto';
-import { Period, Prisma, User } from '@prisma/client';
+import { CreateArticleDto, ELocation } from './dtos/create-article.dto';
+import { Period, Prisma, RequestBookmarkType, User } from '@prisma/client';
 import { ArticleOrderField, GetArticlesDto } from './dtos/get-articles.dto';
 import { UpdateArticleDto } from './dtos/update-article.dto';
 import { RequestArticleDto } from './dtos/request-article.dto';
 import { OffsetPaginationDto } from 'src/common/dtos/offset-pagination.dto';
+import { GetMyRequestsDto } from 'src/user/dtos/req/get-my-requests.dto';
 
 @Injectable()
 export class ArticleService {
@@ -101,7 +102,7 @@ export class ArticleService {
   }
 
   private buildGetArticlesWhereInput(dto: GetArticlesDto) {
-    const { period, location, authorId, keyword, order } = dto;
+    const { period, location, authorId, keyword } = dto;
 
     const orInput = period
       ? [
@@ -183,7 +184,7 @@ export class ArticleService {
   }
 
   public async getArticles(dto: GetArticlesDto) {
-    const { page, limit, period, location, authorId, keyword, order } = dto;
+    const { page, limit, order } = dto;
 
     const orderClause = {
       ...(order === ArticleOrderField.RECENT && {
@@ -226,6 +227,56 @@ export class ArticleService {
       count,
       articles,
     };
+  }
+
+  getArticlesCount(period: Period) {
+    return Promise.all(
+      Object.values(ELocation).map(async (value) => {
+        const count = await this.prisma.article.count({
+          where: {
+            deletedAt: null,
+            location: value,
+            ...(period && {
+              OR: [
+                {
+                  ...(period?.includes(Period.SPRING) && {
+                    springVersionID: {
+                      not: null,
+                    },
+                  }),
+                },
+                {
+                  ...(period?.includes(Period.WINTER) && {
+                    winterVersionID: {
+                      not: null,
+                    },
+                  }),
+                },
+                {
+                  ...(period?.includes(Period.FALL) && {
+                    fallVersionID: {
+                      not: null,
+                    },
+                  }),
+                },
+                {
+                  ...(period?.includes(Period.SUMMER) && {
+                    summerVersionID: {
+                      not: null,
+                    },
+                  }),
+                },
+              ],
+            }),
+          },
+        });
+
+        return {
+          location: value,
+          count,
+        };
+      }),
+    );
   }
 
   async getArticle(articleId: number) {
@@ -290,6 +341,34 @@ export class ArticleService {
       fall,
       winter,
     };
+  }
+
+  getMyArticleRequests(userId: number, dto: GetMyRequestsDto) {
+    return this.prisma.pendingArticleRequest.findMany({
+      where: {
+        userId,
+        ...(dto.type === 'accepted' && {
+          acceptedAt: {
+            not: null,
+          },
+        }),
+        ...(dto.type === 'declined' && {
+          declinedAt: {
+            not: null,
+          },
+        }),
+        ...(dto.type === 'pending' && {
+          acceptedAt: null,
+          declinedAt: null,
+        }),
+      },
+      include: {
+        article: true,
+      },
+      orderBy: {
+        createdAt: Prisma.SortOrder.desc,
+      },
+    });
   }
 
   async getMyArticles(userId: number, dto: OffsetPaginationDto) {
@@ -452,7 +531,7 @@ export class ArticleService {
     articleId: number,
     dto: RequestArticleDto,
   ) {
-    const { period, content, comment } = dto;
+    const { period, content, comment, bookmarksToAdd, bookmarksToRemove } = dto;
 
     await this.prisma.article.findUniqueOrThrow({
       where: {
@@ -460,7 +539,15 @@ export class ArticleService {
       },
     });
 
-    return this.prisma.pendingArticleRequest.create({
+    await this.prisma.pendingArticleRequestBookmarkMap.deleteMany({
+      where: {
+        bookmarkId: {
+          in: bookmarksToRemove,
+        },
+      },
+    });
+
+    const request = await this.prisma.pendingArticleRequest.create({
       data: {
         articleId,
         content,
@@ -469,6 +556,19 @@ export class ArticleService {
         userId,
       },
     });
+
+    const data = bookmarksToAdd?.map((bookmarkId) => ({
+      bookmarkId,
+      pendingArticleRequestId: request.id,
+      type: RequestBookmarkType.ADD,
+    }));
+
+    if (data)
+      await this.prisma.pendingArticleRequestBookmarkMap.createMany({
+        data,
+      });
+
+    return request;
   }
 
   public async getRequest(
@@ -489,6 +589,13 @@ export class ArticleService {
     return this.prisma.pendingArticleRequest.findUniqueOrThrow({
       where: {
         id: requestId,
+      },
+      include: {
+        PendingArticleRequestBookmarkMap: {
+          include: {
+            bookmark: true,
+          },
+        },
       },
     });
   }
@@ -539,7 +646,14 @@ export class ArticleService {
       where: {
         id: requestId,
       },
+      include: {
+        PendingArticleRequestBookmarkMap: true,
+      },
     });
+
+    const bookmarkIds = request.PendingArticleRequestBookmarkMap.map(
+      (map) => map.bookmarkId,
+    );
 
     await this.prisma.pendingArticleRequest.update({
       where: {
@@ -574,6 +688,14 @@ export class ArticleService {
         ...(request.period === Period.WINTER && {
           winterVersionID: versionHistory.id,
         }),
+        articleBookmarkMap: {
+          createMany: {
+            data: bookmarkIds.map((bookmarkId) => ({
+              bookmarkId,
+              period: request.period,
+            })),
+          },
+        },
       },
     });
 

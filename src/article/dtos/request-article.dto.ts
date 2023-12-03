@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Period } from '@prisma/client';
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class RequestArticleDto {
   @ApiProperty({
@@ -22,4 +22,22 @@ export class RequestArticleDto {
   })
   @IsEnum(Period)
   period: Period;
+
+  @ApiProperty({
+    description: 'Bookmarks to remove ids',
+    isArray: true,
+    type: 'number',
+  })
+  @IsOptional()
+  @IsNumber({}, { each: true })
+  bookmarksToRemove?: number[];
+
+  @ApiProperty({
+    description: 'Bookmarks to add ids',
+    isArray: true,
+    type: 'number',
+  })
+  @IsOptional()
+  @IsNumber({}, { each: true })
+  bookmarksToAdd?: number[];
 }

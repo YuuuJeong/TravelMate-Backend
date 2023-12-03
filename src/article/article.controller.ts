@@ -9,21 +9,30 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { ArticleService } from './article.service';
 import { JwtAuthGuard } from 'src/auth/strategies/jwt.strategy';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
-import { User } from '@prisma/client';
+import { Period, User } from '@prisma/client';
 import { CreateArticleDto } from './dtos/create-article.dto';
 import { GetArticlesDto } from './dtos/get-articles.dto';
 import { UpdateArticleDto } from './dtos/update-article.dto';
 import { RequestArticleDto } from './dtos/request-article.dto';
 import { ShowRequestsDto } from './dtos/show-requests.dto';
+import { CacheService } from 'src/cache/cache.service';
 
 @Controller('articles')
 @ApiTags('articles')
 export class ArticleController {
-  constructor(private readonly articleService: ArticleService) {}
+  constructor(
+    private readonly articleService: ArticleService,
+    private readonly cacheService: CacheService,
+  ) {}
 
   @ApiOperation({
     summary: 'Create Article',
@@ -41,6 +50,25 @@ export class ArticleController {
   @Get()
   getArticles(@Query() dto: GetArticlesDto) {
     return this.articleService.getArticles(dto);
+  }
+
+  @ApiOperation({
+    summary: 'Get Articles count',
+  })
+  @ApiQuery({
+    name: 'period',
+    enum: Period,
+    required: true,
+  })
+  @Get('/count')
+  getArticlesCount(@Query('period') period: Period) {
+    return this.cacheService.cacheOrFetch({
+      cachePrefix: 'articles',
+      cacheKey: () => `count-${period}`,
+      ttl: 60,
+      fetch: () => this.articleService.getArticlesCount(period),
+      useCache: true,
+    });
   }
 
   @ApiOperation({
@@ -83,7 +111,7 @@ export class ArticleController {
   })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @Post('/:articleId/reqeusts')
+  @Post('/:articleId/requests')
   requestArticle(
     @CurrentUser() user: User,
     @Param('articleId') articleId: number,
@@ -97,7 +125,7 @@ export class ArticleController {
   })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @Get('/:articleId/reqeusts/accept/:requestId')
+  @Get('/:articleId/requests/accept/:requestId')
   acceptRequest(
     @CurrentUser() user: User,
     @Param('articleId') articleId: number,
@@ -111,7 +139,7 @@ export class ArticleController {
   })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @Get('/:articleId/reqeusts/decline/:requestId')
+  @Get('/:articleId/requests/decline/:requestId')
   declineRequest(
     @CurrentUser() user: User,
     @Param('articleId') articleId: number,
@@ -125,7 +153,7 @@ export class ArticleController {
   })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @Get('/:articleId/reqeusts')
+  @Get('/:articleId/requests')
   showRequests(
     @CurrentUser() user: User,
     @Param('articleId') articleId: number,
@@ -139,7 +167,7 @@ export class ArticleController {
   })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @Get('/:articleId/reqeusts/:requestId')
+  @Get('/:articleId/requests/:requestId')
   getRequest(
     @CurrentUser() user: User,
     @Param('articleId') articleId: number,

@@ -1,0 +1,25 @@
+service: resize
+frameworkVersion: '3'
+
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  iam:
+    role:
+      managedPolicies:
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+  environment:
+    S3_BUCKET: ${env:S3_BUCKET}
+
+functions:
+  resize:
+    handler: resize.handler
+    events:
+      - s3:
+          bucket: ${env:S3_BUCKET}
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: thumbnail/
+          existing: true
