@@ -361,6 +361,9 @@ export class ArticleService {
           acceptedAt: null,
           declinedAt: null,
         }),
+        article: {
+          deletedAt: null,
+        },
       },
       include: {
         article: true,
