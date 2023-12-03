@@ -593,7 +593,11 @@ export class ArticleService {
       include: {
         PendingArticleRequestBookmarkMap: {
           include: {
-            bookmark: true,
+            bookmark: {
+              include: {
+                location: true,
+              },
+            },
           },
         },
       },
