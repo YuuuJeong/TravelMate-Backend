@@ -284,4 +284,15 @@ export class BookmarkCollectionService {
 
     return { bookmarkCollections, count };
   }
+
+  async fetchMyTotalBookmarkCollections(userId: number) {
+    return await this.prisma.bookmarkCollection.findMany({
+      where: {
+        userId,
+      },
+      orderBy: {
+        createdAt: Prisma.SortOrder.desc,
+      },
+    });
+  }
 }

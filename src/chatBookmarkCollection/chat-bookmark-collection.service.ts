@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Bookmark } from '@prisma/client';
 import { CreateBookmarkDto } from 'src/bookmark/dtos/req/create-bookmark.dto';
 import { PrismaService } from 'src/prisma.service';
 
@@ -19,7 +20,7 @@ export class ChatBookmarkCollectionService {
     dto: CreateBookmarkDto,
     userId: number,
   ) {
-    const bookmarkIds: number[] = [];
+    const bookmarks: Bookmark[] = [];
 
     for (const location of dto.locationsWithContent) {
       const bookmark = await this.prisma.bookmark.create({
@@ -48,19 +49,22 @@ export class ChatBookmarkCollectionService {
             },
           },
         },
+        include: {
+          location: true,
+        },
       });
 
-      bookmarkIds.push(bookmark.id);
+      bookmarks.push(bookmark);
     }
 
     await this.prisma.bookmarkChatBookmarkCollectionMap.createMany({
-      data: bookmarkIds.map((bookmarkId) => ({
+      data: bookmarks.map((bookmark) => ({
         collectionId: id,
-        bookmarkId: bookmarkId,
+        bookmarkId: bookmark.id,
       })),
     });
 
-    return '지도에 북마크를 표시하였습니다.';
+    return bookmarks;
   }
 
   async deleteBookmarksInCollection(id: number, bookmarkIds: number[]) {
