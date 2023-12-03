@@ -15,7 +15,7 @@ export class BookmarkDto {
   userId: number;
 
   @Expose()
-  content?: string | null;
+  content: string;
 
   @Exclude()
   locationId: number;

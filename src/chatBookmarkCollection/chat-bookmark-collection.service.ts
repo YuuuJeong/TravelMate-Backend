@@ -29,9 +29,7 @@ export class ChatBookmarkCollectionService {
               id: userId,
             },
           },
-          ...(location.content && {
-            content: location.content,
-          }),
+          content: location.content,
           location: {
             connectOrCreate: {
               create: {

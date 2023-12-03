@@ -6,7 +6,7 @@ import { IsEnum, IsNotEmpty, IsString, Length } from 'class-validator';
 export interface LocationWithContent {
   latitude: Decimal;
   longitude: Decimal;
-  content?: string;
+  content: string;
   placeId?: string;
 }
 
