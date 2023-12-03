@@ -539,14 +539,6 @@ export class ArticleService {
       },
     });
 
-    await this.prisma.pendingArticleRequestBookmarkMap.deleteMany({
-      where: {
-        bookmarkId: {
-          in: bookmarksToRemove,
-        },
-      },
-    });
-
     const request = await this.prisma.pendingArticleRequest.create({
       data: {
         articleId,
@@ -557,15 +549,28 @@ export class ArticleService {
       },
     });
 
-    const data = bookmarksToAdd?.map((bookmarkId) => ({
-      bookmarkId,
-      pendingArticleRequestId: request.id,
-      type: RequestBookmarkType.ADD,
-    }));
+    let bookmarks: Prisma.PendingArticleRequestBookmarkMapCreateManyInput[] =
+      [];
 
-    if (data)
+    bookmarksToAdd?.forEach((bookmarkId) => {
+      bookmarks.push({
+        bookmarkId,
+        pendingArticleRequestId: request.id,
+        type: RequestBookmarkType.ADD,
+      });
+    });
+
+    bookmarksToRemove?.forEach((bookmarkId) => {
+      bookmarks.push({
+        bookmarkId,
+        pendingArticleRequestId: request.id,
+        type: RequestBookmarkType.REMOVE,
+      });
+    });
+
+    if (bookmarks.length > 0)
       await this.prisma.pendingArticleRequestBookmarkMap.createMany({
-        data,
+        data: bookmarks,
       });
 
     return request;
@@ -651,8 +656,12 @@ export class ArticleService {
       },
     });
 
-    const bookmarkIds = request.PendingArticleRequestBookmarkMap.map(
-      (map) => map.bookmarkId,
+    const bookmarksToAdd = request.PendingArticleRequestBookmarkMap.filter(
+      (bookmark) => bookmark.type === RequestBookmarkType.ADD,
+    );
+
+    const bookmarksToRemove = request.PendingArticleRequestBookmarkMap.filter(
+      (bookmark) => bookmark.type === RequestBookmarkType.REMOVE,
     );
 
     await this.prisma.pendingArticleRequest.update({
@@ -690,10 +699,16 @@ export class ArticleService {
         }),
         articleBookmarkMap: {
           createMany: {
-            data: bookmarkIds.map((bookmarkId) => ({
-              bookmarkId,
+            data: bookmarksToAdd.map((bookmark) => ({
+              bookmarkId: bookmark.bookmarkId,
               period: request.period,
             })),
+          },
+          deleteMany: {
+            bookmarkId: {
+              in: bookmarksToRemove.map((bookmark) => bookmark.bookmarkId),
+            },
+            period: request.period,
           },
         },
       },

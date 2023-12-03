@@ -10,6 +10,18 @@ import sharp from 'sharp';
 import util from 'util';
 import exif from 'exif';
 
+async function getExifAsync(img) {
+  return new Promise(function (resolve, reject) {
+    new exif.ExifImage({ image: img }, function (error, exifData) {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(exifData);
+      }
+    });
+  });
+}
+
 const s3 = new S3Client({ region: 'ap-northeast-2' });
 
 const resize = async (srcBucket, srcKey) => {
