@@ -111,7 +111,7 @@ export class ArticleController {
   })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @Post('/:articleId/reqeusts')
+  @Post('/:articleId/requests')
   requestArticle(
     @CurrentUser() user: User,
     @Param('articleId') articleId: number,
