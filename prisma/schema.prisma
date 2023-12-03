@@ -39,7 +39,7 @@ model Location {
 
 model Bookmark {
   id         Int       @id @default(autoincrement())
-  content    String?   @db.VarChar(200)
+  content    String    @db.VarChar(200)
   locationId Int
   userId     Int
   createdAt  DateTime  @default(now()) @db.Timestamp(0)
@@ -268,7 +268,7 @@ model UserFavoriteArticleMap {
 model ChatBookmarkCollection {
   id        Int      @id @default(autoincrement())
   title     String   @db.VarChar(200)
-  roomId    String   @db.VarChar(200)
+  roomId    String   @unique @db.VarChar(200)
   createdAt DateTime @default(now()) @db.Timestamp(0)
   updatedAt DateTime @default(now()) @db.Timestamp(0)
 
@@ -281,4 +281,6 @@ model BookmarkChatBookmarkCollectionMap {
   bookmarkId   Int
   collection   ChatBookmarkCollection @relation(fields: [collectionId], references: [id])
   bookmark     Bookmark               @relation(fields: [bookmarkId], references: [id])
+
+  @@unique([collectionId, bookmarkId])
 }

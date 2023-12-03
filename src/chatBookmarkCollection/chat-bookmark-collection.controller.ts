@@ -40,7 +40,7 @@ export class ChatBookmarkCollectionController {
   })
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @Post('chat-bookmark-collection/:id/bookmarks')
+  @Post('chat-room/bookmark-collection/:id/bookmarks')
   createBookmarksInCollection(
     @Param('id') id: number,
     @Body() dto: CreateBookmarkDto,
@@ -54,11 +54,11 @@ export class ChatBookmarkCollectionController {
   }
 
   @ApiOperation({
-    summary: '채팅방 북마크 컬렉션에 북마크 찍기',
+    summary: '채팅방 북마크 컬렉션에 북마크 삭제하기',
   })
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @Post('chat-bookmark-collection/:id/bookmarks')
+  @Post('chat-room/bookmark-collection/:id/remove-bookmarks')
   deleteBookmarksInCollection(
     @Param('id') id: number,
     @Body('bookmarkIds') bookmarkIds: number[],

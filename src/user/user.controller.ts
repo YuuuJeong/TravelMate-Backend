@@ -464,4 +464,24 @@ export class UserController {
       nickname,
     );
   }
+
+  @Get(':id')
+  async findUserById(@Param('id', ParseIntPipe) id: number) {
+    return await this.userService.findUserById(id);
+  }
+
+  @ApiResponse({
+    status: 200,
+    type: [BookmarkCollectionDto],
+    isArray: true,
+    description: '북마크 컬렉션 전체 조회완료 (페이지네이션 적용x)',
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('me/total-bookmark-collections')
+  async fetchMyTotalBookmarkCollections(@CurrentUser() user: User) {
+    return await this.bookmarkCollection.fetchMyTotalBookmarkCollections(
+      user.id,
+    );
+  }
 }

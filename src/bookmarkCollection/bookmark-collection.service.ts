@@ -185,9 +185,9 @@ export class BookmarkCollectionService {
               id: userId,
             },
           },
-          ...(location.content && {
-            content: location.content,
-          }),
+
+          content: location.content,
+
           location: {
             connectOrCreate: {
               create: {
@@ -283,5 +283,16 @@ export class BookmarkCollectionService {
     });
 
     return { bookmarkCollections, count };
+  }
+
+  async fetchMyTotalBookmarkCollections(userId: number) {
+    return await this.prisma.bookmarkCollection.findMany({
+      where: {
+        userId,
+      },
+      orderBy: {
+        createdAt: Prisma.SortOrder.desc,
+      },
+    });
   }
 }
