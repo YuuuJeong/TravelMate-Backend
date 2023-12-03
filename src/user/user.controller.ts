@@ -472,7 +472,7 @@ export class UserController {
 
   @ApiResponse({
     status: 200,
-    type: BookmarkCollectionDto,
+    type: [BookmarkCollectionDto],
     isArray: true,
     description: '북마크 컬렉션 전체 조회완료 (페이지네이션 적용x)',
   })
