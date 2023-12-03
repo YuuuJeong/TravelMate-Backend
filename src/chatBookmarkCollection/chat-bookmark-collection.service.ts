@@ -80,4 +80,35 @@ export class ChatBookmarkCollectionService {
 
     return result;
   }
+
+  async fetchChatBookmarkCollection(roomId: string) {
+    const chatRoomBookmarkCollection =
+      await this.prisma.chatBookmarkCollection.findUniqueOrThrow({
+        where: {
+          roomId,
+        },
+      });
+
+    const bookmarkIds = (
+      await this.prisma.bookmarkChatBookmarkCollectionMap.findMany({
+        where: {
+          collectionId: chatRoomBookmarkCollection.id,
+        },
+      })
+    ).map((object) => object.bookmarkId);
+
+    const bookmarks = await this.prisma.bookmark.findMany({
+      where: {
+        deletedAt: null,
+        id: {
+          in: bookmarkIds,
+        },
+      },
+      include: {
+        location: true,
+      },
+    });
+
+    return { bookmarks, collectionId: chatRoomBookmarkCollection.id };
+  }
 }

@@ -68,4 +68,15 @@ export class ChatBookmarkCollectionController {
       bookmarkIds,
     );
   }
+
+  @ApiOperation({
+    summary:
+      '채팅방내에서의 북마크 컬렉션 그리고 그 안에 있는 북마크들 정보 조회',
+  })
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Get('chat-room/:chatRoomId/bookmark-collection/details')
+  fetchChatBookmarkCollection(@Param('chatRoomId') chatRoomId: string) {
+    return this.chatBookmarkCollection.fetchChatBookmarkCollection(chatRoomId);
+  }
 }
