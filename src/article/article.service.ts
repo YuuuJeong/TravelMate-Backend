@@ -279,7 +279,7 @@ export class ArticleService {
     );
   }
 
-  async getArticle(articleId: number) {
+  async getArticle(articleId: number, userId: number) {
     const article = await this.prisma.article.findUniqueOrThrow({
       where: {
         id: articleId,
@@ -299,8 +299,16 @@ export class ArticleService {
             tag: true,
           },
         },
+        userFavoriteArticleMap: {
+          where: {
+            userId,
+            articleId,
+          },
+        },
       },
     });
+
+    const isFavorite = article.userFavoriteArticleMap.length > 0 ? true : false;
 
     const spring = article.springVersionID
       ? await this.prisma.articleVersionHistory.findUnique({
@@ -340,6 +348,7 @@ export class ArticleService {
       summer,
       fall,
       winter,
+      isFavorite,
     };
   }
 
