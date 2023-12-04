@@ -762,6 +762,34 @@ export class ArticleService {
     });
   }
 
+  public async showAcceptedRequests(
+    userId: number,
+    articleId: number,
+    period: Period | string,
+  ) {
+    const article = await this.prisma.article.findUniqueOrThrow({
+      where: {
+        id: articleId,
+      },
+    });
+
+    if (article.authorId !== userId) {
+      throw new BadRequestException('권한이 없습니다.');
+    }
+
+    return this.prisma.pendingArticleRequest.findMany({
+      where: {
+        articleId,
+        ...(period !== 'ALL' && {
+          period: period as Period,
+        }),
+        acceptedAt: {
+          not: null,
+        },
+      },
+    });
+  }
+
   async addArticleToFavoriteList(userId: number, articleId: number) {
     return await this.prisma.userFavoriteArticleMap.upsert({
       where: {

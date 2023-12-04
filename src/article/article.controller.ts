@@ -139,6 +139,24 @@ export class ArticleController {
   }
 
   @ApiOperation({
+    summary: 'Show accepted requests',
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('/:articleId/requests/accepted')
+  showAcceptedRequests(
+    @CurrentUser() user: User,
+    @Param('articleId') articleId: number,
+    @Query() dto: ShowRequestsDto,
+  ) {
+    return this.articleService.showAcceptedRequests(
+      user.id,
+      articleId,
+      dto.period,
+    );
+  }
+
+  @ApiOperation({
     summary: 'Decline update requests',
   })
   @ApiBearerAuth()

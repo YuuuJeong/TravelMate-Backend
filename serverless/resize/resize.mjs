@@ -72,7 +72,7 @@ const resize = async (srcBucket, srcKey) => {
   try {
     var resizedBuffer = await sharp(content_buffer).resize(width).toBuffer();
     if (needToRotate) {
-      resizedBuffer = await sharp(resizedBuffer).rotate().toBuffer();
+      resizedBuffer = await sharp(resizedBuffer).rotate(90).toBuffer();
     }
   } catch (error) {
     console.log(error);
