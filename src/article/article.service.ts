@@ -1,13 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { CreateArticleDto, ELocation } from './dtos/create-article.dto';
-import {
-  Bookmark,
-  Period,
-  Prisma,
-  RequestBookmarkType,
-  User,
-} from '@prisma/client';
+import { Period, Prisma, RequestBookmarkType, User } from '@prisma/client';
 import { ArticleOrderField, GetArticlesDto } from './dtos/get-articles.dto';
 import { UpdateArticleDto } from './dtos/update-article.dto';
 import { RequestArticleDto } from './dtos/request-article.dto';
@@ -314,7 +308,7 @@ export class ArticleService {
       },
     });
 
-    const isFavorite = article.articleBookmarkMap.length > 0 ? true : false;
+    const isFavorite = article.userFavoriteArticleMap.length > 0 ? true : false;
 
     const spring = article.springVersionID
       ? await this.prisma.articleVersionHistory.findUnique({
@@ -376,6 +370,9 @@ export class ArticleService {
           acceptedAt: null,
           declinedAt: null,
         }),
+        article: {
+          deletedAt: null,
+        },
       },
       include: {
         article: true,
@@ -554,14 +551,6 @@ export class ArticleService {
       },
     });
 
-    // await this.prisma.pendingArticleRequestBookmarkMap.deleteMany({
-    //   where: {
-    //     bookmarkId: {
-    //       in: bookmarksToRemove,
-    //     },
-    //   },
-    // });
-
     const request = await this.prisma.pendingArticleRequest.create({
       data: {
         articleId,
@@ -572,29 +561,30 @@ export class ArticleService {
       },
     });
 
-    const dataToDelete = bookmarksToRemove?.map((bookmarkId) => ({
-      bookmarkId,
-      pendingArticleRequestId: request.id,
-      type: RequestBookmarkType.REMOVE,
-    }));
+    let bookmarks: Prisma.PendingArticleRequestBookmarkMapCreateManyInput[] =
+      [];
 
-    const data = bookmarksToAdd?.map((bookmarkId) => ({
-      bookmarkId,
-      pendingArticleRequestId: request.id,
-      type: RequestBookmarkType.ADD,
-    }));
-
-    if (dataToDelete) {
-      await this.prisma.pendingArticleRequestBookmarkMap.createMany({
-        data: dataToDelete,
+    bookmarksToAdd?.forEach((bookmarkId) => {
+      bookmarks.push({
+        bookmarkId,
+        pendingArticleRequestId: request.id,
+        type: RequestBookmarkType.ADD,
       });
-    }
+    });
 
-    if (data) {
-      await this.prisma.pendingArticleRequestBookmarkMap.createMany({
-        data,
+    bookmarksToRemove?.forEach((bookmarkId) => {
+      bookmarks.push({
+        bookmarkId,
+        pendingArticleRequestId: request.id,
+        type: RequestBookmarkType.REMOVE,
       });
-    }
+    });
+
+    if (bookmarks.length > 0)
+      await this.prisma.pendingArticleRequestBookmarkMap.createMany({
+        data: bookmarks,
+      });
+
     return request;
   }
 
@@ -607,8 +597,18 @@ export class ArticleService {
       where: {
         id: articleId,
       },
+    });
+
+    if (article.authorId !== userId) {
+      throw new BadRequestException('권한이 없습니다.');
+    }
+
+    return this.prisma.pendingArticleRequest.findUniqueOrThrow({
+      where: {
+        id: requestId,
+      },
       include: {
-        articleBookmarkMap: {
+        PendingArticleRequestBookmarkMap: {
           include: {
             bookmark: {
               include: {
@@ -619,45 +619,6 @@ export class ArticleService {
         },
       },
     });
-
-    if (article.authorId !== userId) {
-      throw new BadRequestException('권한이 없습니다.');
-    }
-    const bookmarkList = article.articleBookmarkMap.map((data) => {
-      return data.bookmark;
-    });
-
-    const requestData =
-      await this.prisma.pendingArticleRequest.findUniqueOrThrow({
-        where: {
-          id: requestId,
-        },
-        include: {
-          PendingArticleRequestBookmarkMap: {
-            include: {
-              bookmark: {
-                include: {
-                  location: true,
-                },
-              },
-            },
-          },
-        },
-      });
-    console.log(bookmarkList);
-
-    console.log('\n\n');
-    requestData.PendingArticleRequestBookmarkMap.map((data) => {
-      const index = bookmarkList.indexOf(data.bookmark);
-      if (data.type === RequestBookmarkType.ADD && index === -1) {
-        bookmarkList.push(data.bookmark);
-      }
-
-      if (data.type === RequestBookmarkType.REMOVE && index !== -1) {
-        boo;
-      }
-    });
-    return { article, requestData };
   }
 
   public async showRequests(
@@ -711,8 +672,12 @@ export class ArticleService {
       },
     });
 
-    const bookmarkIds = request.PendingArticleRequestBookmarkMap.map(
-      (map) => map.bookmarkId,
+    const bookmarksToAdd = request.PendingArticleRequestBookmarkMap.filter(
+      (bookmark) => bookmark.type === RequestBookmarkType.ADD,
+    );
+
+    const bookmarksToRemove = request.PendingArticleRequestBookmarkMap.filter(
+      (bookmark) => bookmark.type === RequestBookmarkType.REMOVE,
     );
 
     await this.prisma.pendingArticleRequest.update({
@@ -750,10 +715,16 @@ export class ArticleService {
         }),
         articleBookmarkMap: {
           createMany: {
-            data: bookmarkIds.map((bookmarkId) => ({
-              bookmarkId,
+            data: bookmarksToAdd.map((bookmark) => ({
+              bookmarkId: bookmark.bookmarkId,
               period: request.period,
             })),
+          },
+          deleteMany: {
+            bookmarkId: {
+              in: bookmarksToRemove.map((bookmark) => bookmark.bookmarkId),
+            },
+            period: request.period,
           },
         },
       },
