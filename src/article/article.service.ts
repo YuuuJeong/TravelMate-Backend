@@ -314,7 +314,7 @@ export class ArticleService {
       },
     });
 
-    const isFavorite = article.articleBookmarkMap[0] ? true : false;
+    const isFavorite = article.articleBookmarkMap.length > 0 ? true : false;
 
     const spring = article.springVersionID
       ? await this.prisma.articleVersionHistory.findUnique({
