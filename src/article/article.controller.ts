@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -75,8 +76,11 @@ export class ArticleController {
     summary: 'Get Article',
   })
   @Get('/:articleId')
-  getArticle(@Param('articleId') articleId: number) {
-    return this.articleService.getArticle(articleId);
+  getArticle(
+    @Param('articleId') articleId: number,
+    @Query('userId', ParseIntPipe) userId: number,
+  ) {
+    return this.articleService.getArticle(articleId, userId);
   }
 
   @ApiOperation({
