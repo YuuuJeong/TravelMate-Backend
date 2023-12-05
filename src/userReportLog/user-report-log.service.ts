@@ -50,6 +50,10 @@ export class UserReportLogService {
             ...(endDate && { lt: endDate }),
           },
         },
+        include: {
+          reportedUser: true,
+          reporter: true,
+        },
         take: limit,
         skip: limit * (page - 1),
       }),
