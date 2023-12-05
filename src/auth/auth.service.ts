@@ -1,5 +1,9 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { firstValueFrom } from 'rxjs';
 import { PrismaService } from 'src/prisma.service';
@@ -7,6 +11,7 @@ import { RedisService } from 'src/redis/redis.service';
 import { SignUpDto } from './dtos/sign-up.dto';
 import { NicknameAdj, NicknameNoun } from './constants/rand-nickname.constant';
 import { ConfigService } from '@nestjs/config';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -18,6 +23,17 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
 
+  private async notifyBanLog(user: User) {
+    if (user.bannedAt) {
+      const userBanLog = await this.prisma.userBanLog.findUnique({
+        where: {
+          userId: user.id,
+        },
+      });
+
+      throw new BadRequestException(userBanLog?.reason);
+    }
+  }
   public async kakaoLogin(accessToken: string) {
     const kakaoProfile = await this.getKakaoProfile(accessToken);
 
@@ -32,6 +48,9 @@ export class AuthService {
       },
       update: {},
     });
+
+    await this.notifyBanLog(user);
+
     return this.signJwt(user);
   }
 
@@ -49,6 +68,8 @@ export class AuthService {
       },
       update: {},
     });
+
+    await this.notifyBanLog(user);
 
     return this.signJwt(user);
   }

@@ -579,7 +579,7 @@ export class ArticleService {
       },
     });
 
-    let bookmarks: Prisma.PendingArticleRequestBookmarkMapCreateManyInput[] =
+    const bookmarks: Prisma.PendingArticleRequestBookmarkMapCreateManyInput[] =
       [];
 
     bookmarksToAdd?.forEach((bookmarkId) => {

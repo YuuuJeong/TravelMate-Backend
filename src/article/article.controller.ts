@@ -12,7 +12,9 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiBody,
   ApiOperation,
+  ApiParam,
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
@@ -26,6 +28,8 @@ import { UpdateArticleDto } from './dtos/update-article.dto';
 import { RequestArticleDto } from './dtos/request-article.dto';
 import { ShowRequestsDto } from './dtos/show-requests.dto';
 import { CacheService } from 'src/cache/cache.service';
+import { ReportArticleDto } from 'src/articleReportLog/dtos/report-article.dto';
+import { ArticleReportLogService } from 'src/articleReportLog/article-report-log.service';
 
 @Controller('articles')
 @ApiTags('articles')
@@ -33,6 +37,7 @@ export class ArticleController {
   constructor(
     private readonly articleService: ArticleService,
     private readonly cacheService: CacheService,
+    private readonly articleReportLogService: ArticleReportLogService,
   ) {}
 
   @ApiOperation({
@@ -222,5 +227,31 @@ export class ArticleController {
     @Param('articleId') articleId: number,
   ) {
     return this.articleService.deleteArticleFavorite(user.id, articleId);
+  }
+
+  @ApiOperation({
+    summary: '게시글 신고',
+  })
+  @ApiParam({
+    name: 'articleId',
+    type: Number,
+    required: true,
+  })
+  @ApiBody({
+    type: ReportArticleDto,
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Post('/:articleId/report')
+  async reportArticle(
+    @CurrentUser() user: User,
+    @Param('articleId') articleId: number,
+    @Body() dto: ReportArticleDto,
+  ) {
+    return this.articleReportLogService.reportArticle(
+      user.id,
+      articleId,
+      dto.reason,
+    );
   }
 }

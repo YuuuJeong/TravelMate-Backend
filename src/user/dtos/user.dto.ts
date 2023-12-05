@@ -20,6 +20,8 @@ export class UserDto implements User {
   createdAt: Date;
   @ApiProperty()
   updatedAt: Date;
+  @ApiProperty()
+  bannedAt: Date | null;
 
   @ApiProperty()
   @Transform(

@@ -18,6 +18,7 @@ import { ChatBookmarkCollectionModule } from './chatBookmarkCollection/chat-book
 import { CacheModule } from './cache/cache.module';
 import { UserReportLogModule } from './userReportLog/user-report-log.module';
 import { AdminModule } from './admin/admin.module';
+import { ArticleReportLogModule } from './articleReportLog/article-report-log.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { AdminModule } from './admin/admin.module';
     ChatBookmarkCollectionModule,
     UserReportLogModule,
     AdminModule,
+    ArticleReportLogModule,
   ],
   controllers: [AppController],
   providers: [AppService, ConfigService],
