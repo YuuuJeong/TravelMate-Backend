@@ -31,7 +31,9 @@ export class AuthService {
         },
       });
 
-      throw new BadRequestException(userBanLog?.reason);
+      throw new BadRequestException(
+        `${userBanLog?.reason ?? '정지된 회원입니다'}`,
+      );
     }
   }
   public async kakaoLogin(accessToken: string) {
