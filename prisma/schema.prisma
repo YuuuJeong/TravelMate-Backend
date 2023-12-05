@@ -116,6 +116,7 @@ model User {
 enum AttachmentType {
   ARTICLE
   THUMBNAIL
+  CHAT
 }
 
 model ProfileImage {
@@ -163,6 +164,7 @@ model Article {
   articleVersionHistories ArticleVersionHistory[]
   attachments             Attachment[]
   userFavoriteArticleMap  UserFavoriteArticleMap[] @relation("favoriteArticles")
+  ArticleReportLog        ArticleReportLog[]
 }
 
 model ArticleVersionHistory {
@@ -329,7 +331,8 @@ model ArticleReportLog {
   reply       String?
   confirmedAt DateTime? @db.Timestamp(0)
 
-  articleReporter User @relation(fields: [reporterId], references: [id])
+  article         Article @relation(fields: [articleId], references: [id])
+  articleReporter User    @relation(fields: [reporterId], references: [id])
 
   @@unique([articleId, reporterId])
 }

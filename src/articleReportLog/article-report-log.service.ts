@@ -18,6 +18,10 @@ export class ArticleReportLogService {
   async getArticleReportLogs(dto: OffsetPaginationDto) {
     const count = await this.prisma.articleReportLog.count();
     const nodes = await this.prisma.articleReportLog.findMany({
+      include: {
+        articleReporter: true,
+        article: true,
+      },
       take: dto.limit,
       skip: (dto.page - 1) * dto.limit,
     });

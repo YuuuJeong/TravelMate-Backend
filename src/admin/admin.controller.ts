@@ -98,8 +98,7 @@ export class AdminController {
   }
 
   @ApiOperation({
-    description:
-      '유저 목록을 조회하는 API (페이지네이션 있음) bannedAt이 null이 아니라면 정지된 유저임 유저목록 뿌려줄 때 식별',
+    description: '게시글 신고목록 조회 API (페이지네이션 있음)',
   })
   @Get('article-report-logs')
   @ApiBearerAuth()
