@@ -4,6 +4,7 @@ export enum EPresignedPostType {
   ARTICLE = 'article',
   THUMBNAIL = 'thumbnail',
   PROFILE = 'profile',
+  CHAT = 'chat',
 }
 
 export class GetPresignedPostDto {
