@@ -116,6 +116,7 @@ model User {
 enum AttachmentType {
   ARTICLE
   THUMBNAIL
+  CHAT
 }
 
 model ProfileImage {

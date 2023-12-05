@@ -72,6 +72,16 @@ export class S3Service {
         });
         resultId = profileImage.id;
         break;
+      case EPresignedPostType.CHAT:
+        const chatImage = await this.prisma.attachment.create({
+          data: {
+            bucket: this.configService.getOrThrow('aws.bucketName'),
+            state: 'PENDING',
+            type: 'CHAT',
+          },
+        });
+        resultId = chatImage.id;
+        break;
     }
 
     const command = new PutObjectCommand({
