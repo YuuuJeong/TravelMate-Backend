@@ -1,7 +1,13 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { CreateArticleDto, ELocation } from './dtos/create-article.dto';
-import { Period, Prisma, RequestBookmarkType, User } from '@prisma/client';
+import {
+  Period,
+  Prisma,
+  RequestBookmarkType,
+  User,
+  UserLevel,
+} from '@prisma/client';
 import { ArticleOrderField, GetArticlesDto } from './dtos/get-articles.dto';
 import { UpdateArticleDto } from './dtos/update-article.dto';
 import { RequestArticleDto } from './dtos/request-article.dto';
@@ -527,7 +533,19 @@ export class ArticleService {
     });
   }
 
-  deleteArticle(userId: number, articleId: number) {
+  async deleteArticle(user: User, articleId: number) {
+    const { id, level } = user;
+
+    const article = await this.prisma.article.findUniqueOrThrow({
+      where: {
+        id: articleId,
+      },
+    });
+
+    if (article.authorId !== id && level !== UserLevel.ADMIN) {
+      throw new BadRequestException('글을 삭제할 권한이 없습니다.');
+    }
+
     return this.prisma.article.update({
       where: {
         id: articleId,
@@ -561,7 +579,7 @@ export class ArticleService {
       },
     });
 
-    let bookmarks: Prisma.PendingArticleRequestBookmarkMapCreateManyInput[] =
+    const bookmarks: Prisma.PendingArticleRequestBookmarkMapCreateManyInput[] =
       [];
 
     bookmarksToAdd?.forEach((bookmarkId) => {

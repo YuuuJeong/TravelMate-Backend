@@ -8,4 +8,5 @@ export class UserEntity implements User {
   profileImageId: number | null;
   createdAt: Date;
   updatedAt: Date;
+  bannedAt: Date | null;
 }
