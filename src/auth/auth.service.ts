@@ -86,11 +86,13 @@ export class AuthService {
       throw new UnauthorizedException('invalid refresh token');
     }
 
-    const user = await this.prisma.user.findUnique({
+    const user = await this.prisma.user.findUniqueOrThrow({
       where: {
         id: payload.id,
       },
     });
+
+    await this.notifyBanLog(user);
 
     return this.signJwt(user);
   }
