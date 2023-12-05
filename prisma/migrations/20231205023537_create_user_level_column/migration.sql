@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE `User` ADD COLUMN `level` ENUM('ADMIN', 'USER') NOT NULL DEFAULT 'USER';
+
+-- AlterTable
+ALTER TABLE `UserReportLog` MODIFY `reason` VARCHAR(250) NOT NULL;

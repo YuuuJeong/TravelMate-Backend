@@ -32,7 +32,6 @@ export class AuthService {
       },
       update: {},
     });
-
     return this.signJwt(user);
   }
 
