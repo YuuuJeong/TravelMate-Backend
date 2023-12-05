@@ -107,7 +107,7 @@ export class ArticleController {
     @CurrentUser() user: User,
     @Param('articleId') articleId: number,
   ) {
-    return this.articleService.deleteArticle(user.id, articleId);
+    return this.articleService.deleteArticle(user, articleId);
   }
 
   @ApiOperation({
