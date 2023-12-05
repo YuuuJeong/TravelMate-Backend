@@ -14,6 +14,11 @@ enum Visibility {
   ALL
 }
 
+enum UserLevel {
+  ADMIN
+  USER
+}
+
 enum Period {
   SPRING
   SUMMER
@@ -80,13 +85,14 @@ model BookmarkCollection {
 }
 
 model User {
-  id             Int      @id @default(autoincrement())
-  nickname       String?  @unique
+  id             Int       @id @default(autoincrement())
+  nickname       String?   @unique
   provider       String
-  providerId     String   @unique
-  profileImageId Int?     @unique
-  createdAt      DateTime @default(now()) @db.Timestamp(0)
-  updatedAt      DateTime @default(now()) @updatedAt @db.Timestamp(0)
+  providerId     String    @unique
+  profileImageId Int?      @unique
+  level          UserLevel @default(USER)
+  createdAt      DateTime  @default(now()) @db.Timestamp(0)
+  updatedAt      DateTime  @default(now()) @updatedAt @db.Timestamp(0)
 
   bookmarkCollections BookmarkCollection[]
   bookmark            Bookmark[]
@@ -283,4 +289,14 @@ model BookmarkChatBookmarkCollectionMap {
   bookmark     Bookmark               @relation(fields: [bookmarkId], references: [id])
 
   @@unique([collectionId, bookmarkId])
+}
+
+model UserReportLog {
+  id             Int       @id @default(autoincrement())
+  reporterUserId Int
+  reportedUserId Int
+  reason         String    @db.VarChar(250)
+  createdAt      DateTime  @default(now()) @db.Timestamp(0)
+  reply          String?
+  confirmedAt    DateTime? @db.Timestamp(0)
 }

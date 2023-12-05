@@ -89,6 +89,7 @@ export class UserService {
         id: true,
         nickname: true,
         profileImageId: true,
+        level: true,
       },
     });
   }

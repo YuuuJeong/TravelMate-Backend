@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { User } from '@prisma/client';
+import { User, UserLevel } from '@prisma/client';
 import { Transform } from 'class-transformer';
 export class UserDto implements User {
   @ApiProperty()
@@ -12,6 +12,10 @@ export class UserDto implements User {
   providerId: string;
   @ApiProperty()
   profileImageId: number | null;
+
+  @ApiProperty()
+  level: UserLevel;
+
   @ApiProperty()
   createdAt: Date;
   @ApiProperty()
