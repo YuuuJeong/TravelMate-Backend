@@ -284,7 +284,6 @@ model ChatBookmarkCollection {
   updatedAt DateTime @default(now()) @db.Timestamp(0)
 
   BookmarkChatBookmarkCollectionMap BookmarkChatBookmarkCollectionMap[]
-
 }
 
 model BookmarkChatBookmarkCollectionMap {
