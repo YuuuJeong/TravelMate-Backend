@@ -82,8 +82,15 @@ export class BookmarkCollectionService {
    */
   async removeBookmarkCollection(
     id: number,
+    userId: number,
   ): Promise<BookmarkCollectionEntity> {
-    await this.getBookmarkCollectionById(id);
+    const collection = await this.getBookmarkCollectionById(id);
+
+    if (collection.userId !== userId) {
+      throw new BadRequestException(
+        '북마크 컬렉션의 소유자만 수정할 수 있습니다.',
+      );
+    }
 
     await this.prisma.bookmarkBookmarkCollectionMap.deleteMany({
       where: {
@@ -153,8 +160,13 @@ export class BookmarkCollectionService {
   ): Promise<BookmarkCollectionEntity> {
     const { title, visibility, locationsWithContent, bookmarkIdsToDelete } =
       dto;
-    await this.getBookmarkCollectionById(collectionId);
+    const collection = await this.getBookmarkCollectionById(collectionId);
 
+    if (collection.userId !== userId) {
+      throw new BadRequestException(
+        '북마크 컬렉션의 소유자만 수정할 수 있습니다.',
+      );
+    }
     //북마크 soft delete
     await Promise.all(
       bookmarkIdsToDelete.map(async (bookmarkId) => {

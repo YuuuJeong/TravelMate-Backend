@@ -129,8 +129,9 @@ export class UserController {
   @Delete('me/bookmark-collection/:id')
   async removeBookmarkCollection(
     @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: User,
   ): Promise<BookmarkCollectionDto> {
-    return await this.bookmarkCollection.removeBookmarkCollection(id);
+    return await this.bookmarkCollection.removeBookmarkCollection(id, user.id);
   }
 
   @ApiResponse({
