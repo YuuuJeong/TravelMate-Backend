@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateBookmarkCollectionRequestDTO } from './dtos/req/create-bookmark-collection.dto';
 import { UpdateBookmarkCollectionRequestDTO } from './dtos/req/update-bookmark-collection.dto';
 import { BookmarkCollectionEntity } from './entities/bookmark-collection.entity';
-import { PrismaService } from 'src/prisma.service';
+import { PrismaService } from '../prisma.service';
 import { FetchMyBookmarkCollectionDto } from './dtos/req/fetch-my-bookmark-collections.dto';
 import { FriendInviteStatus, Prisma, Visibility } from '@prisma/client';
 import { OffsetPaginationDto } from 'src/common/dtos/offset-pagination.dto';
