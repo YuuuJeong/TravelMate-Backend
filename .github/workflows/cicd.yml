@@ -8,7 +8,7 @@ on:
 env:
   DOCKER_IMAGE: ${{ secrets.DOCKER_IMAGE_PATH }}
   DOCKER_CONTAINER: nest-server
-
+  DATABASE_URL: ${{secrets.DATABASE_URL}}
 jobs:
   test:
     runs-on: ubuntu-latest
