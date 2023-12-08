@@ -13,6 +13,7 @@ import { UpdateArticleDto } from './dtos/update-article.dto';
 import { RequestArticleDto } from './dtos/request-article.dto';
 import { OffsetPaginationDto } from 'src/common/dtos/offset-pagination.dto';
 import { GetMyRequestsDto } from 'src/user/dtos/req/get-my-requests.dto';
+import { bookmark } from '../bookmarkCollection/data/bookmark-collection.data';
 
 @Injectable()
 export class ArticleService {
@@ -803,6 +804,17 @@ export class ArticleService {
         }),
         acceptedAt: {
           not: null,
+        },
+      },
+      include: {
+        PendingArticleRequestBookmarkMap: {
+          include: {
+            bookmark: {
+              include: {
+                location: true,
+              },
+            },
+          },
         },
       },
     });
