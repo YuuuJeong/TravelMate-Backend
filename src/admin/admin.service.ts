@@ -26,6 +26,11 @@ export class AdminService {
           reason,
         },
       }),
+      this.prisma.userReportLog.deleteMany({
+        where: {
+          reportedUserId: userId,
+        },
+      }),
     ]);
 
     return `${user.nickname}님을 ${userBanLog.reason}과 같은 사유로 정지시켰습니다.`;
