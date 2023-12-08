@@ -41,6 +41,9 @@ export class UserReportLogService {
             ...(startDate && { gt: startDate }),
             ...(endDate && { lt: endDate }),
           },
+          reportedUser: {
+            bannedAt: null,
+          },
         },
       }),
       this.prisma.userReportLog.findMany({
@@ -48,6 +51,9 @@ export class UserReportLogService {
           createdAt: {
             ...(startDate && { gt: startDate }),
             ...(endDate && { lt: endDate }),
+          },
+          reportedUser: {
+            bannedAt: null,
           },
         },
         include: {
