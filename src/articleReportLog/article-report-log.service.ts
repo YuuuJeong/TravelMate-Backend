@@ -16,8 +16,19 @@ export class ArticleReportLogService {
   }
 
   async getArticleReportLogs(dto: OffsetPaginationDto) {
-    const count = await this.prisma.articleReportLog.count();
+    const count = await this.prisma.articleReportLog.count({
+      where: {
+        article: {
+          deletedAt: null,
+        },
+      },
+    });
     const nodes = await this.prisma.articleReportLog.findMany({
+      where: {
+        article: {
+          deletedAt: null,
+        },
+      },
       include: {
         articleReporter: true,
         article: true,

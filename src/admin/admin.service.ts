@@ -32,8 +32,15 @@ export class AdminService {
   }
 
   async getAllUsers(dto: OffsetPaginationDto) {
-    const count = await this.prisma.user.count({});
+    const count = await this.prisma.user.count({
+      where: {
+        bannedAt: null,
+      },
+    });
     const nodes = await this.prisma.user.findMany({
+      where: {
+        bannedAt: null,
+      },
       take: dto.limit,
       skip: (dto.page - 1) * dto.limit,
     });
