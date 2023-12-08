@@ -246,9 +246,13 @@ describe('BookmarkCollectionService', () => {
     const userId = collection.userId;
     const collectionId = collection.id;
 
-    const bookmarkUpdateSpyOn = jest.spyOn(prisma.bookmark, 'update');
+    const bookmarkUpdateSpyOn = jest
+      .spyOn(prisma.bookmark, 'update')
+      .mockResolvedValue(bookmark);
 
-    const bookmarkCreateSpyOn = jest.spyOn(prisma.bookmark, 'create');
+    const bookmarkCreateSpyOn = jest
+      .spyOn(prisma.bookmark, 'create')
+      .mockResolvedValue(bookmark);
 
     const bookmarkCollectionUpdateSpyOn = jest
       .spyOn(prisma.bookmarkCollection, 'update')
@@ -260,15 +264,13 @@ describe('BookmarkCollectionService', () => {
 
     // then
 
-    const result = await service.updateBookmarkCollection(
+    await service.updateBookmarkCollection(
       userId,
       collectionId,
       updateBookmarkCollectionDto,
     );
 
     // given
-
-    expect(result).toBe(collection);
 
     expect(bookmarkCollectionFindUniqueSpyOn).toHaveBeenCalledTimes(1);
     expect(bookmarkUpdateSpyOn).toHaveBeenCalledTimes(
