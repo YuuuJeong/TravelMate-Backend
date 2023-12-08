@@ -32,19 +32,37 @@ export class AdminService {
   }
 
   async getAllUsers(dto: OffsetPaginationDto) {
-    const count = await this.prisma.user.count({
-      where: {
-        bannedAt: null,
-      },
-    });
+    const count = await this.prisma.user.count({});
     const nodes = await this.prisma.user.findMany({
-      where: {
-        bannedAt: null,
-      },
       take: dto.limit,
       skip: (dto.page - 1) * dto.limit,
     });
 
     return { nodes, count };
+  }
+
+  async unblockUser(userId: number) {
+    const user = await this.userService.findUserById(userId);
+    if (!user) {
+      throw new BadRequestException('유저를 찾을 수 없습니다.');
+    }
+
+    await Promise.all([
+      this.prisma.userBanLog.delete({
+        where: {
+          userId,
+        },
+      }),
+      this.prisma.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          bannedAt: null,
+        },
+      }),
+    ]);
+
+    return '유저의 정지가 해제되었습니다.';
   }
 }
