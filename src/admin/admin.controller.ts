@@ -74,11 +74,11 @@ export class AdminController {
       },
     },
   })
-  @Post('/ban/user/:userId')
+  @Post('/user/:userId/block')
   @ApiBearerAuth()
   @UseGuards(AdminGuard)
   @UseGuards(JwtAuthGuard)
-  async banUser(
+  async blockUser(
     @Param('userId', ParseIntPipe) userId: number,
     @Body('reason') reason: string,
   ) {
@@ -106,5 +106,21 @@ export class AdminController {
   @UseGuards(JwtAuthGuard)
   async getArticleReportLogs(@Query() dto: OffsetPaginationDto) {
     return await this.articleReportLogService.getArticleReportLogs(dto);
+  }
+
+  @ApiOperation({
+    description: '유저를 정지시키는 API',
+  })
+  @ApiParam({
+    name: 'userId',
+    type: Number,
+    required: true,
+  })
+  @Post('user/:userId/unblock')
+  @ApiBearerAuth()
+  @UseGuards(AdminGuard)
+  @UseGuards(JwtAuthGuard)
+  async unBlockUser(@Param('userId', ParseIntPipe) userId: number) {
+    return await this.adminService.unblockUser(userId);
   }
 }
