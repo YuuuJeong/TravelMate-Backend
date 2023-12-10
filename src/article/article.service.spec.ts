@@ -3,6 +3,8 @@ import { ArticleService } from './article.service';
 import { Period, User } from '@prisma/client';
 import { ELocation } from './dtos/create-article.dto';
 import { PrismaService } from '../prisma.service';
+import { BadRequestException } from '@nestjs/common';
+import { adminMock, article, userAMock, userBMock } from './data/article.data';
 
 describe('payment', () => {
   let articleService: ArticleService;
@@ -126,6 +128,61 @@ describe('payment', () => {
 
       expect(result).toStrictEqual({ id: 1, acceptedAt, ...dto });
       expect(createSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('글 작성자나 관리자가 아니면 삭제할 수 없습니다. ', async () => {
+      // when
+      jest
+        .spyOn(prisma.article, 'findUniqueOrThrow')
+        .mockResolvedValue(article);
+
+      // then
+      const result = async () => {
+        await articleService.deleteArticle(userBMock, 1);
+      };
+
+      // given
+      await expect(result).rejects.toThrowError(
+        new BadRequestException('글을 삭제할 권한이 없습니다.'),
+      );
+    });
+
+    it('글 관리자면 게시글을 삭제할 수 있습니다. ', async () => {
+      // when
+      const findUnique = jest
+        .spyOn(prisma.article, 'findUniqueOrThrow')
+        .mockResolvedValue(article);
+
+      const update = jest
+        .spyOn(prisma.article, 'update')
+        .mockResolvedValue(article);
+
+      // then
+      const result = await articleService.deleteArticle(adminMock, 1);
+
+      // given
+      expect(result).toEqual(article);
+      expect(update).toBeCalledTimes(1);
+      expect(findUnique).toBeCalledTimes(1);
+    });
+
+    it('글 작성자면 게시글을 삭제할 수 있습니다. ', async () => {
+      // when
+      const findUnique = jest
+        .spyOn(prisma.article, 'findUniqueOrThrow')
+        .mockResolvedValue(article);
+
+      const update = jest
+        .spyOn(prisma.article, 'update')
+        .mockResolvedValue(article);
+
+      // then
+      const result = await articleService.deleteArticle(userAMock, article.id);
+
+      // given
+      expect(result).toEqual(article);
+      expect(update).toBeCalledTimes(1);
+      expect(findUnique).toBeCalledTimes(1);
     });
   });
 });
