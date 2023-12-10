@@ -25,40 +25,10 @@ describe('BookmarkService', () => {
     );
   });
 
-  it('북마크 생성시 주어진 좌표에 등록된 장소가 있다면, 해당 장소의 ID를 참조하여 북마크를 생성한다.', async () => {
-    // given
-    const findFirstMock = jest.fn().mockResolvedValue(location);
-    const findLocationSpy = jest
-      .spyOn(prisma.location, 'findFirst')
-      .mockReturnValue({ findFirst: findFirstMock } as any);
-
-    const userId = 4;
-    const createLocationSpy = jest.spyOn(prisma.location, 'create');
-    const createBookmarkSpy = jest
-      .spyOn(prisma.bookmark, 'create')
-      .mockResolvedValue(bookmark);
-
-    // when
-    await service.createBookmark(userId, locationWithContent);
-
-    // then
-
-    expect(findLocationSpy).toHaveBeenCalledTimes(1);
-    expect(createLocationSpy).toHaveBeenCalledTimes(0);
-    expect(createBookmarkSpy).toHaveBeenCalledTimes(1);
-  });
-
   it('북마크 생성시 주어진 좌표에 등록된 장소가 없다면, 해당 장소를 생성하고 그 ID를 참조하여 북마크를 생성한다.', async () => {
     // given
-    const findFirstMock = jest.fn().mockResolvedValue(null);
-    const findLocationSpy = jest
-      .spyOn(prisma.location, 'findFirst')
-      .mockReturnValue({ findFirst: findFirstMock } as any);
     const userId = 4;
-    const createLocationSpy = jest
-      .spyOn(prisma.location, 'create')
-      .mockResolvedValue(location);
-
+    const upsertLocationSpy = jest.spyOn(prisma.location, 'upsert');
     const createBookmarkSpy = jest.spyOn(prisma.bookmark, 'create');
 
     // when
@@ -66,8 +36,7 @@ describe('BookmarkService', () => {
 
     // then
 
-    expect(findLocationSpy).toHaveBeenCalledTimes(1);
-    expect(createLocationSpy).toHaveBeenCalledTimes(1);
+    expect(upsertLocationSpy).toHaveBeenCalledTimes(1);
     expect(createBookmarkSpy).toHaveBeenCalledTimes(1);
   });
 
