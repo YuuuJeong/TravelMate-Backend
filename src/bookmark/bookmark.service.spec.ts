@@ -27,9 +27,11 @@ describe('BookmarkService', () => {
 
   it('북마크 생성시 주어진 좌표에 등록된 장소가 있다면, 해당 장소의 ID를 참조하여 북마크를 생성한다.', async () => {
     // given
+    const findFirstMock = jest.fn().mockResolvedValue(location);
     const findLocationSpy = jest
       .spyOn(prisma.location, 'findFirst')
-      .mockResolvedValue(location);
+      .mockReturnValue({ findFirst: findFirstMock } as any);
+
     const userId = 4;
     const createLocationSpy = jest.spyOn(prisma.location, 'create');
     const createBookmarkSpy = jest
