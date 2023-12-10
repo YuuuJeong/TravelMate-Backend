@@ -12,23 +12,20 @@ export class BookmarkService {
   ) {}
 
   async createBookmark(userId: number, dto: LocationWithContent) {
-    let location = await this.prisma.location.findFirst({
+    const location = await this.prisma.location.upsert({
       where: {
+        latitude_longitude: {
+          latitude: dto.latitude,
+          longitude: dto.longitude,
+        },
+      },
+      create: {
         latitude: dto.latitude,
         longitude: dto.longitude,
         ...(dto.placeId && { placeId: dto.placeId }),
       },
+      update: {},
     });
-
-    if (!location) {
-      location = await this.prisma.location.create({
-        data: {
-          latitude: dto.latitude,
-          longitude: dto.longitude,
-          ...(dto.placeId && { placeId: dto.placeId }),
-        },
-      });
-    }
 
     return this.prisma.bookmark.create({
       data: {
