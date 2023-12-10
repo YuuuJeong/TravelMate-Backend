@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { FriendInviteStatus, Prisma } from '@prisma/client';
 import { OffsetPaginationDto } from 'src/common/dtos/offset-pagination.dto';
-import { PrismaService } from 'src/prisma.service';
+import { PrismaService } from '../prisma.service';
 
 @Injectable()
 export class FriendService {
