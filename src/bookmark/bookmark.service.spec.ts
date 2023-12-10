@@ -32,7 +32,9 @@ describe('BookmarkService', () => {
       .mockResolvedValue(location);
     const userId = 4;
     const createLocationSpy = jest.spyOn(prisma.location, 'create');
-    const createBookmarkSpy = jest.spyOn(prisma.bookmark, 'create');
+    const createBookmarkSpy = jest
+      .spyOn(prisma.bookmark, 'create')
+      .mockResolvedValue(bookmark);
 
     // when
     await service.createBookmark(userId, locationWithContent);
