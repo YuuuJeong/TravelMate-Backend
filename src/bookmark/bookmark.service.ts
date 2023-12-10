@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { BookmarkEntity } from './entities/bookmark.entity';
-import { BookmarkCollectionService } from 'src/bookmarkCollection/bookmark-collection.service';
-import { PrismaService } from 'src/prisma.service';
+import { BookmarkCollectionService } from '../bookmarkCollection/bookmark-collection.service';
+import { PrismaService } from '../prisma.service';
 import { LocationWithContent } from 'src/bookmarkCollection/dtos/req/update-bookmark-collection.dto';
 
 @Injectable()

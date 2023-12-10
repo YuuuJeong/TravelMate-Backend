@@ -2,6 +2,7 @@ import { Bookmark, BookmarkCollection, Visibility } from '@prisma/client';
 import { CreateBookmarkCollectionRequestDTO } from '../dtos/req/create-bookmark-collection.dto';
 import { UpdateBookmarkCollectionRequestDTO } from '../dtos/req/update-bookmark-collection.dto';
 import { Decimal } from '@prisma/client/runtime/library';
+import { FetchMyBookmarkCollectionDto } from '../dtos/req/fetch-my-bookmark-collections.dto';
 
 export const collection: BookmarkCollection = {
   id: 1,
@@ -51,4 +52,10 @@ export const updateBookmarkCollectionDto: UpdateBookmarkCollectionRequestDTO = {
       content: 'ㅂㅇㅂㅇ',
     },
   ],
+};
+
+export const paginationDto: FetchMyBookmarkCollectionDto = {
+  page: 1,
+  limit: 10,
+  visibility: Visibility.PUBLIC,
 };

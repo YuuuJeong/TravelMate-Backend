@@ -6,7 +6,7 @@ import {
   bookmark,
   collection,
   createDto,
-  deletedBookmark,
+  paginationDto,
   updateBookmarkCollectionDto,
 } from './data/bookmark-collection.data';
 
@@ -24,7 +24,7 @@ describe('BookmarkCollectionService', () => {
   });
 
   it('올바른 북마크 컬렉션 생성을 위한 Request DTO가 주어지면 북마크 컬렉션을 생성한다. ', async () => {
-    // when
+    // given
     const createSpy = jest
       .spyOn(prisma.bookmarkCollection, 'create')
       .mockResolvedValue(collection);
@@ -32,16 +32,16 @@ describe('BookmarkCollectionService', () => {
     const userId = 4;
     const dto = createDto;
 
-    // then
+    // when
     const result = await service.createBookmarkCollection(userId, dto);
 
-    // given
+    // then
     expect(result).toBe(collection);
     expect(createSpy).toHaveBeenCalledTimes(1);
   });
 
   it('북마크 컬렉션 삭제 - 존재하지 않는 북마크 컬렉션을 삭제하려고 할 때 "존재하지 않는 북마크 컬렉션이라는 메세지와 함께 에러를 던진다" ', async () => {
-    // when
+    // given
     jest.spyOn(prisma.bookmarkCollection, 'findUnique').mockResolvedValue(null);
     const deleteManySpyOn = jest
       .spyOn(prisma.bookmarkCollection, 'deleteMany')
@@ -63,12 +63,12 @@ describe('BookmarkCollectionService', () => {
     const userId = 4;
     const articleId = 1000;
 
-    // then
+    // when
     const result = async () => {
       await service.removeBookmarkCollection(articleId, userId);
     };
 
-    // given
+    // then
 
     await expect(result).rejects.toThrowError(
       new BadRequestException('존재하지 않는 북마크 컬렉션입니다.'),
@@ -80,7 +80,7 @@ describe('BookmarkCollectionService', () => {
   });
 
   it('북마크 컬렉션 삭제 - 북마크 컬렉션을 소유하지 않은 사람이 삭제하려고 하면 "북마크 컬렉션의 소유자만 수정할 수 있습니다"와 같은 에러 메세지를 던진다.', async () => {
-    // when
+    // gien
     const collectionFind = jest
       .spyOn(prisma.bookmarkCollection, 'findUnique')
       .mockResolvedValue(collection);
@@ -100,12 +100,12 @@ describe('BookmarkCollectionService', () => {
       .spyOn(prisma.bookmark, 'delete')
       .mockResolvedValue(bookmark);
 
-    // then
+    // when
     const result = async () => {
       await service.removeBookmarkCollection(articleId, userId);
     };
 
-    // given
+    // then
 
     await expect(result).rejects.toThrowError(
       new BadRequestException('북마크 컬렉션의 소유자만 수정할 수 있습니다.'),
@@ -118,7 +118,7 @@ describe('BookmarkCollectionService', () => {
   });
 
   it('북마크 컬렉션 삭제 - 존재하는 북마크 컬렉션을 소유자가 삭제하고자 할 때는 정상적으로 삭제가 된다.', async () => {
-    // when
+    // given
     const collectionFind = jest
       .spyOn(prisma.bookmarkCollection, 'findUnique')
       .mockResolvedValue(collection);
@@ -138,10 +138,10 @@ describe('BookmarkCollectionService', () => {
       .spyOn(prisma.bookmarkCollection, 'delete')
       .mockResolvedValue(collection);
 
-    // then
+    // when
     const result = await service.removeBookmarkCollection(articleId, userId);
 
-    // given
+    // then
 
     expect(result).toBe(collection);
 
@@ -152,7 +152,7 @@ describe('BookmarkCollectionService', () => {
   });
 
   it('북마크 컬렉션 수정 - 존재하지 않는 북마크 컬렉션을 삭제하려고 할 때 "존재하지 않는 북마크 컬렉션이라는 메세지와 함께 에러를 던진다" ', async () => {
-    // when
+    // given
     const bookmarkCollectionFindUniqueSpyOn = jest
       .spyOn(prisma.bookmarkCollection, 'findUnique')
       .mockResolvedValue(null);
@@ -173,7 +173,7 @@ describe('BookmarkCollectionService', () => {
       'update',
     );
 
-    // then
+    // when
     const result = async () => {
       await service.updateBookmarkCollection(
         userId,
@@ -182,7 +182,7 @@ describe('BookmarkCollectionService', () => {
       );
     };
 
-    // given
+    // then
 
     await expect(result).rejects.toThrowError(
       new BadRequestException('존재하지 않는 북마크 컬렉션입니다.'),
@@ -195,7 +195,7 @@ describe('BookmarkCollectionService', () => {
   });
 
   it('북마크 컬렉션 수정 - 존재하지 않는 북마크 컬렉션을 삭제하려고 할 때 "존재하지 않는 북마크 컬렉션이라는 메세지와 함께 에러를 던진다" ', async () => {
-    // when
+    // given
     const bookmarkCollectionFindUniqueSpyOn = jest
       .spyOn(prisma.bookmarkCollection, 'findUnique')
       .mockResolvedValue(collection);
@@ -216,7 +216,7 @@ describe('BookmarkCollectionService', () => {
       'update',
     );
 
-    // then
+    // when
     const result = async () => {
       await service.updateBookmarkCollection(
         userId,
@@ -225,7 +225,7 @@ describe('BookmarkCollectionService', () => {
       );
     };
 
-    // given
+    // then
 
     await expect(result).rejects.toThrowError(
       new BadRequestException('북마크 컬렉션의 소유자만 수정할 수 있습니다.'),
@@ -238,7 +238,7 @@ describe('BookmarkCollectionService', () => {
   });
 
   it('북마크 컬렉션 수정 - 존재하는 북마크 컬렉션을 소유자가 수정하고자 할 때는 정상적으로 수정이 된다.', async () => {
-    // when
+    // given
     const bookmarkCollectionFindUniqueSpyOn = jest
       .spyOn(prisma.bookmarkCollection, 'findUnique')
       .mockResolvedValue(collection);
@@ -262,7 +262,7 @@ describe('BookmarkCollectionService', () => {
       .spyOn(prisma.bookmarkBookmarkCollectionMap, 'createMany')
       .mockResolvedValue({ count: 0 });
 
-    // then
+    // when
 
     await service.updateBookmarkCollection(
       userId,
@@ -270,7 +270,7 @@ describe('BookmarkCollectionService', () => {
       updateBookmarkCollectionDto,
     );
 
-    // given
+    // then
 
     expect(bookmarkCollectionFindUniqueSpyOn).toHaveBeenCalledTimes(1);
     expect(bookmarkUpdateSpyOn).toHaveBeenCalledTimes(
@@ -281,5 +281,44 @@ describe('BookmarkCollectionService', () => {
     );
     expect(bookmarkBookmarkCollectionMapSpyOn).toHaveBeenCalledTimes(1);
     expect(bookmarkCollectionUpdateSpyOn).toHaveBeenCalledTimes(1);
+  });
+
+  it('북마크 컬렉션 조회 테스트 X', async () => {
+    // given
+    const userId = 4;
+
+    const bookmarkCollectionFindManySpyOn = jest
+      .spyOn(prisma.bookmarkCollection, 'findMany')
+      .mockResolvedValue([collection]);
+
+    // when
+
+    await service.fetchMyTotalBookmarkCollections(userId);
+
+    // then
+
+    expect(bookmarkCollectionFindManySpyOn).toHaveBeenCalledTimes(1);
+  });
+
+  it('북마크 컬렉션 조회 테스트 - 페이지네이션 O', async () => {
+    // given
+    const userId = 4;
+    const dto = paginationDto;
+    const bookmarkCollectionCountSpyOn = jest
+      .spyOn(prisma.bookmarkCollection, 'count')
+      .mockResolvedValue(1);
+
+    const bookmarkCollectionFindManySpyOn = jest
+      .spyOn(prisma.bookmarkCollection, 'findMany')
+      .mockResolvedValue([collection]);
+
+    // when
+
+    await service.fetchMyBookmarkCollections(userId, dto);
+
+    // then
+
+    expect(bookmarkCollectionCountSpyOn).toHaveBeenCalledTimes(1);
+    expect(bookmarkCollectionFindManySpyOn).toHaveBeenCalledTimes(1);
   });
 });
