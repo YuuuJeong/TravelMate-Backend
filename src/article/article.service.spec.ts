@@ -113,18 +113,18 @@ describe('payment', () => {
         bookmarksToAdd: [1, 2, 3],
         bookmarksToRemove: [4, 5, 6],
       };
-
+      const acceptedAt = new Date();
       const createSpy = jest
         .spyOn(articleService as any, 'acceptRequest')
         .mockResolvedValue({
           id: 1,
-          acceptedAt: new Date(),
+          acceptedAt,
           ...dto,
         });
 
       const result = await articleService.acceptRequest(user.id, 1, 1);
 
-      expect(result).toStrictEqual({ id: 1, acceptedAt: new Date(), ...dto });
+      expect(result).toStrictEqual({ id: 1, acceptedAt, ...dto });
       expect(createSpy).toHaveBeenCalledTimes(1);
     });
   });
