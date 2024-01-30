@@ -54,13 +54,10 @@ const watermark = async (srcBucket, srcKey) => {
 
     try {
       const exifData = await getExifAsync(content_buffer);
-      console.log(exifData);
       needToRotate = exifData.image.Orientation === 6;
     } catch (e) {
       console.log(e);
     }
-
-    console.log(originalWidth, originalHeight);
 
     logo.resize(image.bitmap.width / 3, jimp.AUTO);
 
